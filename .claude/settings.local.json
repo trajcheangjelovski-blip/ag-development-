@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(netstat *)",
+      "PowerShell(Get-Process *)",
+      "PowerShell(Stop-Process *)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3000\" -UseBasicParsing -TimeoutSec 5 | Select-Object StatusCode, @{n='Body';e={$_.Content.Substring\\(0,[Math]::Min\\(500,$_.Content.Length\\)\\)}})",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3000/login\" -UseBasicParsing -TimeoutSec 5 | Select-Object StatusCode)",
+      "PowerShell(\\(Get-Process -Id 15312\\).CommandLine)",
+      "PowerShell(Get-Content *)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3001/login\" -UseBasicParsing -TimeoutSec 10 | Select-Object StatusCode)",
+      "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3001/\" -UseBasicParsing -TimeoutSec 10 | Select-Object StatusCode; Invoke-WebRequest -Uri \"http://localhost:3001/portal/dashboard\" -UseBasicParsing -TimeoutSec 10 | Select-Object StatusCode)",
+      "PowerShell(node -e \"require\\('playwright'\\)\" 2>&1; if \\($LASTEXITCODE -ne 0\\) { \"playwright not found\" } else { \"playwright available\" })"
+    ]
+  }
+}
