@@ -6,6 +6,7 @@ import { getStripeConfig } from '@/lib/stripe'
 const EDITABLE_KEYS = [
   'admin_email', 'email_from', 'resend_api_key',
   'stripe_secret_key', 'stripe_publishable_key', 'stripe_webhook_secret',
+  'anthropic_api_key',
 ] as const
 
 async function requireAdmin() {
@@ -31,7 +32,12 @@ export async function GET() {
   const stripe = await getStripeConfig()
   const stripeConfigured = stripe.secretKey.startsWith('sk_') || stripe.secretKey.startsWith('rk_')
 
+  const settings = await (await import('@/lib/settings')).getAppSettings()
+  const anthropicKey = settings.anthropic_api_key || process.env.ANTHROPIC_API_KEY || ''
+
   return NextResponse.json({
+    chatbot_configured: anthropicKey.startsWith('sk-ant-'),
+    anthropic_api_key_masked: anthropicKey ? `••••••••${anthropicKey.slice(-4)}` : '',
     tableMissing,
     admin_email: effective.adminEmail,
     email_from: effective.from,

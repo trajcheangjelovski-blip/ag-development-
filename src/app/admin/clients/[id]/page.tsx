@@ -4,6 +4,8 @@ import { useParams, useRouter } from 'next/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge, ProgressBar, Spinner, Alert } from '@/components/ui'
 import { formatDate, formatMinutes, currentBillingMonth } from '@/lib/utils'
+import { ResetClientPasswordButton } from '@/components/portal/ResetClientPasswordButton'
+import { ClientExtrasCard } from '@/components/portal/ClientExtrasCard'
 import Link from 'next/link'
 
 export default function AdminClientDetail() {
@@ -69,7 +71,10 @@ export default function AdminClientDetail() {
             <h1 className="font-display text-2xl font-extrabold text-slate-800">{client.business_name}</h1>
             <p className="text-slate-500 text-sm mt-1">{client.contact_name} · {client.email}</p>
           </div>
-          <button className="btn-ghost text-sm" onClick={() => setShowEdit(true)}>✏️ Edit Client</button>
+          <div className="flex items-center gap-2">
+            <ResetClientPasswordButton clientId={String(id)} clientEmail={client.email} />
+            <button className="btn-ghost text-sm" onClick={() => setShowEdit(true)}>✏️ Edit Client</button>
+          </div>
         </div>
 
         {success && <div className="mb-4"><Alert type="success" message={success} /></div>}
@@ -102,6 +107,7 @@ export default function AdminClientDetail() {
                 </div>
               ))}
             </div>
+            <ClientExtrasCard clientId={String(id)} />
             {client.notes && (
               <div className="card p-5">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Notes</h3>
@@ -152,7 +158,11 @@ export default function AdminClientDetail() {
                     <label className="form-label">Package</label>
                     <select className="form-input" value={editForm.package_id || ''} onChange={e => setEditForm((p: any) => ({ ...p, package_id: e.target.value }))}>
                       <option value="">No package</option>
-                      {packages.map((pkg: any) => <option key={pkg.id} value={pkg.id}>{pkg.name} (${pkg.price}/mo)</option>)}
+                      {packages.map((pkg: any) => (
+                        <option key={pkg.id} value={pkg.id}>
+                          {pkg.name} (${pkg.price}{(pkg.hours_per_month > 0 || pkg.requests_per_month > 0) ? '/mo' : ' one-time'})
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>

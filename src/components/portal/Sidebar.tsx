@@ -13,8 +13,10 @@ const adminLinks = [
   { href: '/admin/leads', label: 'Leads & CRM', icon: '📋' },
   { href: '/admin/reports', label: 'Monthly Reports', icon: '📊' },
   { href: '/admin/invoices', label: 'Invoices', icon: '💳' },
+  { href: '/admin/plans', label: 'Plans & Coupons', icon: '🏷️' },
   { href: '/admin/activity', label: 'Activity Log', icon: '📜' },
   { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
+  { href: '/portal/settings', label: 'My Account', icon: '🔐' },
 ]
 
 const clientLinks = [
@@ -24,6 +26,7 @@ const clientLinks = [
   { href: '/portal/reports', label: 'Monthly Reports', icon: '📊' },
   { href: '/portal/invoices', label: 'Invoices', icon: '💳' },
   { href: '/portal/activity', label: 'Activity Log', icon: '📜' },
+  { href: '/portal/settings', label: 'Account Settings', icon: '🔐' },
 ]
 
 export function Sidebar({ profile }: { profile: Profile }) {
@@ -149,21 +152,34 @@ export function Sidebar({ profile }: { profile: Profile }) {
       {/* User footer */}
       <div className="p-3 border-t border-white/10">
         <div className="flex items-center gap-2.5 px-2 py-2">
-          <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">
-            {initials}
-          </div>
+          {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-white/20" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0">
+              {initials}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <div className="text-sm font-semibold text-white truncate">{profile.full_name}</div>
             <div className="text-xs text-white/40 capitalize">{profile.role}</div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-white/30 hover:text-white/70 transition-colors p-1 text-sm"
-            title="Sign Out"
-          >
-            ⎋
-          </button>
         </div>
+        <button
+          onClick={handleLogout}
+          className="mt-1.5 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold text-white transition-all"
+          style={{ background: '#dc2626' }}
+          onMouseOver={e => { (e.currentTarget as HTMLElement).style.background = '#b91c1c' }}
+          onMouseOut={e => { (e.currentTarget as HTMLElement).style.background = '#dc2626' }}
+          title="Sign Out"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign Out
+        </button>
       </div>
     </aside>
   )

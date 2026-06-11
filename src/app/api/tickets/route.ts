@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { sendNewTicketAlertToAdmin } from '@/lib/email'
 import { createNotification, notifyAdmin } from '@/lib/notifications'
 import { getAdminEmail } from '@/lib/settings'
+import { getClientPlanState } from '@/lib/planUsage'
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -42,6 +43,17 @@ export async function POST(request: NextRequest) {
 
   const resolvedClientId = profile?.role === 'admin' ? client_id : profile?.client_id
   if (!resolvedClientId) return NextResponse.json({ error: 'No client ID' }, { status: 400 })
+
+  // Enforce plan credits & expiry for clients (admins can always create)
+  if (profile?.role === 'client') {
+    const plan = await getClientPlanState(resolvedClientId)
+    if (plan?.blocked) {
+      return NextResponse.json(
+        { error: `${plan.blockReason} You can order extra credits or renew your plan from your dashboard.` },
+        { status: 403 },
+      )
+    }
+  }
 
   const { data: ticket, error } = await supabase
     .from('tickets')

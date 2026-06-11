@@ -62,5 +62,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/portal/:path*', '/login'],
+  // /api included so the auth session gets refreshed on API calls too —
+  // otherwise tokens expire after ~1h of staying on the same page and
+  // every save button starts returning "Unauthorized".
+  matcher: ['/admin/:path*', '/portal/:path*', '/login', '/api/:path*'],
 }

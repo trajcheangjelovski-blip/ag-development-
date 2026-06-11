@@ -140,7 +140,9 @@ export default async function AdminLeads({ searchParams }: { searchParams: { sta
                           </span>
                         </td>
                         <td className="table-td">
-                          <div className="font-semibold text-slate-800">{l.business_name}</div>
+                          <Link href={`/admin/leads/${l.id}`} className="font-semibold text-slate-800 hover:text-blue-600 hover:underline transition-colors">
+                            {l.business_name}
+                          </Link>
                           <div className="text-xs text-slate-400">{l.website}</div>
                         </td>
                         <td className="table-td">

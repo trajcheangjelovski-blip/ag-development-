@@ -5,41 +5,44 @@ import { cn } from '@/lib/utils'
 import { useState, useRef, useEffect } from 'react'
 import { LogoMark } from '@/components/public/Logo'
 import { CartButton } from '@/components/public/Cart'
+import { usePlans } from '@/lib/usePlans'
 
-// ── Services mega-menu data ───────────────────────────────────────────────────
+// ── Services mega-menu data (prices filled live from the plans API) ──────────
 
-const SERVICES_COLUMNS = [
-  {
-    icon: '🌐',
-    heading: 'Website Services',
-    links: [
-      { label: 'Website Creation',      href: '/order?package=business-site&step=1',   description: 'Build a new website from $150' },
-      { label: 'Website Maintenance',   href: '/order/website-care',                   description: 'Care plans from $29/mo — hosting included' },
-      { label: 'E-commerce Store',      href: '/order?package=ecommerce-store&step=1', description: 'Shopify & WooCommerce stores' },
-      { label: 'Free Website Review',   href: '/review',                               description: 'Get a free audit of your site' },
-    ],
-  },
-  {
-    icon: '🖥️',
-    heading: 'L1 IT Support',
-    links: [
-      { label: 'Basic Support — $49/mo',   href: '/order/it-support?plan=basic',  description: '3 tickets/mo, up to 2 users' },
-      { label: 'Team Support — $99/mo',    href: '/order/it-support?plan=team',   description: '8 tickets/mo, up to 5 users' },
-      { label: 'Office Support — $179/mo', href: '/order/it-support?plan=office', description: '15 tickets/mo, up to 10 users' },
-      { label: 'View All IT Plans',        href: '/pricing#it-support',           description: 'Compare all support plans' },
-    ],
-  },
-  {
-    icon: '🎨',
-    heading: 'Design & Social Media',
-    links: [
-      { label: 'Social Media Content',  href: '/order/social-media?plan=business',  description: 'Monthly posts & stories from $29/mo' },
-      { label: 'Website Banners',       href: '/contact?service=website-banner',    description: 'Custom banners from $20' },
-      { label: 'Logo & Brand Design',   href: '/contact?service=logo-design',       description: 'Logo design from $49' },
-      { label: 'All Design Services',   href: '/pricing#social-media',              description: 'View all design packages' },
-    ],
-  },
-]
+function buildServiceColumns(price: (id: string, fallback: number) => number) {
+  return [
+    {
+      icon: '🌐',
+      heading: 'Website Services',
+      links: [
+        { label: 'Website Creation',      href: '/order?package=business-site&step=1',   description: `Build a new website from $${price('starter-site', 150)}` },
+        { label: 'Website Maintenance',   href: '/order/website-care',                   description: `Care plans from $${price('basic-care', 29)}/mo — hosting included` },
+        { label: 'E-commerce Store',      href: '/order?package=ecommerce-store&step=1', description: 'Shopify & WooCommerce stores' },
+        { label: 'Free Website Review',   href: '/review',                               description: 'Get a free audit of your site' },
+      ],
+    },
+    {
+      icon: '🖥️',
+      heading: 'L1 IT Support',
+      links: [
+        { label: `Basic Support — $${price('it-basic', 49)}/mo`,   href: '/order/it-support?plan=basic',  description: '3 tickets/mo, up to 2 users' },
+        { label: `Team Support — $${price('it-team', 99)}/mo`,     href: '/order/it-support?plan=team',   description: '8 tickets/mo, up to 5 users' },
+        { label: `Office Support — $${price('it-office', 179)}/mo`, href: '/order/it-support?plan=office', description: '15 tickets/mo, up to 10 users' },
+        { label: 'View All IT Plans',        href: '/pricing#it-support',           description: 'Compare all support plans' },
+      ],
+    },
+    {
+      icon: '🎨',
+      heading: 'Design & Social Media',
+      links: [
+        { label: 'Social Media Content',  href: '/order/social-media?plan=business',  description: `Monthly posts & stories from $${price('social-starter', 29)}/mo` },
+        { label: 'Website Banners',       href: '/contact?service=website-banner',    description: 'Custom banners from $20' },
+        { label: 'Logo & Brand Design',   href: '/contact?service=logo-design',       description: 'Logo design from $49' },
+        { label: 'All Design Services',   href: '/pricing#social-media',              description: 'View all design packages' },
+      ],
+    },
+  ]
+}
 
 const OTHER_NAV = [
   { href: '/pricing',   label: 'Pricing' },
@@ -55,6 +58,12 @@ export function PublicHeader() {
   const [servicesOpen,     setServicesOpen]     = useState(false)
   const [servicesExpanded, setServicesExpanded] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
+
+  // Live prices for the mega-menu
+  const apiPlans = usePlans()
+  const price = (id: string, fallback: number) =>
+    apiPlans.find(p => p.id === id)?.effective_price ?? fallback
+  const SERVICES_COLUMNS = buildServiceColumns(price)
 
   // Close on outside click
   useEffect(() => {

@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { BUILD_PACKAGES, CARE_PLANS, COMPARISON_ROWS } from './_data'
+import { useMergedCards } from '@/lib/usePlans'
 import { RadioDot, InfoBox, StepBar, SummaryCard } from './_components'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -187,9 +188,13 @@ function OrderContent() {
     businessName: '', fullName: '', email: '', phone: '', website: '', message: '',
   })
 
+  // Live (admin-editable) plan content merged over the static cards
+  const buildPackages = useMergedCards(BUILD_PACKAGES)
+  const carePlans = useMergedCards(CARE_PLANS)
+
   const isCustom = selectedBuild === 'custom'
-  const buildPkg: BuildPkg = BUILD_PACKAGES.find(p => p.id === selectedBuild)
-  const carePlan: CarePlan = CARE_PLANS.find(p => p.id === selectedCare) ?? CARE_PLANS[0]
+  const buildPkg: BuildPkg = buildPackages.find(p => p.id === selectedBuild)
+  const carePlan: CarePlan = carePlans.find(p => p.id === selectedCare) ?? carePlans[0]
   const oneTimeTotal = buildPkg?.price ?? 0
 
   function goTo(n: number) {
@@ -335,7 +340,7 @@ function OrderContent() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[860px] mx-auto mb-5 pt-2">
-                  {BUILD_PACKAGES.map(p => {
+                  {buildPackages.map(p => {
                     const sel = selectedBuild === p.id
                     return (
                       <div key={p.id} className={clsx('relative', p.popular && 'pt-4')}>
@@ -543,7 +548,7 @@ function OrderContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-7">
-              {CARE_PLANS.filter(p => p.id !== 'none').map(p => {
+              {carePlans.filter(p => p.id !== 'none').map(p => {
                 const sel = selectedCare === p.id
                 return (
                   <div

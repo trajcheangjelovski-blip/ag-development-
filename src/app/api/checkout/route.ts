@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { stripeRequest } from '@/lib/stripe'
-import { getCatalogItem } from '@/lib/catalog'
+import { getPlans, effectivePrice, type Plan } from '@/lib/plans'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
@@ -51,13 +51,51 @@ export async function POST(request: NextRequest) {
 
     // ── Cart checkout (public site) ──
     const ids: string[] = Array.isArray(body.items) ? body.items : []
-    const items = ids.map(getCatalogItem).filter(Boolean) as NonNullable<ReturnType<typeof getCatalogItem>>[]
+    const { plans } = await getPlans()
+    const items = ids
+      .map(id => plans.find(p => p.id === id && p.is_active))
+      .filter(Boolean) as Plan[]
     if (!items.length) {
       return NextResponse.json({ error: 'Your cart is empty' }, { status: 400 })
     }
 
-    const hasRecurring = items.some(i => i.interval === 'month')
-    const summary = items.map(i => `${i.name} ($${i.price}${i.interval ? '/mo' : ''})`).join(', ')
+    const hasRecurring = items.some(i => i.billing_interval === 'month')
+    const summary = items
+      .map(i => `${i.name} ($${effectivePrice(i)}${i.billing_interval ? '/mo' : ''})`)
+      .join(', ')
+
+    // Optional coupon: validate against our DB, then mirror it as a one-off
+    // Stripe coupon so the discount shows on Stripe's checkout page.
+    let discounts: any = undefined
+    let couponNote = ''
+    if (body.coupon_code) {
+      const admin = await createAdminClient()
+      const { data: coupon } = await admin
+        .from('coupons')
+        .select('*')
+        .eq('code', String(body.coupon_code).trim().toUpperCase())
+        .maybeSingle()
+
+      const valid = coupon
+        && coupon.is_active
+        && (!coupon.expires_at || new Date(coupon.expires_at) >= new Date())
+        && (!coupon.max_redemptions || coupon.redemptions < coupon.max_redemptions)
+
+      if (!valid) {
+        return NextResponse.json({ error: 'Coupon is invalid or expired' }, { status: 400 })
+      }
+
+      const stripeCoupon = await stripeRequest('coupons', {
+        duration: 'once',
+        ...(coupon.percent_off
+          ? { percent_off: coupon.percent_off }
+          : { amount_off: coupon.amount_off * 100, currency: 'usd' }),
+        name: coupon.code,
+      })
+      discounts = [{ coupon: stripeCoupon.id }]
+      couponNote = ` — coupon ${coupon.code}`
+      await admin.from('coupons').update({ redemptions: (coupon.redemptions || 0) + 1 }).eq('id', coupon.id)
+    }
 
     const session = await stripeRequest('checkout/sessions', {
       mode: hasRecurring ? 'subscription' : 'payment',
@@ -67,13 +105,14 @@ export async function POST(request: NextRequest) {
         quantity: 1,
         price_data: {
           currency: 'usd',
-          unit_amount: i.price * 100,
-          product_data: { name: i.name, description: i.description },
-          ...(i.interval ? { recurring: { interval: i.interval } } : {}),
+          unit_amount: effectivePrice(i) * 100,
+          product_data: { name: i.name, ...(i.description ? { description: i.description } : {}) },
+          ...(i.billing_interval ? { recurring: { interval: i.billing_interval } } : {}),
         },
       })),
-      metadata: { cart_summary: summary.slice(0, 480) },
-      ...(hasRecurring ? { subscription_data: { metadata: { cart_summary: summary.slice(0, 480) } } } : {}),
+      ...(discounts ? { discounts } : {}),
+      metadata: { cart_summary: (summary + couponNote).slice(0, 480) },
+      ...(hasRecurring ? { subscription_data: { metadata: { cart_summary: (summary + couponNote).slice(0, 480) } } } : {}),
     })
 
     return NextResponse.json({ url: session.url })

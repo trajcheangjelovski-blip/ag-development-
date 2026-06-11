@@ -59,7 +59,11 @@ export default async function ClientTickets({ searchParams }: { searchParams: { 
                 <tbody>
                   {tickets.map((t: any) => (
                     <tr key={t.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="table-td font-semibold text-slate-800 max-w-xs truncate">{t.title}</td>
+                      <td className="table-td max-w-xs truncate">
+                        <Link href={`/portal/tickets/${t.id}`} className="font-semibold text-slate-800 hover:text-blue-600 hover:underline transition-colors">
+                          {t.title}
+                        </Link>
+                      </td>
                       <td className="table-td text-slate-500 text-xs">{t.category}</td>
                       <td className="table-td"><PriorityBadge priority={t.priority} /></td>
                       <td className="table-td"><StatusBadge status={t.status} /></td>

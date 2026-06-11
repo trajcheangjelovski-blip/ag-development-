@@ -15,6 +15,11 @@ export default function AdminSettings() {
   const [emailFrom, setEmailFrom] = useState('')
   const [apiKey, setApiKey] = useState('')
 
+  // Chatbot
+  const [chatbotConfigured, setChatbotConfigured] = useState(false)
+  const [anthropicMasked, setAnthropicMasked] = useState('')
+  const [anthropicKey, setAnthropicKey] = useState('')
+
   // Stripe
   const [stripeConfigured, setStripeConfigured] = useState(false)
   const [stripeSecretMasked, setStripeSecretMasked] = useState('')
@@ -41,6 +46,8 @@ export default function AdminSettings() {
         setStripeSecretMasked(data.stripe_secret_key_masked || '')
         setStripeWebhookMasked(data.stripe_webhook_secret_masked || '')
         setStripePublishable(data.stripe_publishable_key || '')
+        setChatbotConfigured(data.chatbot_configured)
+        setAnthropicMasked(data.anthropic_api_key_masked || '')
       }
       setLoading(false)
     }
@@ -58,6 +65,7 @@ export default function AdminSettings() {
       if (stripeSecret.trim()) body.stripe_secret_key = stripeSecret.trim()
       if (stripePublishable.trim()) body.stripe_publishable_key = stripePublishable.trim()
       if (stripeWebhook.trim()) body.stripe_webhook_secret = stripeWebhook.trim()
+      if (anthropicKey.trim()) body.anthropic_api_key = anthropicKey.trim()
 
       const res = await fetch('/api/settings', {
         method: 'PATCH',
@@ -70,6 +78,7 @@ export default function AdminSettings() {
       setApiKey('')
       setStripeSecret('')
       setStripeWebhook('')
+      setAnthropicKey('')
       // Refresh masked key / configured state
       const refreshed = await fetch('/api/settings')
       if (refreshed.ok) {
@@ -262,6 +271,55 @@ export default function AdminSettings() {
                 Without it, payments succeed but won&apos;t be recorded in your CRM automatically.
               </p>
             </div>
+          </div>
+          <div className="flex justify-end mt-5 pt-4 border-t border-slate-100">
+            <button
+              onClick={save}
+              disabled={saving || tableMissing}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-sm text-white rounded-lg transition-all disabled:opacity-60"
+              style={{ background: '#0f1f3d' }}
+            >
+              {saving ? <><Spinner size="sm" /> Saving...</> : 'Save Settings'}
+            </button>
+          </div>
+        </div>
+
+        <div className="card p-6 mb-5">
+          <div className="flex items-center justify-between mb-5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">AI Chatbot (Website)</h3>
+            <span
+              className="text-xs font-bold px-2.5 py-1 rounded-full"
+              style={chatbotConfigured
+                ? { background: '#dcfce7', color: '#166534' }
+                : { background: '#fef2f2', color: '#b91c1c' }}
+            >
+              {chatbotConfigured ? 'Active' : 'Not configured'}
+            </span>
+          </div>
+          <div>
+            <label className="form-label">Anthropic API Key</label>
+            <input
+              type="password"
+              className="form-input"
+              placeholder={anthropicMasked ? `Current: ${anthropicMasked} — enter new key to replace` : 'sk-ant-...'}
+              value={anthropicKey}
+              onChange={e => setAnthropicKey(e.target.value)}
+              autoComplete="off"
+            />
+            <p className="text-xs text-slate-400 mt-1.5">
+              From <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">console.anthropic.com → API Keys</a>.
+              Powers the chat bubble on your public website — it answers from your live plan prices. Without a key, the widget falls back to a &quot;leave a message&quot; form that goes to your Leads.
+            </p>
+          </div>
+          <div className="flex justify-end mt-5 pt-4 border-t border-slate-100">
+            <button
+              onClick={save}
+              disabled={saving || tableMissing}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-sm text-white rounded-lg transition-all disabled:opacity-60"
+              style={{ background: '#0f1f3d' }}
+            >
+              {saving ? <><Spinner size="sm" /> Saving...</> : 'Save Settings'}
+            </button>
           </div>
         </div>
 

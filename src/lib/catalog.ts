@@ -28,6 +28,9 @@ export const CATALOG: CatalogItem[] = [
   { id: 'it-team', name: 'L1 Team Support', price: 99, interval: 'month', category: 'IT Support', description: '8 tickets/mo, up to 5 users' },
   { id: 'it-office', name: 'L1 Office Support', price: 179, interval: 'month', category: 'IT Support', description: '15 tickets/mo, up to 10 users' },
 
+  // Extra credits (one-time top-up when plan credits run out)
+  { id: 'extra-hour', name: 'Extra Support Hour', price: 39, interval: null, category: 'IT Support', description: '1 additional support hour for your current plan period' },
+
   // Monthly social media & design
   { id: 'social-starter', name: 'Social Starter', price: 29, interval: 'month', category: 'Social Media', description: '2 posts/stories per month' },
   { id: 'social-business', name: 'Social Business', price: 59, interval: 'month', category: 'Social Media', description: '6 posts + 1 banner per month' },

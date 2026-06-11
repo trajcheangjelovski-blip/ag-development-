@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Outfit, Inter } from 'next/font/google'
 import { CartProvider } from '@/components/public/Cart'
+import { ChatWidget } from '@/components/public/ChatWidget'
 import './globals.css'
 
 const outfit = Outfit({
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
-      <body className="font-sans antialiased"><CartProvider>{children}</CartProvider></body>
+      <body className="font-sans antialiased"><CartProvider>{children}<ChatWidget /></CartProvider></body>
     </html>
   )
 }

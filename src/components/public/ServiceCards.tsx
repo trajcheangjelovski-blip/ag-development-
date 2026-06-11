@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { usePlans } from '@/lib/usePlans'
 
 const cards = [
   {
@@ -103,6 +104,41 @@ const cards = [
 export function ServiceCards() {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
+  // Live prices from the admin-managed plans (fall back to the static text)
+  const apiPlans = usePlans()
+  const price = (id: string, fallback: number) =>
+    apiPlans.find(p => p.id === id)?.effective_price ?? fallback
+
+  const liveItems: Record<string, string[]> = {
+    website: [
+      `Starter from $${price('starter-site', 150)} · Business from $${price('business-site', 250)}`,
+      `Premium from $${price('premium-site', 350)} · E-commerce from $${price('ecommerce-store', 600)}`,
+      'Delivered in 5–14 business days',
+      'You own the website 100%',
+    ],
+    care: [
+      `Basic Care $${price('basic-care', 29)}/mo — backups & security`,
+      `Content Care $${price('content-care', 49)}/mo — + 30min updates`,
+      `Growth Care $${price('growth-care', 100)}/mo — + 1hr updates`,
+      `Full Care $${price('full-care', 150)}/mo — + 2hrs updates`,
+      '🏠 Hosting included in all plans',
+    ],
+    it: [
+      `Basic Support $${price('it-basic', 49)}/mo — 3 tickets, 2 users`,
+      `Team Support $${price('it-team', 99)}/mo — 8 tickets, 5 users`,
+      `Office Support $${price('it-office', 179)}/mo — 15 tickets, 10 users`,
+      'Remote support included',
+      'No website needed',
+    ],
+    social: [
+      `Social Starter $${price('social-starter', 29)}/mo — 2 posts/stories`,
+      `Social Business $${price('social-business', 59)}/mo — 6 posts + 1 banner`,
+      `Social Growth $${price('social-growth', 99)}/mo — 12 posts + 2 banners`,
+      'Custom branded graphics',
+      'No website needed',
+    ],
+  }
+
   return (
     <section style={{ padding: '80px 24px', background: '#f8fafc' }}>
       <style>{`
@@ -188,7 +224,7 @@ export function ServiceCards() {
 
                 {/* Preview list */}
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px', flex: 1 }}>
-                  {card.items.map((item, i) => (
+                  {(liveItems[card.id] || card.items).map((item, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 7, fontSize: 13, color: '#374151' }}>
                       <span style={{ width: 6, height: 6, borderRadius: '50%', background: card.accent, flexShrink: 0, marginTop: 5 }} />
                       {item}

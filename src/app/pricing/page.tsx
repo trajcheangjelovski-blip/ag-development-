@@ -2,8 +2,11 @@ import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { PricingAddOns } from '@/components/public/PricingAddOns'
 import { AddToCartButton } from '@/components/public/Cart'
+import { getPlans, effectivePrice, type Plan } from '@/lib/plans'
 import Link from 'next/link'
 import type { Metadata } from 'next'
+
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Pricing — AG Development',
@@ -164,7 +167,12 @@ const notIncluded = [
 function Check() { return <span className="text-emerald-500 font-bold flex-shrink-0">✓</span> }
 function Cross() { return <span className="text-slate-300 flex-shrink-0">✗</span> }
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  // Live prices from the admin-managed plans table (static fallback)
+  const { plans } = await getPlans()
+  const planById = new Map<string, Plan>(plans.map(p => [p.id, p]))
+  const live = (id: string) => planById.get(id)
+
   return (
     <>
       <PublicHeader />
@@ -223,21 +231,35 @@ export default function PricingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
-            {buildPackages.map(p => (
+            {buildPackages.map(p0 => {
+              const lp = live(p0.id)
+              const p = {
+                ...p0,
+                badge: lp?.badge || p0.badge,
+                features: lp?.features || p0.features,
+                description: (lp?.description || p0.description) as string,
+                delivery: lp?.delivery || p0.delivery,
+              }
+              const regular = lp?.price ?? p0.originalPrice
+              const charged = lp ? effectivePrice(lp) : p0.salePrice
+              const onSale = charged < regular
+              return (
               <div key={p.name} className={`relative bg-white rounded-2xl border-2 ${p.border} p-6 flex flex-col card-hover-glow ${p.popular ? 'shadow-xl shadow-blue-500/15' : ''}`}>
                 {p.popular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap">★ Most Popular</div>
                 )}
                 {/* Discount badge top-right */}
-                <div className="absolute top-4 right-4">
-                  <span className="discount-badge">{p.discount}</span>
-                </div>
+                {onSale && (
+                  <div className="absolute top-4 right-4">
+                    <span className="discount-badge">Save ${regular - charged}</span>
+                  </div>
+                )}
                 <div className="text-3xl mb-3">{p.icon}</div>
                 <div className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 w-fit ${p.badgeColor}`}>{p.badge}</div>
-                <div className="font-display font-bold text-slate-800 text-xl mb-2">{p.name}</div>
+                <div className="font-display font-bold text-slate-800 text-xl mb-2">{lp?.name || p.name}</div>
                 {/* Strikethrough original + sale price */}
-                <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>${p.originalPrice}</span>
-                <div className="sale-price">${p.salePrice} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>one-time</span></div>
+                {onSale && <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>${regular}</span>}
+                <div className="sale-price">${charged} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>one-time</span></div>
                 <div className="mb-5" />
                 <ul className="space-y-2 mb-5 flex-1">
                   {p.features.map(f => (
@@ -253,7 +275,8 @@ export default function PricingPage() {
                 </Link>
                 <AddToCartButton id={p.id} />
               </div>
-            ))}
+              )
+            })}
           </div>
 
           <p className="text-center text-sm text-slate-400 max-w-3xl mx-auto">
@@ -292,15 +315,35 @@ export default function PricingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
-            {carePlans.map(p => (
+            {carePlans.map(p0 => {
+              const lp = live(p0.id)
+              const p = {
+                ...p0,
+                badge: lp?.badge || p0.badge,
+                features: lp?.features
+                  ? lp.features.map(f => ({ text: f, yes: true }))
+                  : p0.features,
+                description: (lp?.description || p0.description) as string,
+                details: (lp?.details || p0.details) as DetailRow[],
+              }
+              const regular = lp?.price ?? p0.price
+              const charged = lp ? effectivePrice(lp) : p0.price
+              const onSale = charged < regular
+              return (
               <div key={p.name} className={`relative bg-white rounded-2xl border-2 ${p.border} p-6 flex flex-col card-hover-glow ${p.popular ? 'shadow-xl shadow-blue-500/15' : ''}`}>
                 {p.popular && (
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap">★ Most Popular</div>
                 )}
+                {onSale && (
+                  <div className="absolute top-4 right-4">
+                    <span className="discount-badge">Save ${regular - charged}/mo</span>
+                  </div>
+                )}
                 <div className="text-3xl mb-3">{p.icon}</div>
                 <div className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 w-fit ${p.badgeColor}`}>{p.badge}</div>
                 <div className="font-display font-bold text-slate-800 text-xl mb-1">{p.name}</div>
-                <div className="font-display text-4xl font-extrabold text-slate-800 mb-1">${p.price}</div>
+                {onSale && <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>${regular}/mo</span>}
+                <div className="font-display text-4xl font-extrabold text-slate-800 mb-1">${charged}</div>
                 <div className="text-xs text-slate-400 mb-5">/month</div>
                 <ul className="space-y-2 mb-4 flex-1">
                   {p.features.map(f => (
@@ -326,7 +369,8 @@ export default function PricingPage() {
                 </Link>
                 <AddToCartButton id={p.id} />
               </div>
-            ))}
+              )
+            })}
           </div>
 
           <div style={{ marginTop: 20, padding: '14px 18px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, fontSize: 12, color: '#92400e', lineHeight: 1.7, maxWidth: '700px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -444,7 +488,7 @@ export default function PricingPage() {
                   'Revision rounds are for the same page/section — not new features.',
                   'Care plan hours expire monthly. Unused time does not carry over.',
                   'Monthly plans require a minimum 6-month commitment.',
-                  'Extra hours billed at $39/hr for care plan clients.',
+                  'Extra hours billed at $10/hr for care plan clients.',
                   'Quotes are valid for 30 days.',
                 ].map(item => (
                   <li key={item} className="flex items-start gap-2 text-sm text-slate-600">
@@ -510,7 +554,7 @@ export default function PricingPage() {
                 What if I need changes outside my care plan hours?
               </div>
               <div className="px-6 pb-5 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-4">
-                Extra work beyond your monthly hours is billed at $39/hr. New pages, full redesigns, or new features are quoted as separate projects. We always confirm costs before starting any extra work.
+                Extra work beyond your monthly hours is billed at $10/hr. New pages, full redesigns, or new features are quoted as separate projects. We always confirm costs before starting any extra work.
               </div>
             </div>
           </div>

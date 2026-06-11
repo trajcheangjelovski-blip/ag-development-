@@ -24,6 +24,20 @@ export function NewTicketForm({ clientId, clients, isAdmin, cancelHref }: NewTic
     affected_site: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [attachments, setAttachments] = useState<File[]>([])
+
+  function addAttachments(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || [])
+    const oversize = files.find(f => f.size > 200 * 1024 * 1024)
+    if (oversize) {
+      setError(`"${oversize.name}" is over the 200MB limit`)
+      e.target.value = ''
+      return
+    }
+    setError('')
+    setAttachments(prev => [...prev, ...files])
+    e.target.value = ''
+  }
 
   function validate() {
     const e: Record<string, string> = {}
@@ -56,6 +70,30 @@ export function NewTicketForm({ clientId, clients, isAdmin, cancelHref }: NewTic
     }
 
     const ticket = await res.json()
+
+    // Upload attachments and post them as the first message on the ticket
+    if (attachments.length) {
+      try {
+        const links: string[] = []
+        for (const file of attachments) {
+          const data = new FormData()
+          data.append('file', file)
+          const upRes = await fetch(`/api/tickets/${ticket.id}/attachments`, { method: 'POST', body: data })
+          const up = await upRes.json()
+          if (upRes.ok) links.push(`📎 ${up.name} (${(up.size / 1024 / 1024).toFixed(1)} MB): ${up.url}`)
+        }
+        if (links.length) {
+          await fetch('/api/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticket_id: ticket.id, body: `Attachments:\n${links.join('\n')}`, comment_type: 'public' }),
+          })
+        }
+      } catch {
+        // Ticket is created — attachment failures shouldn't block navigation
+      }
+    }
+
     router.push(isAdmin ? `/admin/tickets/${ticket.id}` : `/portal/tickets/${ticket.id}`)
   }
 
@@ -118,6 +156,34 @@ export function NewTicketForm({ clientId, clients, isAdmin, cancelHref }: NewTic
           {...f('description')}
         />
         {errors.description && <p className="form-error">{errors.description}</p>}
+      </div>
+
+      <div className="mb-6">
+        <label className="form-label">Attachments</label>
+        {attachments.length > 0 && (
+          <div className="mb-2 space-y-1.5">
+            {attachments.map((f, i) => (
+              <div key={`${f.name}-${i}`} className="flex items-center gap-2 text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                <span>📎</span>
+                <span className="font-medium text-slate-700 truncate flex-1">{f.name}</span>
+                <span className="text-slate-400 flex-shrink-0">{(f.size / 1024 / 1024).toFixed(1)} MB</span>
+                <button
+                  type="button"
+                  onClick={() => setAttachments(prev => prev.filter((_, x) => x !== i))}
+                  className="text-slate-400 hover:text-red-500 flex-shrink-0"
+                  aria-label={`Remove ${f.name}`}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <label className="btn-ghost text-sm cursor-pointer inline-flex items-center gap-1.5">
+          📎 Attach Screenshots / Files
+          <input type="file" multiple className="hidden" onChange={addAttachments} disabled={loading} />
+        </label>
+        <p className="text-xs text-slate-400 mt-1.5">Any file type, up to 200MB each. Screenshots help us resolve issues faster.</p>
       </div>
 
       <div className="flex gap-3">

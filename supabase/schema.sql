@@ -275,6 +275,78 @@ CREATE TRIGGER update_monthly_reports_updated_at BEFORE UPDATE ON monthly_report
 CREATE TRIGGER update_invoices_updated_at BEFORE UPDATE ON invoices FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ============================================================
+-- SELLABLE PLANS (public catalog — editable from admin panel)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS plans (
+  id TEXT PRIMARY KEY, -- slug, e.g. 'business-site'
+  name TEXT NOT NULL,
+  description TEXT,
+  category TEXT NOT NULL,
+  price INTEGER NOT NULL, -- regular price in dollars
+  billing_interval TEXT CHECK (billing_interval IN ('month')), -- NULL = one-time
+  sale_price INTEGER, -- charged instead of price when sale_active
+  sale_active BOOLEAN DEFAULT FALSE,
+  is_active BOOLEAN DEFAULT TRUE,
+  sort INTEGER DEFAULT 0,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE plans ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can view plans" ON plans FOR SELECT USING (TRUE);
+CREATE POLICY "Admins manage plans" ON plans FOR ALL USING (get_user_role() = 'admin');
+CREATE TRIGGER update_plans_updated_at BEFORE UPDATE ON plans FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Seed from the current site catalog (prices = what is charged today)
+INSERT INTO plans (id, name, description, category, price, billing_interval, sale_price, sale_active, sort) VALUES
+  ('starter-site',    'Starter Site',       '1-page professional website',                'Website Build', 200, NULL,    150, TRUE,  1),
+  ('business-site',   'Business Site',      'Up to 5 pages — most popular',               'Website Build', 300, NULL,    250, TRUE,  2),
+  ('premium-site',    'Premium Site',       'Up to 8 pages with blog & advanced SEO',     'Website Build', 450, NULL,    350, TRUE,  3),
+  ('ecommerce-store', 'E-commerce Store',   'Shopify or WooCommerce store setup',         'Website Build', 800, NULL,    600, TRUE,  4),
+  ('basic-care',      'Basic Care Plan',    'Hosting, backups & security updates',        'Website Care',  29,  'month', NULL, FALSE, 5),
+  ('content-care',    'Content Care Plan',  '+ 30 min/month content updates',             'Website Care',  49,  'month', NULL, FALSE, 6),
+  ('growth-care',     'Growth Care Plan',   '+ 1 hour/month website updates',             'Website Care',  100, 'month', NULL, FALSE, 7),
+  ('full-care',       'Full Care Plan',     '+ 2 hours/month, priority support',          'Website Care',  150, 'month', NULL, FALSE, 8),
+  ('it-basic',        'L1 Basic Support',   '3 tickets/mo, up to 2 users',                'IT Support',    49,  'month', NULL, FALSE, 9),
+  ('it-team',         'L1 Team Support',    '8 tickets/mo, up to 5 users',                'IT Support',    99,  'month', NULL, FALSE, 10),
+  ('it-office',       'L1 Office Support',  '15 tickets/mo, up to 10 users',              'IT Support',    179, 'month', NULL, FALSE, 11),
+  ('social-starter',  'Social Starter',     '2 posts/stories per month',                  'Social Media',  29,  'month', NULL, FALSE, 12),
+  ('social-business', 'Social Business',    '6 posts + 1 banner per month',               'Social Media',  59,  'month', NULL, FALSE, 13),
+  ('social-growth',   'Social Growth',      '12 posts + 2 banners per month',             'Social Media',  99,  'month', NULL, FALSE, 14)
+ON CONFLICT (id) DO NOTHING;
+
+-- Rich card content (editable from admin panel; NULL = use built-in site copy)
+ALTER TABLE plans ADD COLUMN IF NOT EXISTS badge TEXT;
+ALTER TABLE plans ADD COLUMN IF NOT EXISTS features JSONB;   -- array of strings
+ALTER TABLE plans ADD COLUMN IF NOT EXISTS details JSONB;    -- array of {label, value}
+ALTER TABLE plans ADD COLUMN IF NOT EXISTS good_for TEXT;
+ALTER TABLE plans ADD COLUMN IF NOT EXISTS delivery TEXT;
+
+-- Plan period tracking: a plan lasts 1 month from order/assignment
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS plan_started_at TIMESTAMPTZ;
+ALTER TABLE clients ADD COLUMN IF NOT EXISTS plan_expires_at TIMESTAMPTZ;
+
+-- Extra credits product (purchasable when plan credits run out)
+INSERT INTO plans (id, name, description, category, price, billing_interval, sale_price, sale_active, sort) VALUES
+  ('extra-hour', 'Extra Support Hour', '1 additional support hour for your current plan period', 'IT Support', 39, NULL, NULL, FALSE, 99)
+ON CONFLICT (id) DO NOTHING;
+
+-- ============================================================
+-- COUPONS (discount codes for checkout)
+-- ============================================================
+CREATE TABLE IF NOT EXISTS coupons (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  code TEXT UNIQUE NOT NULL, -- stored uppercase
+  percent_off INTEGER CHECK (percent_off BETWEEN 1 AND 100),
+  amount_off INTEGER, -- dollars
+  is_active BOOLEAN DEFAULT TRUE,
+  expires_at TIMESTAMPTZ,
+  max_redemptions INTEGER,
+  redemptions INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admins manage coupons" ON coupons FOR ALL USING (get_user_role() = 'admin');
+
+-- ============================================================
 -- APP SETTINGS (admin-configurable, e.g. email/Resend config)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS app_settings (

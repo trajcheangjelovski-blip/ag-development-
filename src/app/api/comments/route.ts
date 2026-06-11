@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
   let query = supabase
     .from('ticket_comments')
-    .select('*, author:profiles(id, full_name, role)')
+    .select('*, author:profiles(id, full_name, role, avatar_url)')
     .eq('ticket_id', ticketId)
     .order('created_at', { ascending: true })
 
@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
   const { data: comment, error } = await supabase
     .from('ticket_comments')
     .insert({ ticket_id, author_id: user.id, body: commentBody, comment_type: resolvedType })
-    .select('*, author:profiles(id, full_name, role)')
+    .select('*, author:profiles(id, full_name, role, avatar_url)')
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

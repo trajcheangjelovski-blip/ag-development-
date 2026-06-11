@@ -7,6 +7,30 @@ import type { Ticket, TicketComment, TimeEntry, ProofUpload, ActivityLog, Profil
 
 const MAX_COMMENT_LENGTH = 5000
 
+// Renders comment text with clickable links (used for file attachments)
+function LinkifiedText({ text, light }: { text: string; light?: boolean }) {
+  const parts = text.split(/(https?:\/\/[^\s]+)/g)
+  return (
+    <span className="whitespace-pre-wrap break-words">
+      {parts.map((part, i) =>
+        /^https?:\/\//.test(part) ? (
+          <a
+            key={i}
+            href={part}
+            target="_blank"
+            rel="noreferrer"
+            className={`underline font-medium ${light ? 'text-blue-200 hover:text-white' : 'text-blue-600 hover:text-blue-700'}`}
+          >
+            {part.length > 60 ? `${part.slice(0, 57)}…` : part}
+          </a>
+        ) : (
+          part
+        )
+      )}
+    </span>
+  )
+}
+
 interface TicketDetailClientProps {
   ticketId: string
   initialTicket: Ticket
@@ -48,6 +72,21 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
   const [proofFiles, setProofFiles] = useState<{ before?: File; after?: File }>({})
   const [postingProof, setPostingProof] = useState(false)
   const [error, setError] = useState('')
+
+  // Attachments for the reply box
+  const [attachments, setAttachments] = useState<File[]>([])
+
+  function addAttachments(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || [])
+    const oversize = files.find(f => f.size > 200 * 1024 * 1024)
+    if (oversize) {
+      setError(`"${oversize.name}" is over the 200MB limit`)
+      e.target.value = ''
+      return
+    }
+    setAttachments(prev => [...prev, ...files])
+    e.target.value = ''
+  }
 
   // Reopen modal (clients only)
   const [showReopenModal, setShowReopenModal] = useState(false)
@@ -100,16 +139,39 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
   )
 
   async function postComment() {
-    if (!commentBody.trim()) return
+    if (!commentBody.trim() && !attachments.length) return
     setPostingComment(true)
     setError('')
+
+    // Upload attachments first, then embed download links in the comment
+    let body = commentBody.trim()
+    if (attachments.length) {
+      try {
+        const links: string[] = []
+        for (const file of attachments) {
+          const data = new FormData()
+          data.append('file', file)
+          const upRes = await fetch(`/api/tickets/${ticketId}/attachments`, { method: 'POST', body: data })
+          const up = await upRes.json()
+          if (!upRes.ok) throw new Error(up?.error || `Failed to upload ${file.name}`)
+          links.push(`📎 ${up.name} (${(up.size / 1024 / 1024).toFixed(1)} MB): ${up.url}`)
+        }
+        body = [body, ...links].filter(Boolean).join('\n')
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Attachment upload failed')
+        setPostingComment(false)
+        return
+      }
+    }
+
     const res = await fetch('/api/comments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ticket_id: ticketId, body: commentBody, comment_type: commentType }),
+      body: JSON.stringify({ ticket_id: ticketId, body, comment_type: commentType }),
     })
     if (res.ok) {
       setCommentBody('')
+      setAttachments([])
       fetchData()
     } else {
       setError('Failed to post comment')
@@ -370,6 +432,9 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 <div className="space-y-5 mb-2">
                   {comments.map((c, idx) => {
                     const isReopenComment = c.body.startsWith('🔄 Ticket reopened')
+                    const isClosedComment = c.body.startsWith('🔒 Ticket closed')
+                    const isCompletedComment = c.body.startsWith('✅ Ticket marked as completed')
+                    const isSystemComment = isReopenComment || isClosedComment || isCompletedComment
                     const isNewAdminReply =
                       !isAdmin &&
                       unreadAdminCount > 0 &&
@@ -384,17 +449,38 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                         {isNewAdminReply && (
                           <div className="absolute -left-5 top-0 bottom-0 w-0.5 bg-blue-400 rounded-full" />
                         )}
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0 mt-0.5"
-                          style={{ background: isReopenComment ? '#92400e' : (c as any).author?.role === 'admin' ? '#0f1f3d' : '#2563eb' }}
-                        >
-                          {isReopenComment
-                            ? '↺'
-                            : (c as any).author?.role === 'admin'
-                            ? 'AG'
-                            : (c as any).author?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
-                          }
-                        </div>
+                        {!isSystemComment && (c as any).author?.avatar_url ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={(c as any).author.avatar_url}
+                            alt=""
+                            className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 border border-slate-200"
+                          />
+                        ) : (
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0 mt-0.5"
+                            style={{
+                              background: isReopenComment
+                                ? '#92400e'
+                                : isCompletedComment
+                                ? '#16a34a'
+                                : isClosedComment
+                                ? '#475569'
+                                : (c as any).author?.role === 'admin' ? '#0f1f3d' : '#2563eb',
+                            }}
+                          >
+                            {isReopenComment
+                              ? '↺'
+                              : isCompletedComment
+                              ? '✓'
+                              : isClosedComment
+                              ? '🔒'
+                              : (c as any).author?.role === 'admin'
+                              ? 'AG'
+                              : (c as any).author?.full_name?.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+                            }
+                          </div>
+                        )}
                         <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1.5">
                             <span className="text-sm font-semibold text-slate-800">
@@ -409,6 +495,16 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                             {isReopenComment && (
                               <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
                                 Ticket reopened
+                              </span>
+                            )}
+                            {isCompletedComment && (
+                              <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
+                                Ticket completed
+                              </span>
+                            )}
+                            {isClosedComment && (
+                              <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-semibold">
+                                Ticket closed
                               </span>
                             )}
                             {c.comment_type === 'internal' && !isReopenComment && (
@@ -426,6 +522,10 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                             className={`text-sm leading-relaxed p-3.5 rounded-xl ${
                               isReopenComment
                                 ? 'bg-orange-50 border border-orange-200 text-orange-900'
+                                : isCompletedComment
+                                ? 'bg-green-50 border border-green-200 text-green-900'
+                                : isClosedComment
+                                ? 'bg-slate-100 border border-slate-200 text-slate-600'
                                 : c.comment_type === 'internal'
                                 ? 'bg-amber-50 border border-amber-200 text-amber-900'
                                 : (c as any).author?.role === 'admin'
@@ -433,7 +533,10 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                                 : 'bg-slate-50 border border-slate-200 text-slate-700'
                             }`}
                           >
-                            {c.body}
+                            <LinkifiedText
+                              text={c.body}
+                              light={!isSystemComment && c.comment_type !== 'internal' && (c as any).author?.role === 'admin'}
+                            />
                           </div>
                         </div>
                       </div>
@@ -508,13 +611,40 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 </span>
               </div>
 
-              <button
-                onClick={postComment}
-                disabled={postingComment || !commentBody.trim()}
-                className="btn-secondary text-sm flex items-center gap-2"
-              >
-                {postingComment ? <><Spinner size="sm" /> Posting…</> : isAdmin ? 'Post Reply' : 'Send Message'}
-              </button>
+              {/* Pending attachments */}
+              {attachments.length > 0 && (
+                <div className="mb-3 space-y-1.5">
+                  {attachments.map((f, i) => (
+                    <div key={`${f.name}-${i}`} className="flex items-center gap-2 text-xs bg-slate-50 border border-slate-200 rounded-lg px-3 py-2">
+                      <span>📎</span>
+                      <span className="font-medium text-slate-700 truncate flex-1">{f.name}</span>
+                      <span className="text-slate-400 flex-shrink-0">{(f.size / 1024 / 1024).toFixed(1)} MB</span>
+                      <button
+                        onClick={() => setAttachments(prev => prev.filter((_, x) => x !== i))}
+                        className="text-slate-400 hover:text-red-500 flex-shrink-0"
+                        aria-label={`Remove ${f.name}`}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={postComment}
+                  disabled={postingComment || (!commentBody.trim() && !attachments.length)}
+                  className="btn-secondary text-sm flex items-center gap-2"
+                >
+                  {postingComment ? <><Spinner size="sm" /> Posting…</> : isAdmin ? 'Post Reply' : 'Send Message'}
+                </button>
+                <label className="btn-ghost text-sm cursor-pointer flex items-center gap-1.5">
+                  📎 Attach Files
+                  <input type="file" multiple className="hidden" onChange={addAttachments} disabled={postingComment} />
+                </label>
+                <span className="text-xs text-slate-400">Screenshots or files, up to 200MB each</span>
+              </div>
             </div>
           </div>
         </div>

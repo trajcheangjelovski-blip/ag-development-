@@ -170,6 +170,18 @@ export async function PATCH(
         return NextResponse.json({ error: selectError.message }, { status: 500 })
       }
 
+      // System message in the conversation thread when the ticket is resolved
+      if (body.status === 'Closed' || body.status === 'Completed') {
+        await adminSupabase.from('ticket_comments').insert({
+          ticket_id: params.id,
+          author_id: user.id,
+          body: body.status === 'Completed'
+            ? '✅ Ticket marked as completed by AG Development. If anything still needs attention, you can reopen this ticket.'
+            : '🔒 Ticket closed by AG Development. If you need further help, you can reopen this ticket from your portal.',
+          comment_type: 'public',
+        })
+      }
+
       if (body.status && updatedTicket?.client) {
         // maybeSingle — client might not have a portal profile yet
         const { data: clientProfile } = await adminSupabase
