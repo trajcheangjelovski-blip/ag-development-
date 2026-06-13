@@ -3,7 +3,8 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 // POST /api/clients/:id/reset-password
 // Admin sets a new password for a client directly
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const adminSupabase = await createAdminClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   // Get the client's email to find their auth user
-  const { data: client } = await supabase.from('clients').select('email').eq('id', params.id).single()
+  const { data: client } = await supabase.from('clients').select('email').eq('id', id).single()
   if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 })
 
   // Find the auth user by email

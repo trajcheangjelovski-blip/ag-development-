@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Sidebar } from '@/components/portal/Sidebar'
+import { NotificationBell } from '@/components/portal/NotificationBell'
 import type { Profile } from '@/types'
 
 export default function PortalLayout({
@@ -43,6 +44,9 @@ export default function PortalLayout({
     <div className="flex min-h-screen bg-slate-50">
       <Sidebar profile={profile} />
       <div className="ml-60 flex-1 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-40 flex items-center justify-start gap-2 px-6 h-14 bg-white/80 backdrop-blur border-b border-slate-200">
+          <NotificationBell userId={profile.id} />
+        </header>
         <main className="flex-1">{children}</main>
       </div>
     </div>

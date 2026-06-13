@@ -73,7 +73,7 @@ CREATE TABLE tickets (
   title TEXT NOT NULL,
   category TEXT NOT NULL CHECK (category IN (
     'Website Issue','WordPress','Shopify','Domain/DNS',
-    'Business Email','New Feature Request','General IT Support'
+    'Business Email','New Feature Request','General IT Support','Message'
   )),
   priority TEXT NOT NULL DEFAULT 'Medium' CHECK (priority IN ('Low','Medium','High','Urgent')),
   description TEXT NOT NULL,

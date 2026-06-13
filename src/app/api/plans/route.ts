@@ -89,3 +89,31 @@ export async function PATCH(request: NextRequest) {
   }
   return NextResponse.json(data)
 }
+
+// DELETE: admin — permanently remove a plan/extra by id.
+// Client ledgers snapshot extras by name/price (no FK to plans), so deleting
+// here only removes the sellable item; existing client records are untouched.
+export async function DELETE(request: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const id = new URL(request.url).searchParams.get('id')
+  if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
+
+  const admin = await createAdminClient()
+  const { error } = await admin.from('plans').delete().eq('id', id)
+
+  if (error) {
+    if (error.code === '23503') {
+      return NextResponse.json(
+        { error: 'This item is still referenced elsewhere and can’t be deleted. Hide it instead (uncheck "Active" in the editor).' },
+        { status: 409 },
+      )
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+  return NextResponse.json({ ok: true })
+}

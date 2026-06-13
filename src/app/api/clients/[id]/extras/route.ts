@@ -12,10 +12,11 @@ async function getCaller() {
   return profile ? { user, profile } : null
 }
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const caller = await getCaller()
   if (!caller) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  if (caller.profile.role !== 'admin' && caller.profile.client_id !== params.id) {
+  if (caller.profile.role !== 'admin' && caller.profile.client_id !== id) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
   }
 
@@ -23,7 +24,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const { data, error } = await admin
     .from('client_extras')
     .select('*')
-    .eq('client_id', params.id)
+    .eq('client_id', id)
     .order('created_at')
 
   if (error) {
@@ -33,7 +34,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   return NextResponse.json({ tableMissing: false, extras: data })
 }
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const caller = await getCaller()
   if (!caller || caller.profile.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -45,7 +47,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const admin = await createAdminClient()
   const { data, error } = await admin
     .from('client_extras')
-    .insert({ client_id: params.id, name: name.trim(), qty_total: Number(qty_total), qty_used: 0 })
+    .insert({ client_id: id, name: name.trim(), qty_total: Number(qty_total), qty_used: 0 })
     .select()
     .single()
 
@@ -53,7 +55,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   return NextResponse.json(data, { status: 201 })
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const caller = await getCaller()
   if (!caller || caller.profile.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -63,7 +66,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 
   const admin = await createAdminClient()
-  const { data: extra } = await admin.from('client_extras').select('*').eq('id', extra_id).eq('client_id', params.id).maybeSingle()
+  const { data: extra } = await admin.from('client_extras').select('*').eq('id', extra_id).eq('client_id', id).maybeSingle()
   if (!extra) return NextResponse.json({ error: 'Extra not found' }, { status: 404 })
 
   const next = Math.min(extra.qty_total, Math.max(0, extra.qty_used + delta))
@@ -79,7 +82,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   // Log usage so it shows in activity feeds (client + admin)
   if (delta === 1 && next !== extra.qty_used) {
     await admin.from('activity_logs').insert({
-      client_id: params.id,
+      client_id: id,
       actor_id: caller.user.id,
       action: 'Extra used',
       detail: `${extra.name} — ${next} of ${extra.qty_total} used${note ? ` (${note})` : ''}`,
@@ -89,7 +92,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   return NextResponse.json(data)
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const caller = await getCaller()
   if (!caller || caller.profile.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
@@ -97,7 +101,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   if (!extraId) return NextResponse.json({ error: 'extra_id required' }, { status: 400 })
 
   const admin = await createAdminClient()
-  const { error } = await admin.from('client_extras').delete().eq('id', extraId).eq('client_id', params.id)
+  const { error } = await admin.from('client_extras').delete().eq('id', extraId).eq('client_id', id)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json({ ok: true })
 }

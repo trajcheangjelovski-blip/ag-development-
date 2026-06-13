@@ -6,7 +6,8 @@ const MAX_SIZE = 200 * 1024 * 1024 // 200MB
 // Upload a file/screenshot attachment to a ticket.
 // Clients may attach to their own tickets; admins to any ticket.
 // Returns a long-lived signed URL that gets embedded in a comment.
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,7 +16,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { data: profile } = await admin.from('profiles').select('role, client_id').eq('id', user.id).maybeSingle()
   if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
-  const { data: ticket } = await admin.from('tickets').select('id, client_id').eq('id', params.id).maybeSingle()
+  const { data: ticket } = await admin.from('tickets').select('id, client_id').eq('id', id).maybeSingle()
   if (!ticket) return NextResponse.json({ error: 'Ticket not found' }, { status: 404 })
   if (profile.role !== 'admin' && ticket.client_id !== profile.client_id) {
     return NextResponse.json({ error: 'Access denied' }, { status: 403 })
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   }
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(-80)
-  const path = `attachments/${params.id}/${Date.now()}-${safeName}`
+  const path = `attachments/${id}/${Date.now()}-${safeName}`
 
   // Make sure the bucket exists and allows large files
   await admin.storage.updateBucket('proof-uploads', { public: false, fileSizeLimit: MAX_SIZE }).catch(() => {})

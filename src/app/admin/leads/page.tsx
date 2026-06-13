@@ -28,15 +28,16 @@ const TYPE_FILTERS: { key: string; label: string }[] = [
   { key: 'Message', label: 'Messages' },
 ]
 
-export default async function AdminLeads({ searchParams }: { searchParams: { status?: string; type?: string } }) {
+export default async function AdminLeads({ searchParams }: { searchParams: Promise<{ status?: string; type?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'admin') redirect('/portal/dashboard')
 
-  const activeStatus = searchParams.status || 'All'
-  const activeType = searchParams.type || 'All'
+  const sp = await searchParams
+  const activeStatus = sp.status || 'All'
+  const activeType = sp.type || 'All'
 
   let query = supabase.from('leads').select('*').order('created_at', { ascending: false })
   if (activeStatus !== 'All') query = query.eq('status', activeStatus)

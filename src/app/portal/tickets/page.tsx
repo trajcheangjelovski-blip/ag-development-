@@ -8,15 +8,15 @@ import { ReopenTicketButton } from '@/components/portal/ReopenTicketButton'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ClientTickets({ searchParams }: { searchParams: { status?: string } }) {
+export default async function ClientTickets({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
   if (!profile?.client_id) redirect('/login')
 
-  const activeStatus = searchParams.status || 'All'
-  let query = supabase.from('tickets').select('*').eq('client_id', profile.client_id).order('created_at', { ascending: false })
+  const activeStatus = (await searchParams).status || 'All'
+  let query = supabase.from('tickets').select('*').eq('client_id', profile.client_id).neq('category', 'Message').order('created_at', { ascending: false })
   if (activeStatus !== 'All') query = query.eq('status', activeStatus)
   const { data: tickets } = await query
 

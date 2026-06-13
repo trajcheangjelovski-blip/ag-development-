@@ -5,14 +5,27 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs)
 }
 
+// All dates/times are displayed in a fixed US timezone (default: Eastern) so
+// every user sees the same "official" time regardless of their device setting.
+// Override with NEXT_PUBLIC_TIMEZONE (an IANA name, e.g. "America/Chicago").
+export const APP_TIME_ZONE = process.env.NEXT_PUBLIC_TIMEZONE || 'America/New_York'
+
 export function formatDate(date: string | Date): string {
   const d = typeof date === 'string' ? parseISO(date) : date
-  return format(d, 'MMM d, yyyy')
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: APP_TIME_ZONE,
+    month: 'short', day: 'numeric', year: 'numeric',
+  }).format(d)
 }
 
 export function formatDateTime(date: string | Date): string {
   const d = typeof date === 'string' ? parseISO(date) : date
-  return format(d, 'MMM d, yyyy h:mm a')
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: APP_TIME_ZONE,
+    month: 'short', day: 'numeric', year: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+    timeZoneName: 'short',
+  }).format(d)
 }
 
 export function formatMinutes(minutes: number): string {

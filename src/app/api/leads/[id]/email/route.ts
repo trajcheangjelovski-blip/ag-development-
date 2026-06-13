@@ -5,7 +5,8 @@ import { sendLeadEmail } from '@/lib/email'
 // Send a composed email to a lead from the admin panel.
 // On success, a lead still in "New" automatically moves to "Contacted",
 // and the send is logged in the admin notes.
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     return NextResponse.json({ error: 'Subject and message are required' }, { status: 400 })
   }
 
-  const { data: lead, error: leadError } = await supabase.from('leads').select('*').eq('id', params.id).single()
+  const { data: lead, error: leadError } = await supabase.from('leads').select('*').eq('id', id).single()
   if (leadError || !lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
   try {
@@ -41,7 +42,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { data: updated, error: updateError } = await supabase
     .from('leads')
     .update(updates)
-    .eq('id', params.id)
+    .eq('id', id)
     .select()
     .single()
 

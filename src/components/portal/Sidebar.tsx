@@ -9,9 +9,11 @@ import type { Profile } from '@/types'
 const adminLinks = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: '⊞' },
   { href: '/admin/tickets', label: 'All Tickets', icon: '🎫' },
+  { href: '/admin/messages', label: 'Messages', icon: '✉️' },
   { href: '/admin/clients', label: 'Clients', icon: '👥' },
   { href: '/admin/leads', label: 'Leads & CRM', icon: '📋' },
   { href: '/admin/reports', label: 'Monthly Reports', icon: '📊' },
+  { href: '/admin/stats', label: 'Statistics', icon: '📈' },
   { href: '/admin/invoices', label: 'Invoices', icon: '💳' },
   { href: '/admin/plans', label: 'Plans & Coupons', icon: '🏷️' },
   { href: '/admin/activity', label: 'Activity Log', icon: '📜' },
@@ -22,6 +24,7 @@ const adminLinks = [
 const clientLinks = [
   { href: '/portal/dashboard', label: 'Dashboard', icon: '⊞' },
   { href: '/portal/tickets', label: 'My Tickets', icon: '🎫' },
+  { href: '/portal/message', label: 'Message Us', icon: '✉️' },
   { href: '/portal/usage', label: 'Plan Usage', icon: '📦' },
   { href: '/portal/reports', label: 'Monthly Reports', icon: '📊' },
   { href: '/portal/invoices', label: 'Invoices', icon: '💳' },
@@ -37,6 +40,8 @@ export function Sidebar({ profile }: { profile: Profile }) {
   const links = isAdmin ? adminLinks : clientLinks
   const [newLeads, setNewLeads] = useState(0)
   const [unpaidInvoices, setUnpaidInvoices] = useState(0)
+  const [unreadMessages, setUnreadMessages] = useState(0)
+  const messagesPath = isAdmin ? '/admin/messages' : '/portal/message'
 
   // Live count of new leads for the admin badge
   useEffect(() => {
@@ -86,6 +91,31 @@ export function Sidebar({ profile }: { profile: Profile }) {
     return () => { sb.removeChannel(channel); clearInterval(interval) }
   }, [isAdmin, profile.client_id, pathname])
 
+  // Live count of unread messages for the Messages link badge (both roles)
+  useEffect(() => {
+    if (!profile.id) return
+    const sb = createClient()
+
+    async function loadCount() {
+      const { count } = await sb
+        .from('notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', profile.id)
+        .eq('is_read', false)
+        .eq('link', messagesPath)
+      setUnreadMessages(count ?? 0)
+    }
+    loadCount()
+
+    const channel = sb
+      .channel('sidebar-messages-count')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, loadCount)
+      .subscribe()
+    const interval = setInterval(loadCount, 60000)
+
+    return () => { sb.removeChannel(channel); clearInterval(interval) }
+  }, [profile.id, messagesPath, pathname])
+
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/login')
@@ -131,6 +161,11 @@ export function Sidebar({ profile }: { profile: Profile }) {
               {link.href === '/portal/invoices' && unpaidInvoices > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[22px] text-center leading-none flex-shrink-0">
                   +{unpaidInvoices > 99 ? '99' : unpaidInvoices}
+                </span>
+              )}
+              {link.href === messagesPath && unreadMessages > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[22px] text-center leading-none flex-shrink-0">
+                  {unreadMessages > 99 ? '99+' : unreadMessages}
                 </span>
               )}
             </Link>

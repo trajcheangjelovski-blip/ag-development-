@@ -203,6 +203,20 @@ export default function AdminPlans() {
     setPlanSaving(false)
   }
 
+  async function deletePlan(p: Plan) {
+    if (!confirm(`Delete "${p.name}"? This permanently removes the item. Existing client records keep their copy.`)) return
+    setBanner(null)
+    const res = await fetch(`/api/plans?id=${encodeURIComponent(p.id)}`, { method: 'DELETE' })
+    const data = await res.json().catch(() => ({}))
+    if (res.ok) {
+      setBanner({ ok: true, text: `"${p.name}" deleted.` })
+      if (editPlan?.id === p.id) setEditPlan(null)
+      loadAll()
+    } else {
+      setBanner({ ok: false, text: data?.error || 'Failed to delete' })
+    }
+  }
+
   async function createCoupon() {
     setCouponSaving(true)
     setBanner(null)
@@ -369,8 +383,9 @@ export default function AdminPlans() {
                       )}
                       <span className="text-xs text-slate-400">{p.billing_interval ? '/mo' : ' one-time'}</span>
                     </td>
-                    <td className="px-5 py-3.5 text-right w-20">
+                    <td className="px-5 py-3.5 text-right w-28 whitespace-nowrap">
                       <button onClick={() => openPlanEditor(p)} className="text-xs text-blue-600 hover:underline font-medium">Edit →</button>
+                      <button onClick={() => deletePlan(p)} className="ml-3 text-xs text-red-600 hover:underline font-medium">Delete</button>
                     </td>
                   </tr>
                 ))}

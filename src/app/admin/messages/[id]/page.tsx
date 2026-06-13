@@ -3,7 +3,7 @@ import { redirect, notFound } from 'next/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import TicketDetailClient from '@/components/portal/TicketDetailClient'
 
-export default async function AdminTicketDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function AdminMessageDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -16,6 +16,7 @@ export default async function AdminTicketDetail({ params }: { params: Promise<{ 
     .from('tickets')
     .select('*, client:clients(*, package:support_packages(*)), creator:profiles!created_by(id, full_name, role)')
     .eq('id', id)
+    .eq('hidden_for_admin', false)
     .single()
 
   if (!ticket) notFound()

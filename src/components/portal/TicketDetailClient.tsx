@@ -40,6 +40,13 @@ interface TicketDetailClientProps {
 export default function TicketDetailClient({ ticketId, initialTicket, profile }: TicketDetailClientProps) {
   const router = useRouter()
   const isAdmin = profile.role === 'admin'
+  // Messages are stored as tickets but get a stripped-down, conversation-style
+  // view (no time logging, proof, priority, etc.) and live under /messages.
+  const isMessage = initialTicket.category === 'Message'
+  const backHref = isMessage
+    ? (isAdmin ? '/admin/messages' : '/portal/message')
+    : (isAdmin ? '/admin/tickets' : '/portal/tickets')
+  const backLabel = isMessage ? '← Back to Messages' : '← Back to Tickets'
   const [ticket, setTicket] = useState<Ticket>(initialTicket)
   const [comments, setComments] = useState<TicketComment[]>([])
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([])
@@ -205,6 +212,31 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
     setReopening(false)
   }
 
+  async function closeTicket() {
+    if (!confirm('Close this ticket? You can reopen it later if you still need help.')) return
+    const res = await fetch(`/api/tickets/${ticketId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'Closed' }),
+    })
+    if (res.ok) {
+      const updated = await res.json()
+      setTicket(prev => ({ ...prev, status: 'Closed', updated_at: updated?.updated_at || prev.updated_at }))
+      fetchData()
+    } else {
+      const data = await res.json().catch(() => ({}))
+      setError(data.error || 'Failed to close ticket')
+    }
+  }
+
+  async function deleteMessage() {
+    const otherParty = isAdmin ? 'The client will still have their copy.' : 'AG Development will still have their copy.'
+    if (!confirm(`Remove this message from your inbox? ${otherParty}`)) return
+    const res = await fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' })
+    if (res.ok) router.push(isAdmin ? '/admin/messages' : '/portal/message')
+    else setError('Failed to delete message')
+  }
+
   async function updateStatus() {
     setUpdatingStatus(true)
     const res = await fetch(`/api/tickets/${ticketId}`, {
@@ -289,10 +321,10 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
     <div className="p-8">
       {/* Header */}
       <button
-        onClick={() => router.push(isAdmin ? '/admin/tickets' : '/portal/tickets')}
+        onClick={() => router.push(backHref)}
         className="text-sm text-slate-500 hover:text-slate-700 flex items-center gap-1 mb-5"
       >
-        ← Back to Tickets
+        {backLabel}
       </button>
 
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
@@ -300,8 +332,9 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
           <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-2">{ticket.title}</h1>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={ticket.status} />
-            <PriorityBadge priority={ticket.priority} />
-            <span className="text-xs text-slate-400">{ticket.category}</span>
+            {!isMessage && <PriorityBadge priority={ticket.priority} />}
+            {!isMessage && <span className="text-xs text-slate-400">{ticket.category}</span>}
+            {isMessage && <span className="text-xs text-slate-400">Message</span>}
             {isAdmin && (ticket as any).client && (
               <span className="text-xs text-slate-400">· {(ticket as any).client.business_name}</span>
             )}
@@ -313,20 +346,39 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
               <button className="btn-ghost text-sm" onClick={() => { setNewStatus(ticket.status); setShowStatusModal(true) }}>
                 Change Status
               </button>
-              <button className="btn-ghost text-sm" onClick={() => setShowTimeModal(true)}>
-                ⏱ Log Time
-              </button>
-              <button className="btn-ghost text-sm" onClick={() => setShowProofModal(true)}>
-                📸 Add Proof
-              </button>
+              {!isMessage && (
+                <>
+                  <button className="btn-ghost text-sm" onClick={() => setShowTimeModal(true)}>
+                    ⏱ Log Time
+                  </button>
+                  <button className="btn-ghost text-sm" onClick={() => setShowProofModal(true)}>
+                    📸 Add Proof
+                  </button>
+                </>
+              )}
+              {isMessage && (
+                <button className="btn-ghost text-sm text-red-600 hover:text-red-700" onClick={deleteMessage}>
+                  🗑 Delete
+                </button>
+              )}
             </>
           )}
-          {!isAdmin && ['Completed', 'Closed'].includes(ticket.status) && (
+          {!isAdmin && !isMessage && ['Completed', 'Closed'].includes(ticket.status) && (
             <button
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-sm font-semibold hover:bg-amber-100 transition-all"
               onClick={() => { setReopenReason(''); setReopenError(''); setShowReopenModal(true) }}
             >
               ↺ Reopen Ticket
+            </button>
+          )}
+          {!isAdmin && !isMessage && !['Completed', 'Closed'].includes(ticket.status) && (
+            <button className="btn-ghost text-sm" onClick={closeTicket}>
+              ✓ Close Ticket
+            </button>
+          )}
+          {!isAdmin && isMessage && (
+            <button className="btn-ghost text-sm text-red-600 hover:text-red-700" onClick={deleteMessage}>
+              🗑 Delete
             </button>
           )}
         </div>
@@ -340,7 +392,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
           {/* Description */}
           <div className="card p-6">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Description</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">{isMessage ? 'Message' : 'Description'}</h3>
             <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{ticket.description}</p>
             {ticket.affected_site && (
               <div className="mt-3 text-sm text-slate-500">
@@ -413,7 +465,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Comments
+                {isMessage ? 'Conversation' : 'Comments'}
                 {comments.length > 0 && (
                   <span className="ml-2 text-slate-400 normal-case font-normal">({comments.length})</span>
                 )}
@@ -558,8 +610,8 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 </p>
               )}
 
-              {/* Comment type toggle — admins only */}
-              {isAdmin && (
+              {/* Comment type toggle — admins only (not for plain messages) */}
+              {isAdmin && !isMessage && (
                 <div className="flex gap-2 mb-3">
                   <button
                     onClick={() => setCommentType('public')}
@@ -651,15 +703,23 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
         {/* ── Sidebar ── */}
         <div className="space-y-4">
-          <SectionCard title="Ticket Details">
-            {[
-              ['ID', '#' + ticketId.slice(0,8).toUpperCase()],
-              ['Status', ticket.status],
-              ['Priority', ticket.priority],
-              ['Category', ticket.category],
-              ['Created', formatDate(ticket.created_at)],
-              ['Updated', formatDate(ticket.updated_at)],
-            ].map(([l, v]) => (
+          <SectionCard title={isMessage ? 'Message Details' : 'Ticket Details'}>
+            {(isMessage
+              ? [
+                  ['ID', '#' + ticketId.slice(0,8).toUpperCase()],
+                  ['Status', ticket.status],
+                  ['Started', formatDate(ticket.created_at)],
+                  ['Updated', formatDate(ticket.updated_at)],
+                ]
+              : [
+                  ['ID', '#' + ticketId.slice(0,8).toUpperCase()],
+                  ['Status', ticket.status],
+                  ['Priority', ticket.priority],
+                  ['Category', ticket.category],
+                  ['Created', formatDate(ticket.created_at)],
+                  ['Updated', formatDate(ticket.updated_at)],
+                ]
+            ).map(([l, v]) => (
               <div key={l} className="flex justify-between text-sm py-1.5 border-b border-slate-100 last:border-0">
                 <span className="text-slate-500">{l}</span>
                 <span className="font-semibold text-slate-800 text-right">{v}</span>
@@ -667,7 +727,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
             ))}
           </SectionCard>
 
-          <SectionCard title="Time Logged">
+          {!isMessage && <SectionCard title="Time Logged">
             <div className="font-display text-2xl font-extrabold text-slate-800 mb-3">{formatMinutes(totalMins)}</div>
             {timeEntries.length === 0 ? (
               <p className="text-xs text-slate-400">No time logged yet.</p>
@@ -689,9 +749,9 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 ))}
               </div>
             )}
-          </SectionCard>
+          </SectionCard>}
 
-          <SectionCard title="Activity Log">
+          {!isMessage && <SectionCard title="Activity Log">
             {activity.length === 0 ? (
               <p className="text-xs text-slate-400">No activity yet.</p>
             ) : (
@@ -708,7 +768,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 ))}
               </div>
             )}
-          </SectionCard>
+          </SectionCard>}
         </div>
       </div>
 
@@ -755,8 +815,13 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
           <div className="mb-5">
             <label className="form-label">New Status</label>
             <select className="form-input" value={newStatus} onChange={e => setNewStatus(e.target.value as any)}>
-              {TICKET_STATUSES.map(s => <option key={s}>{s}</option>)}
+              {/* "Waiting Client" is set automatically when you reply, so it's not
+                  a manual option (unless the ticket is already in that state). */}
+              {TICKET_STATUSES
+                .filter(s => s !== 'Waiting Client' || ticket.status === 'Waiting Client')
+                .map(s => <option key={s}>{s}</option>)}
             </select>
+            <p className="text-xs text-slate-400 mt-1.5">“Waiting Client” is applied automatically when you reply.</p>
           </div>
           <div className="flex justify-end gap-2">
             <button className="btn-ghost" onClick={() => setShowStatusModal(false)}>Cancel</button>

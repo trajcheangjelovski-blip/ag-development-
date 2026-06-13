@@ -3,7 +3,8 @@ import { redirect, notFound } from 'next/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import TicketDetailClient from '@/components/portal/TicketDetailClient'
 
-export default async function ClientTicketDetail({ params }: { params: { id: string } }) {
+export default async function ClientTicketDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
@@ -14,7 +15,7 @@ export default async function ClientTicketDetail({ params }: { params: { id: str
   const { data: ticket } = await supabase
     .from('tickets')
     .select('*, client:clients(*, package:support_packages(*)), creator:profiles!created_by(id, full_name, role)')
-    .eq('id', params.id)
+    .eq('id', id)
     .eq('client_id', profile.client_id) // ensure client can only see own tickets
     .single()
 
@@ -22,7 +23,7 @@ export default async function ClientTicketDetail({ params }: { params: { id: str
 
   return (
     <PortalLayout>
-      <TicketDetailClient ticketId={params.id} initialTicket={ticket} profile={profile} />
+      <TicketDetailClient ticketId={id} initialTicket={ticket} profile={profile} />
     </PortalLayout>
   )
 }

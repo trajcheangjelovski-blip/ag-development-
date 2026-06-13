@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { sendNewCommentNotification } from '@/lib/email'
 import { createNotification, notifyAdmin, getClientProfileId } from '@/lib/notifications'
 import { getAdminEmail } from '@/lib/settings'
@@ -62,43 +62,76 @@ export async function POST(request: NextRequest) {
 
     if (resolvedType === 'public') {
       const clientInfo = ticket.client as any
+      // Replies on a "Message" thread route to the dedicated Messages inboxes
+      // so the unread badge there reflects them.
+      const isMessage = ticket.category === 'Message'
 
       if (profile?.role === 'admin') {
-        // Email + notify client
-        await sendNewCommentNotification({
+        // Admin replied → we're now waiting on the client. Flip the status
+        // immediately (skip messages and already-resolved tickets).
+        if (ticket.category !== 'Message' && !['Completed', 'Closed', 'Waiting Client'].includes(ticket.status)) {
+          const admin = await createAdminClient()
+          await admin.from('tickets').update({ status: 'Waiting Client', updated_at: new Date().toISOString() }).eq('id', ticket_id)
+          await admin.from('activity_logs').insert({
+            ticket_id,
+            client_id: ticket.client_id,
+            actor_id: user.id,
+            action: 'Status changed',
+            detail: 'Admin replied → Waiting Client (automatic)',
+          })
+        }
+
+        // Email client (fire-and-forget — don't block the reply on SMTP)
+        sendNewCommentNotification({
           toEmail: clientInfo?.email,
           toName: clientInfo?.contact_name,
           ticketTitle: ticket.title,
           ticketId: ticket_id,
           authorName: 'AG Development',
           commentBody,
-        })
+        }).catch(e => console.error('Email error:', e))
 
         const clientProfileId = await getClientProfileId(ticket.client_id)
         if (clientProfileId) {
           await createNotification({
             userId: clientProfileId,
-            title: 'New reply from AG Development',
+            title: isMessage ? 'New message from AG Development' : 'New reply from AG Development',
             body: commentBody.slice(0, 120),
-            link: `/portal/tickets/${ticket_id}`,
+            link: isMessage ? '/portal/message' : `/portal/tickets/${ticket_id}`,
             type: 'info',
           })
         }
       } else {
-        // Email + notify admin
-        await sendNewCommentNotification({
-          toEmail: await getAdminEmail(),
-          toName: 'Admin',
-          ticketTitle: ticket.title,
-          ticketId: ticket_id,
-          authorName: profile?.full_name || 'Client',
-          commentBody,
-        })
+        // Client replied → if we were waiting on them, move the ticket back to
+        // In Progress automatically (skip messages and resolved tickets).
+        if (ticket.category !== 'Message' && ticket.status === 'Waiting Client') {
+          const admin = await createAdminClient()
+          await admin.from('tickets').update({ status: 'In Progress', updated_at: new Date().toISOString() }).eq('id', ticket_id)
+          await admin.from('activity_logs').insert({
+            ticket_id,
+            client_id: ticket.client_id,
+            actor_id: user.id,
+            action: 'Status changed',
+            detail: 'Client replied → In Progress (automatic)',
+          })
+        }
+
+        // Email admin (fire-and-forget — don't block the reply on SMTP)
+        getAdminEmail().then(adminEmail =>
+          sendNewCommentNotification({
+            toEmail: adminEmail,
+            toName: 'Admin',
+            ticketTitle: ticket.title,
+            ticketId: ticket_id,
+            authorName: profile?.full_name || 'Client',
+            commentBody,
+          })
+        ).catch(e => console.error('Email error:', e))
 
         await notifyAdmin({
           title: `New message from ${clientInfo?.business_name || profile?.full_name}`,
           body: commentBody.slice(0, 120),
-          link: `/admin/tickets/${ticket_id}`,
+          link: isMessage ? '/admin/messages' : `/admin/tickets/${ticket_id}`,
           type: 'info',
         })
       }

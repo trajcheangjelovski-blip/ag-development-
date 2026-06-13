@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -9,14 +10,15 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   const { data, error } = await supabase
     .from('clients')
     .select('*, package:support_packages(*)')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -27,7 +29,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   const body = await request.json()
 
   // Assigning a (new) plan starts a fresh 1-month plan period
-  const { data: existing } = await supabase.from('clients').select('package_id').eq('id', params.id).single()
+  const { data: existing } = await supabase.from('clients').select('package_id').eq('id', id).single()
   const planChanged = !!body.package_id && body.package_id !== existing?.package_id
   if (planChanged) {
     const start = new Date()
@@ -37,7 +39,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     body.plan_expires_at = end.toISOString()
   }
 
-  const { data, error } = await supabase.from('clients').update(body).eq('id', params.id).select('*, package:support_packages(*)').single()
+  const { data, error } = await supabase.from('clients').update(body).eq('id', id).select('*, package:support_packages(*)').single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
@@ -49,7 +51,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       const unitFor = (t: string) => (t === 'hours' ? 'hours' : t === 'tickets' ? 'tickets' : 'items')
       await admin.from('client_extras').insert(
         pkgExtras.map((x: any) => ({
-          client_id: params.id,
+          client_id: id,
           name: x.name,
           qty_total: Math.max(1, Math.round((Number(x.qty) || 1) * (Number(x.grant_qty) || 1))),
           qty_used: 0,

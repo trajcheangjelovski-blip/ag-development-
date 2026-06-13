@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge } from '@/components/ui'
-import { formatDate, formatMinutes } from '@/lib/utils'
+import { formatDate, formatDateTime, formatMinutes } from '@/lib/utils'
 import Link from 'next/link'
 
 export default async function AdminDashboard() {
@@ -21,7 +21,7 @@ export default async function AdminDashboard() {
     { data: activity },
   ] = await Promise.all([
     supabase.from('clients').select('id, is_active'),
-    supabase.from('tickets').select('*, client:clients(business_name)').order('created_at', { ascending: false }).limit(50),
+    supabase.from('tickets').select('*, client:clients(business_name)').neq('category', 'Message').order('created_at', { ascending: false }).limit(50),
     supabase.from('leads').select('id, status'),
     supabase.from('invoices').select('id, status, amount'),
     supabase.from('activity_logs').select('*, actor:profiles(full_name), client:clients(business_name)').order('created_at', { ascending: false }).limit(10),
@@ -99,7 +99,7 @@ export default async function AdminDashboard() {
                     <div className="text-xs font-semibold text-slate-700">{a.action}</div>
                     <div className="text-xs text-slate-500 truncate">{a.client?.business_name}</div>
                   </div>
-                  <div className="text-xs text-slate-400 flex-shrink-0">{formatDate(a.created_at)}</div>
+                  <div className="text-xs text-slate-400 flex-shrink-0">{formatDateTime(a.created_at)}</div>
                 </div>
               ))}
             </div>

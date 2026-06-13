@@ -5,7 +5,7 @@ import { StatCard, StatusBadge, PriorityBadge, ProgressBar, EmptyState } from '@
 import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
 import { BuyExtraHourButton } from '@/components/portal/BuyExtraHourButton'
 import { getClientPlanState } from '@/lib/planUsage'
-import { formatDate, formatMinutes, formatRelativeTime, currentBillingMonth } from '@/lib/utils'
+import { formatDate, formatDateTime, formatMinutes, formatRelativeTime, currentBillingMonth } from '@/lib/utils'
 import Link from 'next/link'
 
 export default async function ClientDashboard() {
@@ -26,33 +26,60 @@ export default async function ClientDashboard() {
     { data: monthEntries },
     { data: monthTickets },
     { data: activity },
-    { data: allTickets },
     { data: unpaidInvoices },
     { data: clientExtras },
   ] = await Promise.all([
     supabase.from('clients').select('*, package:support_packages(*)').eq('id', clientId).single(),
-    supabase.from('tickets').select('id').eq('client_id', clientId).not('status', 'in', '("Completed","Closed")'),
-    supabase.from('tickets').select('*').eq('client_id', clientId).order('created_at', { ascending: false }).limit(5),
+    supabase.from('tickets').select('id').eq('client_id', clientId).neq('category', 'Message').not('status', 'in', '("Completed","Closed")'),
+    supabase.from('tickets').select('*').eq('client_id', clientId).neq('category', 'Message').order('created_at', { ascending: false }).limit(5),
     supabase.from('time_entries').select('minutes').eq('client_id', clientId).eq('billing_month', month),
-    supabase.from('tickets').select('id').eq('client_id', clientId).like('created_at', `${month}%`),
+    supabase.from('tickets').select('id').eq('client_id', clientId).neq('category', 'Message').like('created_at', `${month}%`),
     supabase.from('activity_logs').select('*, actor:profiles(full_name)').eq('client_id', clientId).order('created_at', { ascending: false }).limit(8),
-    supabase.from('tickets').select('id').eq('client_id', clientId),
     supabase.from('invoices').select('*').eq('client_id', clientId).in('status', ['Pending', 'Overdue']).order('due_date', { ascending: true }),
     supabase.from('client_extras').select('*').eq('client_id', clientId).order('created_at'),
   ])
 
-  const allTicketIds = allTickets?.map((t: any) => t.id) || []
+  // "Recent Messages from Us" = the Messages feature only (category 'Message'),
+  // NOT ticket replies or status changes. Includes admin-started message threads
+  // and admin replies within message threads.
   let recentMessages: any[] = []
-  if (allTicketIds.length > 0) {
+  const { data: msgThreads } = await supabase
+    .from('tickets')
+    .select('id, title, description, created_at, creator:profiles!created_by(role)')
+    .eq('client_id', clientId)
+    .eq('category', 'Message')
+    .eq('hidden_for_client', false)
+    .order('created_at', { ascending: false })
+    .limit(10)
+
+  const msgIds = (msgThreads || []).map((t: any) => t.id)
+  let adminReplies: any[] = []
+  if (msgIds.length > 0) {
     const { data: comments } = await supabase
       .from('ticket_comments')
       .select('id, body, created_at, ticket_id, author:profiles(id, full_name, role, avatar_url), ticket:tickets(id, title)')
-      .in('ticket_id', allTicketIds)
+      .in('ticket_id', msgIds)
       .eq('comment_type', 'public')
       .order('created_at', { ascending: false })
       .limit(20)
-    recentMessages = (comments || []).filter((c: any) => c.author?.role === 'admin').slice(0, 3)
+    adminReplies = (comments || []).filter((c: any) => c.author?.role === 'admin')
   }
+
+  // Admin-started message threads (the opening message lives in the description)
+  const adminOpeners = (msgThreads || [])
+    .filter((t: any) => t.creator?.role === 'admin')
+    .map((t: any) => ({
+      id: `thread-${t.id}`,
+      body: t.description,
+      created_at: t.created_at,
+      ticket_id: t.id,
+      ticket: { id: t.id, title: t.title },
+      author: { full_name: 'AG Development', role: 'admin' },
+    }))
+
+  recentMessages = [...adminReplies, ...adminOpeners]
+    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 3)
 
   const pkg = (client as any)?.package
   const dueInvoices = unpaidInvoices || []
@@ -157,11 +184,18 @@ export default async function ClientDashboard() {
                 {planState.expired ? '⏳ Plan Period Ended' : '⚡ All Credits Used'}
               </div>
               <p className="text-sm leading-relaxed" style={{ color: '#991b1b' }}>
-                {planState.blockReason} New tickets are paused until you top up or renew.
+                {planState.blockReason} New tickets are paused until you top up or renew — but you can still message us anytime.
               </p>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0 flex-wrap">
               {!planState.expired && <BuyExtraHourButton />}
+              <Link
+                href="/portal/message"
+                className="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap border transition-all"
+                style={{ color: '#b91c1c', borderColor: '#fca5a5', background: 'white' }}
+              >
+                ✉️ Message Us
+              </Link>
               <Link
                 href="/pricing"
                 className="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap border transition-all"
@@ -250,13 +284,13 @@ export default async function ClientDashboard() {
                 <span className="text-base">💬</span>
                 <h2 className="font-display font-bold text-blue-900">Recent Messages from Us</h2>
               </div>
-              <Link href="/portal/tickets" className="text-xs text-blue-600 font-medium hover:underline">View All Tickets →</Link>
+              <Link href="/portal/message" className="text-xs text-blue-600 font-medium hover:underline">View All Messages →</Link>
             </div>
             <div className="divide-y divide-slate-100">
               {recentMessages.map((c: any) => (
                 <Link
                   key={c.id}
-                  href={`/portal/tickets/${c.ticket_id}`}
+                  href={`/portal/message/${c.ticket_id}`}
                   className="flex gap-4 px-5 py-4 hover:bg-slate-50 transition-colors group"
                 >
                   {c.author?.avatar_url ? (
@@ -330,7 +364,7 @@ export default async function ClientDashboard() {
                       <div className="text-xs font-semibold text-slate-700">{a.action}</div>
                       <div className="text-xs text-slate-400 truncate">{a.detail}</div>
                     </div>
-                    <div className="text-xs text-slate-400 flex-shrink-0">{formatDate(a.created_at)}</div>
+                    <div className="text-xs text-slate-400 flex-shrink-0">{formatDateTime(a.created_at)}</div>
                   </div>
                 ))}
               </div>

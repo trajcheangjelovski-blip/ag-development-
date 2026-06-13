@@ -1,18 +1,44 @@
-import { Resend } from 'resend'
+import nodemailer, { type Transporter } from 'nodemailer'
 import { getEmailSettings } from '@/lib/settings'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-// All emails are sent with the config from admin Settings (app_settings table),
-// falling back to RESEND_API_KEY / EMAIL_FROM env vars.
+// SMTP transport (e.g. a Hetzner mailbox). Built once and reused.
+// Configure via env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS.
+let transporter: Transporter | null = null
+function getTransport(): Transporter {
+  if (transporter) return transporter
+  const host = process.env.SMTP_HOST
+  const port = Number(process.env.SMTP_PORT || 587)
+  const user = process.env.SMTP_USER
+  const pass = process.env.SMTP_PASS
+  if (!host || !user || !pass) {
+    throw new Error('Email is not configured. Set SMTP_HOST, SMTP_USER and SMTP_PASS in your environment.')
+  }
+  transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // 465 = implicit TLS; 587 = STARTTLS
+    auth: { user, pass },
+    // Fail fast instead of hanging the request if the mail host is slow/unreachable
+    connectionTimeout: 8000,
+    greetingTimeout: 8000,
+    socketTimeout: 10000,
+  })
+  return transporter
+}
+
+// All emails are sent over SMTP. The "from" address comes from admin Settings
+// (app_settings table), falling back to the EMAIL_FROM env var.
 async function sendMail(payload: { to: string; subject: string; html: string; replyTo?: string }) {
   const cfg = await getEmailSettings()
-  if (!cfg.apiKey || cfg.apiKey.includes('your_api')) {
-    throw new Error('Email is not configured. Add your Resend API key in Admin → Settings.')
-  }
-  const resend = new Resend(cfg.apiKey)
-  const { error } = await resend.emails.send({ from: cfg.from, ...payload })
-  if (error) throw new Error(error.message)
+  await getTransport().sendMail({
+    from: cfg.from,
+    to: payload.to,
+    subject: payload.subject,
+    html: payload.html,
+    replyTo: payload.replyTo,
+  })
 }
 
 const btn = (href: string, label: string, color = '#0f1f3d') =>

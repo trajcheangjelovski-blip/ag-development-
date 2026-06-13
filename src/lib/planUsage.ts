@@ -51,6 +51,9 @@ export async function getClientPlanState(clientId: string): Promise<PlanState | 
       .from('tickets')
       .select('id')
       .eq('client_id', clientId)
+      // Free "Message" tickets are a contact channel, not a support request,
+      // so they never count against the plan's request allowance.
+      .neq('category', 'Message')
       .gte('created_at', periodStart.toISOString())
       .lt('created_at', periodEnd.toISOString()),
     admin

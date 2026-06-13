@@ -21,6 +21,7 @@ export default function AdminTickets() {
     let query = supabase
       .from('tickets')
       .select('*, client:clients(id, business_name)')
+      .neq('category', 'Message') // messages live in the dedicated Messages inbox
       .order('created_at', { ascending: false })
     if (status !== 'All') query = query.eq('status', status)
     if (clientId) query = query.eq('client_id', clientId)

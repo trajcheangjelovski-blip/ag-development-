@@ -172,3 +172,37 @@ CREATE TABLE IF NOT EXISTS coupons (
 ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins manage coupons" ON coupons;
 CREATE POLICY "Admins manage coupons" ON coupons FOR ALL USING (get_user_role() = 'admin');
+
+-- 6) Direct messages: allow a "Message" ticket category so clients (even with an
+-- expired plan) and admins can message each other. Free, doesn't use credits.
+ALTER TABLE tickets DROP CONSTRAINT IF EXISTS tickets_category_check;
+ALTER TABLE tickets ADD CONSTRAINT tickets_category_check CHECK (category IN (
+  'Website Issue','WordPress','Shopify','Domain/DNS',
+  'Business Email','New Feature Request','General IT Support','Message'
+));
+
+-- 7) Notifications (in-app bell + unread message/lead/invoice badges).
+-- Idempotent: safe to run whether or not the table already exists.
+CREATE TABLE IF NOT EXISTS notifications (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  title TEXT NOT NULL,
+  body TEXT,
+  link TEXT,
+  type TEXT NOT NULL DEFAULT 'info' CHECK (type IN ('info','success','warning','urgent')),
+  is_read BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users manage own notifications" ON notifications;
+CREATE POLICY "Users manage own notifications" ON notifications FOR ALL USING (user_id = auth.uid());
+
+-- Live updates so the bell + badges refresh instantly
+DO $$ BEGIN
+  ALTER PUBLICATION supabase_realtime ADD TABLE notifications;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- 8) Per-side message deletion: hiding a message removes it for one party only.
+-- When both sides have hidden it, the app deletes the row for real.
+ALTER TABLE tickets ADD COLUMN IF NOT EXISTS hidden_for_admin  BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE tickets ADD COLUMN IF NOT EXISTS hidden_for_client BOOLEAN NOT NULL DEFAULT FALSE;
