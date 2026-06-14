@@ -187,6 +187,7 @@ function OrderContent() {
   const [form, setForm] = useState<FormState>({
     businessName: '', fullName: '', email: '', phone: '', website: '', message: '',
   })
+  const [coupon, setCoupon] = useState('')
 
   // Live (admin-editable) plan content merged over the static cards
   const buildPackages = useMergedCards(BUILD_PACKAGES)
@@ -234,7 +235,8 @@ function OrderContent() {
     const budget = carePlan.price > 0 ? carePlan.price : (oneTimeTotal > 0 ? oneTimeTotal : 1)
 
     try {
-      const res = await fetch('/api/leads', {
+      // Capture the order details as a lead (best-effort — don't block checkout)
+      fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -247,18 +249,43 @@ function OrderContent() {
           budget,
           message: form.message.trim() || undefined,
         }),
-      })
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({})) as { error?: string }
-        setApiError(d.error || 'Something went wrong. Please try again.')
-      } else {
+      }).catch(() => {})
+
+      // Custom packages need a manual quote — no online checkout
+      if (isCustom) {
         setSubmittedName(form.fullName.split(' ')[0] || 'there')
         setSubmitted(true)
         window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
       }
+
+      // Everything selected goes to Stripe Checkout
+      const items: string[] = []
+      if (buildPkg?.id) items.push(buildPkg.id)
+      if (!skippedCare && carePlan.id !== 'none') items.push(carePlan.id)
+
+      if (!items.length) {
+        // Nothing purchasable selected — just confirm the lead
+        setSubmittedName(form.fullName.split(' ')[0] || 'there')
+        setSubmitted(true)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+        return
+      }
+
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items, coupon_code: coupon.trim() || undefined }),
+      })
+      const data = await res.json().catch(() => ({})) as { url?: string; error?: string }
+      if (res.ok && data.url) {
+        window.location.href = data.url
+        return
+      }
+      setApiError(data.error || 'Could not start checkout. Please try again.')
+      setLoading(false)
     } catch {
       setApiError('Network error. Please check your connection and try again.')
-    } finally {
       setLoading(false)
     }
   }
@@ -813,7 +840,7 @@ function OrderContent() {
                   />
                 </div>
 
-                <div className={apiError ? 'mb-4' : ''}>
+                <div className="mb-4">
                   <label className="form-label">Message / Notes</label>
                   <textarea
                     rows={4}
@@ -823,6 +850,18 @@ function OrderContent() {
                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   />
                 </div>
+
+                {!isCustom && (
+                  <div className={apiError ? 'mb-4' : ''}>
+                    <label className="form-label">Discount code (optional)</label>
+                    <input
+                      className="form-input uppercase"
+                      placeholder="Enter coupon code"
+                      value={coupon}
+                      onChange={e => setCoupon(e.target.value.toUpperCase())}
+                    />
+                  </div>
+                )}
 
                 {apiError && <InfoBox type="red">{apiError}</InfoBox>}
               </div>
@@ -848,11 +887,13 @@ function OrderContent() {
                   loading ? 'opacity-65 cursor-not-allowed' : 'cursor-pointer',
                 )}
               >
-                {loading ? 'Submitting…' : 'Submit My Order →'}
+                {loading ? (isCustom ? 'Submitting…' : 'Redirecting to payment…') : (isCustom ? 'Submit My Order →' : 'Continue to Secure Payment →')}
               </button>
             </div>
             <p className="text-xs text-slate-400 text-center mt-3">
-              🔒 No payment today. We&apos;ll review your order and contact you within 1 business day.
+              {isCustom
+                ? '🔒 No payment today. We’ll review your request and send a custom quote within 1 business day.'
+                : '🔒 Secure checkout powered by Stripe. One-time builds are billed once; care plans bill monthly.'}
             </p>
           </form>
         )}

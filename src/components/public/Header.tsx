@@ -47,6 +47,7 @@ function buildServiceColumns(price: (id: string, fallback: number) => number) {
 const OTHER_NAV = [
   { href: '/pricing',   label: 'Pricing' },
   { href: '/portfolio', label: 'Portfolio' },
+  { href: '/about',     label: 'About' },
   { href: '/contact',   label: 'Contact' },
 ]
 
