@@ -4,6 +4,7 @@ import PortalLayout from '@/components/portal/PortalLayout'
 import { StatusBadge, EmptyState } from '@/components/ui'
 import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
 import { formatDate } from '@/lib/utils'
+import { clientCan } from '@/lib/permissions'
 
 export default async function ClientInvoices() {
   const supabase = await createClient()
@@ -11,6 +12,8 @@ export default async function ClientInvoices() {
   if (!user) redirect('/login')
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
   if (!profile?.client_id) redirect('/login')
+  // Members without billing access can't view invoices
+  if (!clientCan(profile as any, 'billing')) redirect('/portal/dashboard')
 
   const { data: invoices } = await supabase
     .from('invoices')

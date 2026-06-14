@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json()
-  const { name, price, requests_per_month, hours_per_month, response_time, extra_hourly_rate, description, extras } = body
+  const { name, price, requests_per_month, hours_per_month, response_time, extra_hourly_rate, description, extras, team_enabled, team_seats, setup_fee } = body
   if (!name?.trim() || typeof price !== 'number' || price < 0) {
     return NextResponse.json({ error: 'Name and a valid price are required' }, { status: 400 })
   }
@@ -34,6 +34,9 @@ export async function POST(request: NextRequest) {
       extra_hourly_rate: Number(extra_hourly_rate) || 10,
       description: description?.trim() || null,
       extras: Array.isArray(extras) && extras.length ? extras : null,
+      team_enabled: !!team_enabled,
+      team_seats: team_seats ? Number(team_seats) : null,
+      setup_fee: Number(setup_fee) || 0,
       is_active: true,
     })
     .select()
@@ -41,6 +44,38 @@ export async function POST(request: NextRequest) {
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data, { status: 201 })
+}
+
+// Admin: update a support package (currently team settings).
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  const body = await request.json()
+  if (!body.id) return NextResponse.json({ error: 'id required' }, { status: 400 })
+
+  const update: any = {}
+  if ('team_enabled' in body) update.team_enabled = !!body.team_enabled
+  if ('team_seats' in body) update.team_seats = (body.team_seats === '' || body.team_seats == null) ? null : Number(body.team_seats)
+  // Editable package fields
+  if ('name' in body) update.name = String(body.name || '').trim()
+  if ('price' in body) update.price = Number(body.price) || 0
+  if ('hours_per_month' in body) update.hours_per_month = Number(body.hours_per_month) || 0
+  if ('requests_per_month' in body) update.requests_per_month = Number(body.requests_per_month) || 0
+  if ('response_time' in body) update.response_time = String(body.response_time || '').trim() || '24 hours'
+  if ('extra_hourly_rate' in body) update.extra_hourly_rate = Number(body.extra_hourly_rate) || 0
+  if ('setup_fee' in body) update.setup_fee = Number(body.setup_fee) || 0
+  if ('description' in body) update.description = body.description?.trim() || null
+  if ('name' in update && !update.name) return NextResponse.json({ error: 'Name is required' }, { status: 400 })
+  if (!Object.keys(update).length) return NextResponse.json({ error: 'Nothing to update' }, { status: 400 })
+
+  const admin = await createAdminClient()
+  const { error } = await admin.from('support_packages').update(update).eq('id', body.id)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true })
 }
 
 // Admin: delete a support package. If clients are still assigned to it,

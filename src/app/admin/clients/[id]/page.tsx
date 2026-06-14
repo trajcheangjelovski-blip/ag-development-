@@ -15,6 +15,8 @@ export default function AdminClientDetail() {
   const [tickets, setTickets] = useState<any[]>([])
   const [timeEntries, setTimeEntries] = useState<any[]>([])
   const [packages, setPackages] = useState<any[]>([])
+  const [extras, setExtras] = useState<any[]>([])
+  const [usage, setUsage] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showEdit, setShowEdit] = useState(false)
   const [editForm, setEditForm] = useState<any>({})
@@ -26,16 +28,21 @@ export default function AdminClientDetail() {
 
   async function load() {
     setLoading(true)
-    const [cRes, tRes, teRes, pkgRes] = await Promise.all([
+    const [cRes, tRes, teRes, pkgRes, exRes] = await Promise.all([
       fetch(`/api/clients/${id}`),
       fetch(`/api/tickets?client_id=${id}`),
       fetch(`/api/time-entries?client_id=${id}&month=${month}`),
       fetch('/api/packages'),
+      fetch(`/api/clients/${id}/extras`),
     ])
     if (cRes.ok) { const c = await cRes.json(); setClient(c); setEditForm(c) }
     if (tRes.ok) setTickets(await tRes.json())
     if (teRes.ok) setTimeEntries(await teRes.json())
     if (pkgRes.ok) setPackages(await pkgRes.json())
+    if (exRes.ok) { const d = await exRes.json(); setExtras(d.extras || []) }
+    // Shared usage source — same numbers as the client dashboard (plan period + top-ups)
+    const uRes = await fetch(`/api/clients/${id}/usage`)
+    if (uRes.ok) setUsage(await uRes.json())
     setLoading(false)
   }
   useEffect(() => { load() }, [id])
@@ -56,8 +63,15 @@ export default function AdminClientDetail() {
   if (!client) return <PortalLayout><div className="p-8 text-slate-500">Client not found.</div></PortalLayout>
 
   const pkg = client.package
-  const usedMinutes = timeEntries.reduce((s: number, e: any) => s + e.minutes, 0)
   const openTickets = tickets.filter((t: any) => !['Completed', 'Closed'].includes(t.status))
+  // Same numbers as the client dashboard: plan period + capacity top-ups folded in
+  const usedMinutes = usage?.usedMinutes ?? timeEntries.reduce((s: number, e: any) => s + e.minutes, 0)
+  const usedRequests = usage?.usedRequests ?? tickets.filter((t: any) => t.created_at?.startsWith(month)).length
+  const includedHours = usage ? Math.round((usage.includedMinutes / 60) * 10) / 10 : (pkg?.hours_per_month || 0)
+  const includedRequests = usage?.includedRequests ?? (pkg?.requests_per_month || 0)
+  const periodLabel = usage?.periodStart && usage?.periodEnd
+    ? `${new Date(usage.periodStart).toLocaleDateString()} — ${new Date(usage.periodEnd).toLocaleDateString()}`
+    : new Date().toLocaleString('default', { month: 'long' })
 
   return (
     <PortalLayout>
@@ -83,15 +97,15 @@ export default function AdminClientDetail() {
           <StatCard label="Plan" value={pkg?.name || '—'} sub={pkg ? `$${pkg.price}/month` : ''} accent />
           <StatCard label="Open Tickets" value={openTickets.length} sub="Active" />
           <StatCard label="Total Tickets" value={tickets.length} sub="All time" />
-          <StatCard label="Hours This Month" value={`${(usedMinutes/60).toFixed(1)}h`} sub={`of ${pkg?.hours_per_month || 0}h`} />
+          <StatCard label="Hours This Month" value={`${(usedMinutes/60).toFixed(1)}h`} sub={`of ${includedHours}h`} />
         </div>
 
         {pkg && (
           <div className="card p-5 mb-6">
-            <h3 className="font-display font-bold text-slate-800 text-sm mb-3">This Month's Usage — {new Date().toLocaleString('default', { month: 'long' })}</h3>
+            <h3 className="font-display font-bold text-slate-800 text-sm mb-3">This Period's Usage — {periodLabel}</h3>
             <div className="grid grid-cols-2 gap-5">
-              <ProgressBar used={tickets.filter((t: any) => t.created_at?.startsWith(month)).length} total={pkg.requests_per_month} label="Requests" />
-              <ProgressBar used={parseFloat((usedMinutes/60).toFixed(1))} total={pkg.hours_per_month} label="Support Hours" />
+              <ProgressBar used={usedRequests} total={includedRequests} label="Requests" />
+              <ProgressBar used={parseFloat((usedMinutes/60).toFixed(1))} total={includedHours} label="Support Hours" />
             </div>
           </div>
         )}
@@ -107,7 +121,6 @@ export default function AdminClientDetail() {
                 </div>
               ))}
             </div>
-            <ClientExtrasCard clientId={String(id)} />
             {client.notes && (
               <div className="card p-5">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Notes</h3>
@@ -175,6 +188,13 @@ export default function AdminClientDetail() {
                 </div>
                 <div><label className="form-label">Notes</label><textarea className="form-input min-h-20 resize-none" value={editForm.notes || ''} onChange={e => setEditForm((p: any) => ({ ...p, notes: e.target.value }))} /></div>
               </div>
+
+              {/* Capacity & extras — add more hours/tickets or item add-ons here */}
+              <div className="mt-5 pt-4 border-t border-slate-200">
+                <p className="text-xs text-slate-400 mb-2">Add a second plan&apos;s worth of hours/tickets, or item add-ons. These stack on the base package above.</p>
+                <ClientExtrasCard clientId={String(id)} onChange={load} />
+              </div>
+
               <div className="flex justify-end gap-2 mt-5">
                 <button className="btn-ghost" onClick={() => setShowEdit(false)}>Cancel</button>
                 <button className="btn-secondary flex items-center gap-2" onClick={saveClient} disabled={saving}>

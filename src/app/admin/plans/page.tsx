@@ -71,10 +71,14 @@ export default function AdminPlans() {
 
   // Custom package builder
   const [showPkgForm, setShowPkgForm] = useState(false)
-  const [pkgForm, setPkgForm] = useState({ name: '', price: '', hours_per_month: '', requests_per_month: '', response_time: '24 hours', extra_hourly_rate: '10', description: '' })
+  const [pkgForm, setPkgForm] = useState({ name: '', price: '', hours_per_month: '', requests_per_month: '', response_time: '24 hours', extra_hourly_rate: '10', description: '', team_enabled: false, team_seats: '', setup_fee: '' })
   const [pkgSaving, setPkgSaving] = useState(false)
   const [combo, setCombo] = useState<{ build: string; care: string; it: string; social: string }>({ build: '', care: '', it: '', social: '' })
   const [extraQty, setExtraQty] = useState<Record<string, number>>({})
+  const [oneTime, setOneTime] = useState(0)        // live one-time total for the builder
+  const [nameTouched, setNameTouched] = useState(false) // stop auto-overwriting once edited
+  const [editPkg, setEditPkg] = useState<any | null>(null) // existing custom plan being edited
+  const [pkgEditSaving, setPkgEditSaving] = useState(false)
 
   // New extra form
   const [showExtraForm, setShowExtraForm] = useState(false)
@@ -124,10 +128,13 @@ export default function AdminPlans() {
       parts.push(`${qty}× ${p.name}`)
     }
 
+    setOneTime(oneTime)
     setPkgForm(f => ({
       ...f,
-      name: parts.length ? `Custom: ${parts.join(' + ')}`.slice(0, 90) : f.name,
+      // Don't overwrite a name the admin has typed themselves
+      name: nameTouched ? f.name : (parts.length ? `Custom: ${parts.join(' + ')}`.slice(0, 90) : f.name),
       price: String(monthly),
+      setup_fee: String(oneTime),
       requests_per_month: String(requests),
       hours_per_month: String(hours),
       description: [
@@ -271,6 +278,9 @@ export default function AdminPlans() {
         response_time: pkgForm.response_time,
         extra_hourly_rate: pkgForm.extra_hourly_rate,
         description: pkgForm.description,
+        team_enabled: pkgForm.team_enabled,
+        team_seats: pkgForm.team_seats,
+        setup_fee: pkgForm.setup_fee,
         extras: buildExtrasPayload(),
       }),
     })
@@ -278,14 +288,52 @@ export default function AdminPlans() {
     if (res.ok) {
       setBanner({ ok: true, text: `Custom plan "${data.name}" created. Assign it to a client via Clients → Edit Client.` })
       setShowPkgForm(false)
-      setPkgForm({ name: '', price: '', hours_per_month: '', requests_per_month: '', response_time: '24 hours', extra_hourly_rate: '10', description: '' })
+      setPkgForm({ name: '', price: '', hours_per_month: '', requests_per_month: '', response_time: '24 hours', extra_hourly_rate: '10', description: '', team_enabled: false, team_seats: '', setup_fee: '' })
       setCombo({ build: '', care: '', it: '', social: '' })
       setExtraQty({})
+      setOneTime(0)
+      setNameTouched(false)
       loadAll()
     } else {
       setBanner({ ok: false, text: data?.error || 'Failed to create package' })
     }
     setPkgSaving(false)
+  }
+
+  async function savePkg() {
+    if (!editPkg) return
+    setPkgEditSaving(true)
+    setBanner(null)
+    const res = await fetch('/api/packages', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: editPkg.id,
+        name: editPkg.name,
+        price: editPkg.price,
+        setup_fee: editPkg.setup_fee,
+        hours_per_month: editPkg.hours_per_month,
+        requests_per_month: editPkg.requests_per_month,
+        response_time: editPkg.response_time,
+        extra_hourly_rate: editPkg.extra_hourly_rate,
+        description: editPkg.description,
+      }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (res.ok) { setBanner({ ok: true, text: `"${editPkg.name}" updated.` }); setEditPkg(null); loadAll() }
+    else setBanner({ ok: false, text: data?.error || 'Failed to update plan' })
+    setPkgEditSaving(false)
+  }
+
+  async function updateTeam(p: any, patch: { team_enabled?: boolean; team_seats?: number | null }) {
+    setBanner(null)
+    const res = await fetch('/api/packages', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: p.id, ...patch }),
+    })
+    if (res.ok) loadAll()
+    else setBanner({ ok: false, text: 'Failed to update team setting' })
   }
 
   async function deletePackage(p: SupportPackage) {
@@ -479,10 +527,10 @@ export default function AdminPlans() {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <button onClick={() => setShowExtraForm(v => !v)} className="btn-ghost text-xs px-3 py-1.5">
-                {showExtraForm ? 'Cancel' : '+ New Extra'}
+                {showExtraForm ? 'Cancel Extra' : '+ New Extra'}
               </button>
               <button onClick={() => setShowPkgForm(v => !v)} className="btn-secondary text-xs px-3 py-1.5">
-                {showPkgForm ? 'Cancel' : '+ New Custom Plan'}
+                {showPkgForm ? 'Cancel Plan' : '+ New Custom Plan'}
               </button>
             </div>
           </div>
@@ -570,6 +618,14 @@ export default function AdminPlans() {
                         <button type="button" className="w-6 h-6 rounded bg-slate-100 text-slate-600 font-bold text-sm" onClick={() => applyCombo(combo, { ...extraQty, [p.id]: Math.max(0, qty - 1) })}>−</button>
                         <span className="w-5 text-center text-sm font-bold text-slate-800">{qty}</span>
                         <button type="button" className="w-6 h-6 rounded bg-blue-100 text-blue-700 font-bold text-sm" onClick={() => applyCombo(combo, { ...extraQty, [p.id]: qty + 1 })}>+</button>
+                        <button
+                          type="button"
+                          title="Delete this extra permanently"
+                          className="ml-1 w-6 h-6 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 font-bold text-sm"
+                          onClick={() => deletePlan(p)}
+                        >
+                          ✕
+                        </button>
                       </div>
                     </div>
                   )
@@ -584,11 +640,15 @@ export default function AdminPlans() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-3">
                 <div className="col-span-2 md:col-span-3">
                   <label className="form-label">Plan name</label>
-                  <input className="form-input" placeholder="e.g. Mcash Custom Care" value={pkgForm.name} onChange={e => setPkgForm(p => ({ ...p, name: e.target.value }))} />
+                  <input className="form-input" placeholder="e.g. Mcash Custom Care" value={pkgForm.name} onChange={e => { setNameTouched(true); setPkgForm(p => ({ ...p, name: e.target.value })) }} />
                 </div>
                 <div>
                   <label className="form-label">Price ($/month)</label>
                   <input type="number" min="0" className="form-input" placeholder="199" value={pkgForm.price} onChange={e => setPkgForm(p => ({ ...p, price: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">One-time setup ($)</label>
+                  <input type="number" min="0" className="form-input" placeholder="0" value={pkgForm.setup_fee} onChange={e => setPkgForm(p => ({ ...p, setup_fee: e.target.value }))} />
                 </div>
                 <div>
                   <label className="form-label">Hours / month</label>
@@ -610,6 +670,25 @@ export default function AdminPlans() {
                   <label className="form-label">What&apos;s included (description)</label>
                   <textarea className="form-input min-h-16 resize-y text-xs" value={pkgForm.description} onChange={e => setPkgForm(p => ({ ...p, description: e.target.value }))} />
                 </div>
+                <div className="col-span-2 md:col-span-3 flex flex-wrap items-center gap-4 border-t border-slate-100 pt-3">
+                  <label className="flex items-center gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" checked={pkgForm.team_enabled} onChange={e => setPkgForm(p => ({ ...p, team_enabled: e.target.checked }))} />
+                    Allow team members (multi-user account)
+                  </label>
+                  {pkgForm.team_enabled && (
+                    <div className="flex items-center gap-2">
+                      <label className="text-xs text-slate-500">Seat limit (blank = unlimited)</label>
+                      <input type="number" min="1" className="form-input w-24 py-1" placeholder="∞" value={pkgForm.team_seats} onChange={e => setPkgForm(p => ({ ...p, team_seats: e.target.value }))} />
+                    </div>
+                  )}
+                </div>
+              </div>
+              {/* Live price summary */}
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-1 rounded-lg bg-white border border-slate-200 px-4 py-3 mb-3 text-sm">
+                <span className="font-bold text-slate-800">${Number(pkgForm.price) || 0}<span className="text-xs font-normal text-slate-400">/mo</span></span>
+                {oneTime > 0 && <span className="text-slate-600">+ ${oneTime} <span className="text-xs text-slate-400">one-time</span></span>}
+                <span className="text-xs text-slate-400">{pkgForm.requests_per_month || 0} requests/mo · {pkgForm.hours_per_month || 0}h/mo</span>
+                {pkgForm.team_enabled && <span className="text-xs text-slate-400">· team: {pkgForm.team_seats || '∞'} seats</span>}
               </div>
               <button onClick={createPackage} disabled={pkgSaving || !pkgForm.name || pkgForm.price === ''} className="btn-primary text-xs px-4 py-2">
                 {pkgSaving ? 'Creating…' : 'Create Custom Plan'}
@@ -649,6 +728,7 @@ export default function AdminPlans() {
                   <th className="table-th">Hours / mo</th>
                   <th className="table-th">Response</th>
                   <th className="table-th">Extra rate</th>
+                  <th className="table-th">Team</th>
                   <th className="table-th"></th>
                 </tr>
               </thead>
@@ -668,8 +748,34 @@ export default function AdminPlans() {
                     <td className="table-td text-slate-500">{p.hours_per_month}h</td>
                     <td className="table-td text-slate-500 text-xs">{p.response_time}</td>
                     <td className="table-td text-slate-500">${p.extra_hourly_rate}/hr</td>
-                    <td className="table-td text-right">
-                      <button onClick={() => deletePackage(p)} className="text-xs text-red-500 hover:text-red-600 hover:underline font-medium">
+                    <td className="table-td">
+                      <div className="flex items-center gap-2">
+                        <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={!!(p as any).team_enabled}
+                            onChange={e => updateTeam(p, { team_enabled: e.target.checked })}
+                          />
+                          {(p as any).team_enabled ? 'On' : 'Off'}
+                        </label>
+                        {(p as any).team_enabled && (
+                          <input
+                            type="number"
+                            min="1"
+                            placeholder="∞"
+                            defaultValue={(p as any).team_seats ?? ''}
+                            onBlur={e => updateTeam(p, { team_seats: e.target.value === '' ? null : Number(e.target.value) })}
+                            className="form-input w-16 py-0.5 text-xs"
+                            title="Seat limit (blank = unlimited)"
+                          />
+                        )}
+                      </div>
+                    </td>
+                    <td className="table-td text-right whitespace-nowrap">
+                      <button onClick={() => setEditPkg({ ...p })} className="text-xs text-blue-600 hover:underline font-medium">
+                        Edit
+                      </button>
+                      <button onClick={() => deletePackage(p)} className="ml-3 text-xs text-red-500 hover:text-red-600 hover:underline font-medium">
                         Delete
                       </button>
                     </td>
@@ -787,6 +893,58 @@ export default function AdminPlans() {
                   disabled={planSaving}
                 >
                   {planSaving ? <><Spinner size="sm" /> Saving…</> : 'Save Plan'}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Edit Custom Plan (support package) ── */}
+        {editPkg && (
+          <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={e => e.target === e.currentTarget && setEditPkg(null)}>
+            <div className="bg-white rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-display font-bold text-lg text-slate-800">Edit Custom Plan</h2>
+                <button onClick={() => setEditPkg(null)} className="text-slate-400 hover:text-slate-600 text-xl leading-none">×</button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div className="col-span-2">
+                  <label className="form-label">Plan name</label>
+                  <input className="form-input" value={editPkg.name || ''} onChange={e => setEditPkg((p: any) => ({ ...p, name: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">Price ($/month)</label>
+                  <input type="number" min="0" className="form-input" value={editPkg.price ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, price: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">One-time setup ($)</label>
+                  <input type="number" min="0" className="form-input" value={editPkg.setup_fee ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, setup_fee: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">Extra rate ($/hr)</label>
+                  <input type="number" min="0" className="form-input" value={editPkg.extra_hourly_rate ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, extra_hourly_rate: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">Hours / month</label>
+                  <input type="number" min="0" step="0.5" className="form-input" value={editPkg.hours_per_month ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, hours_per_month: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="form-label">Requests / month</label>
+                  <input type="number" min="0" className="form-input" value={editPkg.requests_per_month ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, requests_per_month: e.target.value }))} />
+                </div>
+                <div className="col-span-2">
+                  <label className="form-label">Response time</label>
+                  <input className="form-input" value={editPkg.response_time || ''} onChange={e => setEditPkg((p: any) => ({ ...p, response_time: e.target.value }))} />
+                </div>
+                <div className="col-span-2">
+                  <label className="form-label">What&apos;s included (description)</label>
+                  <textarea className="form-input min-h-20 resize-y text-xs" value={editPkg.description || ''} onChange={e => setEditPkg((p: any) => ({ ...p, description: e.target.value }))} />
+                </div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <button className="btn-ghost" onClick={() => setEditPkg(null)}>Cancel</button>
+                <button className="btn-secondary flex items-center gap-2" onClick={savePkg} disabled={pkgEditSaving || !editPkg.name}>
+                  {pkgEditSaving ? <><Spinner size="sm" /> Saving…</> : 'Save Plan'}
                 </button>
               </div>
             </div>

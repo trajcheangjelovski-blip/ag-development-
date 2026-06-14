@@ -43,8 +43,6 @@ export async function PATCH(
     if (!profile) return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
 
     const body = await request.json()
-    console.log('PATCH ticket body:', body)
-    console.log('User profile:', profile.role, profile.client_id)
 
     // ── Client reopen flow ────────────────────────────────────────────────────
     if (profile.role === 'client' && body.status === 'Open') {
@@ -54,11 +52,6 @@ export async function PATCH(
         .select('*, client:clients(id, email, contact_name, business_name)')
         .eq('id', id)
         .maybeSingle()
-
-      console.log('Ticket found:', existingTicket?.id, 'Status:', existingTicket?.status)
-      console.log('Ticket client_id:', existingTicket?.client_id)
-      console.log('Profile client_id:', profile.client_id)
-      console.log('Fetch error:', fetchError)
 
       if (fetchError) {
         return NextResponse.json({ error: fetchError.message }, { status: 500 })
@@ -79,10 +72,7 @@ export async function PATCH(
         .update({ status: 'Open', updated_at: new Date().toISOString() })
         .eq('id', id)
 
-      console.log('Update error:', updateError)
-
       if (updateError) {
-        console.error('Failed to update ticket:', updateError)
         return NextResponse.json({ error: updateError.message }, { status: 500 })
       }
 

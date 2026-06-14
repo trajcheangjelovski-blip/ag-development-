@@ -6,6 +6,7 @@ import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
 import { BuyExtraHourButton } from '@/components/portal/BuyExtraHourButton'
 import { getClientPlanState } from '@/lib/planUsage'
 import { formatDate, formatDateTime, formatMinutes, formatRelativeTime, currentBillingMonth } from '@/lib/utils'
+import { clientCan } from '@/lib/permissions'
 import Link from 'next/link'
 
 export default async function ClientDashboard() {
@@ -18,6 +19,9 @@ export default async function ClientDashboard() {
 
   const clientId = profile.client_id
   const month = currentBillingMonth()
+  // Members restricted to their own tickets only count/list what they created
+  const ownOnly = !clientCan(profile as any, 'allTickets')
+  const own = (q: any) => (ownOnly ? q.eq('created_by', user.id) : q)
 
   const [
     { data: client },
@@ -30,10 +34,10 @@ export default async function ClientDashboard() {
     { data: clientExtras },
   ] = await Promise.all([
     supabase.from('clients').select('*, package:support_packages(*)').eq('id', clientId).single(),
-    supabase.from('tickets').select('id').eq('client_id', clientId).neq('category', 'Message').not('status', 'in', '("Completed","Closed")'),
-    supabase.from('tickets').select('*').eq('client_id', clientId).neq('category', 'Message').order('created_at', { ascending: false }).limit(5),
+    own(supabase.from('tickets').select('id').eq('client_id', clientId).neq('category', 'Message').not('status', 'in', '("Completed","Closed")')),
+    own(supabase.from('tickets').select('*').eq('client_id', clientId).neq('category', 'Message').order('created_at', { ascending: false }).limit(5)),
     supabase.from('time_entries').select('minutes').eq('client_id', clientId).eq('billing_month', month),
-    supabase.from('tickets').select('id').eq('client_id', clientId).neq('category', 'Message').like('created_at', `${month}%`),
+    own(supabase.from('tickets').select('id').eq('client_id', clientId).neq('category', 'Message').like('created_at', `${month}%`)),
     supabase.from('activity_logs').select('*, actor:profiles(full_name)').eq('client_id', clientId).order('created_at', { ascending: false }).limit(8),
     supabase.from('invoices').select('*').eq('client_id', clientId).in('status', ['Pending', 'Overdue']).order('due_date', { ascending: true }),
     supabase.from('client_extras').select('*').eq('client_id', clientId).order('created_at'),

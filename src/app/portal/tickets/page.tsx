@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatusBadge, PriorityBadge, EmptyState } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
+import { clientCan } from '@/lib/permissions'
 import Link from 'next/link'
 import { ReopenTicketButton } from '@/components/portal/ReopenTicketButton'
 
@@ -17,6 +18,8 @@ export default async function ClientTickets({ searchParams }: { searchParams: Pr
 
   const activeStatus = (await searchParams).status || 'All'
   let query = supabase.from('tickets').select('*').eq('client_id', profile.client_id).neq('category', 'Message').order('created_at', { ascending: false })
+  // Members without "all tickets" only see the tickets they created
+  if (!clientCan(profile as any, 'allTickets')) query = query.eq('created_by', user.id)
   if (activeStatus !== 'All') query = query.eq('status', activeStatus)
   const { data: tickets } = await query
 

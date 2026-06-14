@@ -206,3 +206,61 @@ EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 -- When both sides have hidden it, the app deletes the row for real.
 ALTER TABLE tickets ADD COLUMN IF NOT EXISTS hidden_for_admin  BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE tickets ADD COLUMN IF NOT EXISTS hidden_for_client BOOLEAN NOT NULL DEFAULT FALSE;
+
+-- 9) Admin roles, permissions & client scoping (RBAC)
+--   admin_role:   preset name ('master'|'manager'|'support'|'billing'|'viewer')
+--   permissions:  JSON array of granted permission keys (ignored for master)
+--   client_scope: 'all' = sees every client; 'assigned' = only assigned clients
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS admin_role   TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS permissions  JSONB NOT NULL DEFAULT '[]'::jsonb;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS client_scope TEXT  NOT NULL DEFAULT 'all';
+
+-- Which clients a scoped admin may see
+CREATE TABLE IF NOT EXISTS admin_client_assignments (
+  admin_id  UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  client_id UUID REFERENCES clients(id)  ON DELETE CASCADE NOT NULL,
+  PRIMARY KEY (admin_id, client_id)
+);
+ALTER TABLE admin_client_assignments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins manage assignments" ON admin_client_assignments;
+CREATE POLICY "Admins manage assignments" ON admin_client_assignments FOR ALL USING (get_user_role() = 'admin');
+
+-- Safety: make every CURRENT admin a Master so nobody is locked out.
+-- After running, open Team and demote everyone except yourself.
+UPDATE profiles SET admin_role = COALESCE(admin_role, 'master'),
+                    client_scope = COALESCE(client_scope, 'all')
+WHERE role = 'admin';
+
+-- 10) Client teams: multiple users per client (company workspace).
+--   client_role:           'leader' (owner / billing / team mgmt) | 'member'
+--   can_view_billing:      member may see invoices & billing
+--   can_view_all_tickets:  member sees all the team's tickets vs only their own
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS client_role          TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS can_view_billing     BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS can_view_all_tickets BOOLEAN NOT NULL DEFAULT TRUE;
+
+-- Existing client logins become their company's Leader.
+UPDATE profiles SET client_role = 'leader' WHERE role = 'client' AND client_role IS NULL;
+
+-- Let team members read each other's profile (names/avatars) within the same client.
+DROP POLICY IF EXISTS "Team can view teammates" ON profiles;
+CREATE POLICY "Team can view teammates" ON profiles FOR SELECT
+  USING (role = 'client' AND client_id = get_user_client_id());
+
+-- 11) Teams are a plan feature: only clients whose package allows it can build a team.
+--   team_enabled: package includes multi-user teams
+--   team_seats:   max total users on the account (NULL = unlimited)
+ALTER TABLE support_packages ADD COLUMN IF NOT EXISTS team_enabled BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE support_packages ADD COLUMN IF NOT EXISTS team_seats   INTEGER;
+
+-- Enable teams on a specific package, e.g.:
+-- UPDATE support_packages SET team_enabled = TRUE, team_seats = 5 WHERE name = 'Your Plan Name';
+
+-- 12) Group the hours + tickets rows that belong to the same capacity block,
+-- so a single "block" shows as one entry (and deletes as one).
+ALTER TABLE client_extras ADD COLUMN IF NOT EXISTS block_id UUID;
+
+-- 13) A plan can have BOTH a recurring monthly price and a one-time setup fee.
+--   price      = recurring monthly amount (already exists)
+--   setup_fee  = one-time amount charged once when the plan is assigned
+ALTER TABLE support_packages ADD COLUMN IF NOT EXISTS setup_fee NUMERIC NOT NULL DEFAULT 0;

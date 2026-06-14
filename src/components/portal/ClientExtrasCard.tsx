@@ -6,16 +6,21 @@ type ClientExtra = {
   name: string
   qty_total: number
   qty_used: number
+  unit?: string
+  block_id?: string | null
 }
 
 // Admin: track usage of a client's purchased extras (e.g. extra pages).
-export function ClientExtrasCard({ clientId }: { clientId: string }) {
+export function ClientExtrasCard({ clientId, onChange }: { clientId: string; onChange?: () => void }) {
   const [extras, setExtras] = useState<ClientExtra[]>([])
   const [tableMissing, setTableMissing] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState({ name: '', qty: '1' })
+  const [showBlock, setShowBlock] = useState(false)
+  const [block, setBlock] = useState({ hours: '', tickets: '', price: '', label: '' })
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
 
   const load = useCallback(async () => {
     const res = await fetch(`/api/clients/${clientId}/extras`)
@@ -41,9 +46,33 @@ export function ClientExtrasCard({ clientId }: { clientId: string }) {
       setForm({ name: '', qty: '1' })
       setShowAdd(false)
       load()
+      onChange?.()
     } else {
       const data = await res.json().catch(() => null)
       setError(data?.error || 'Failed to add extra')
+    }
+    setBusy(false)
+  }
+
+  async function addBlock() {
+    const hours = Number(block.hours) || 0
+    const tickets = Number(block.tickets) || 0
+    if (hours <= 0 && tickets <= 0) { setError('Enter hours and/or tickets'); return }
+    setBusy(true); setError(''); setNotice('')
+    const res = await fetch(`/api/clients/${clientId}/extras`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ kind: 'block', hours, tickets, price: Number(block.price) || 0, label: block.label }),
+    })
+    if (res.ok) {
+      setBlock({ hours: '', tickets: '', price: '', label: '' })
+      setShowBlock(false)
+      setNotice(Number(block.price) > 0 ? 'Capacity added and an invoice was created.' : 'Capacity added to the plan.')
+      load()
+      onChange?.()
+    } else {
+      const data = await res.json().catch(() => null)
+      setError(data?.error || 'Failed to add capacity')
     }
     setBusy(false)
   }
@@ -56,6 +85,7 @@ export function ClientExtrasCard({ clientId }: { clientId: string }) {
       body: JSON.stringify({ extra_id: extraId, delta }),
     })
     await load()
+    onChange?.()
     setBusy(false)
   }
 
@@ -63,16 +93,32 @@ export function ClientExtrasCard({ clientId }: { clientId: string }) {
     setBusy(true)
     await fetch(`/api/clients/${clientId}/extras?extra_id=${extraId}`, { method: 'DELETE' })
     await load()
+    onChange?.()
+    setBusy(false)
+  }
+
+  async function removeBlock(ids: string[]) {
+    setBusy(true)
+    await Promise.all(ids.map(extraId =>
+      fetch(`/api/clients/${clientId}/extras?extra_id=${extraId}`, { method: 'DELETE' })
+    ))
+    await load()
+    onChange?.()
     setBusy(false)
   }
 
   return (
     <div className="card p-5 mb-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Extras Tracking</h3>
-        <button onClick={() => setShowAdd(v => !v)} className="text-xs text-blue-600 hover:underline font-medium">
-          {showAdd ? 'Cancel' : '+ Add Extra'}
-        </button>
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">Extras &amp; Capacity</h3>
+        <div className="flex items-center gap-3">
+          <button onClick={() => { setShowBlock(v => !v); setShowAdd(false) }} className="text-xs text-blue-600 hover:underline font-medium">
+            {showBlock ? 'Cancel' : '+ Add Capacity'}
+          </button>
+          <button onClick={() => { setShowAdd(v => !v); setShowBlock(false) }} className="text-xs text-blue-600 hover:underline font-medium">
+            {showAdd ? 'Cancel' : '+ Add Extra'}
+          </button>
+        </div>
       </div>
 
       {tableMissing && (
@@ -82,6 +128,32 @@ export function ClientExtrasCard({ clientId }: { clientId: string }) {
       )}
 
       {error && <p className="text-xs text-red-500 mb-2">{error}</p>}
+      {notice && <p className="text-xs text-green-600 mb-2">{notice}</p>}
+
+      {showBlock && (
+        <div className="border border-blue-100 bg-blue-50/50 rounded-lg p-3 mb-3">
+          <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Add capacity block (stacks on the plan)</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
+            <div>
+              <label className="text-[11px] text-slate-500">+ Hours</label>
+              <input type="number" min="0" step="0.5" className="form-input text-sm py-2" placeholder="5" value={block.hours} onChange={e => setBlock(b => ({ ...b, hours: e.target.value }))} />
+            </div>
+            <div>
+              <label className="text-[11px] text-slate-500">+ Tickets</label>
+              <input type="number" min="0" className="form-input text-sm py-2" placeholder="10" value={block.tickets} onChange={e => setBlock(b => ({ ...b, tickets: e.target.value }))} />
+            </div>
+            <div>
+              <label className="text-[11px] text-slate-500">Price ($)</label>
+              <input type="number" min="0" className="form-input text-sm py-2" placeholder="49" value={block.price} onChange={e => setBlock(b => ({ ...b, price: e.target.value }))} />
+            </div>
+            <div>
+              <label className="text-[11px] text-slate-500">Label (optional)</label>
+              <input className="form-input text-sm py-2" placeholder="Top-up" value={block.label} onChange={e => setBlock(b => ({ ...b, label: e.target.value }))} />
+            </div>
+          </div>
+          <button onClick={addBlock} disabled={busy} className="btn-secondary text-xs px-3">Add capacity{Number(block.price) > 0 ? ' + invoice' : ''}</button>
+        </div>
+      )}
 
       {showAdd && (
         <div className="flex gap-2 mb-3">
@@ -95,7 +167,29 @@ export function ClientExtrasCard({ clientId }: { clientId: string }) {
         <p className="text-xs text-slate-400">No extras tracked. Add the extras included in this client&apos;s plan (e.g. &quot;Extra Website Page × 2&quot;) and mark them as used.</p>
       ) : (
         <div className="space-y-2.5">
-          {extras.map(x => {
+          {/* Capacity blocks — group the hours + tickets rows of one block into a single card */}
+          {(() => {
+            const capacity = extras.filter(x => x.unit === 'hours' || x.unit === 'tickets')
+            const groups: Record<string, ClientExtra[]> = {}
+            for (const x of capacity) { const k = x.block_id || x.id; (groups[k] ||= []).push(x) }
+            return Object.entries(groups).map(([k, rows]) => {
+              const hrs = rows.filter(r => r.unit === 'hours').reduce((s, r) => s + r.qty_total, 0)
+              const tix = rows.filter(r => r.unit === 'tickets').reduce((s, r) => s + r.qty_total, 0)
+              const parts = [hrs > 0 ? `+${hrs}h` : '', tix > 0 ? `+${tix} tickets` : ''].filter(Boolean).join('  ')
+              return (
+                <div key={k} className="border border-blue-100 bg-blue-50/40 rounded-lg px-3 py-2.5 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <span className="text-sm font-semibold text-slate-700 truncate">{rows[0].name}</span>
+                    <div className="text-xs text-blue-700 font-medium">{parts} added to plan allowance</div>
+                  </div>
+                  <button onClick={() => removeBlock(rows.map(r => r.id))} disabled={busy} className="text-[11px] text-red-400 hover:text-red-600 flex-shrink-0">✕</button>
+                </div>
+              )
+            })
+          })()}
+
+          {/* Item add-ons (manual used counter) */}
+          {extras.filter(x => x.unit !== 'hours' && x.unit !== 'tickets').map(x => {
             const done = x.qty_used >= x.qty_total
             return (
               <div key={x.id} className="border border-slate-100 rounded-lg px-3 py-2.5">

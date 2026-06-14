@@ -22,10 +22,24 @@ export default async function ClientUsage() {
   const { data: currentEntries } = await supabase.from('time_entries').select('minutes').eq('client_id', clientId).eq('billing_month', month)
   const { data: currentTickets } = await supabase.from('tickets').select('id').eq('client_id', clientId).like('created_at', `${month}%`)
 
+  // Capacity top-ups stacked on the base plan (credit blocks)
+  const { data: extrasData } = await supabase
+    .from('client_extras')
+    .select('qty_total, qty_used, unit')
+    .eq('client_id', clientId)
+  const topupHours = (extrasData || [])
+    .filter(x => x.unit === 'hours')
+    .reduce((s, x) => s + Math.max(0, x.qty_total - x.qty_used), 0)
+  const topupRequests = (extrasData || [])
+    .filter(x => x.unit === 'tickets')
+    .reduce((s, x) => s + Math.max(0, x.qty_total - x.qty_used), 0)
+
   const usedMinutes = currentEntries?.reduce((s, e) => s + e.minutes, 0) || 0
   const usedRequests = currentTickets?.length || 0
-  const includedHours = pkg?.hours_per_month || 0
-  const includedRequests = pkg?.requests_per_month || 0
+  const baseHours = pkg?.hours_per_month || 0
+  const baseRequests = pkg?.requests_per_month || 0
+  const includedHours = baseHours + topupHours
+  const includedRequests = baseRequests + topupRequests
   const extraMinutes = Math.max(0, usedMinutes - includedHours * 60)
 
   // Past months
@@ -69,10 +83,23 @@ export default async function ClientUsage() {
             </div>
           )}
           <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-4 text-center text-sm">
-            <div><div className="text-slate-400 text-xs mb-1">Included Requests</div><div className="font-bold text-slate-800">{includedRequests}/month</div></div>
-            <div><div className="text-slate-400 text-xs mb-1">Included Hours</div><div className="font-bold text-slate-800">{includedHours}h/month</div></div>
+            <div>
+              <div className="text-slate-400 text-xs mb-1">Included Requests</div>
+              <div className="font-bold text-slate-800">{includedRequests}/month</div>
+              {topupRequests > 0 && <div className="text-[11px] text-blue-600">{baseRequests} base + {topupRequests} top-up</div>}
+            </div>
+            <div>
+              <div className="text-slate-400 text-xs mb-1">Included Hours</div>
+              <div className="font-bold text-slate-800">{includedHours}h/month</div>
+              {topupHours > 0 && <div className="text-[11px] text-blue-600">{baseHours}h base + {topupHours}h top-up</div>}
+            </div>
             <div><div className="text-slate-400 text-xs mb-1">Extra Rate</div><div className="font-bold text-slate-800">${pkg?.extra_hourly_rate}/hr</div></div>
           </div>
+          {(topupHours > 0 || topupRequests > 0) && (
+            <p className="text-xs text-blue-600 mt-3">
+              ✦ Your plan includes extra capacity top-ups: {topupHours > 0 ? `+${topupHours}h ` : ''}{topupRequests > 0 ? `+${topupRequests} tickets` : ''}.
+            </p>
+          )}
         </div>
 
         {/* History */}

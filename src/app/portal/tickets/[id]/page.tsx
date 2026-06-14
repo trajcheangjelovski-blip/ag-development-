@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import TicketDetailClient from '@/components/portal/TicketDetailClient'
+import { clientCan } from '@/lib/permissions'
 
 export default async function ClientTicketDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
@@ -20,6 +21,8 @@ export default async function ClientTicketDetail({ params }: { params: Promise<{
     .single()
 
   if (!ticket) notFound()
+  // Members restricted to their own tickets can't open a teammate's
+  if (!clientCan(profile as any, 'allTickets') && ticket.created_by !== user.id) notFound()
 
   return (
     <PortalLayout>

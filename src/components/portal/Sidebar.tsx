@@ -4,30 +4,33 @@ import { useState, useEffect } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
+import { can, clientCan, type ClientCapability } from '@/lib/permissions'
 import type { Profile } from '@/types'
 
-const adminLinks = [
+const adminLinks: { href: string; label: string; icon: string; perm?: string }[] = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: '⊞' },
-  { href: '/admin/tickets', label: 'All Tickets', icon: '🎫' },
-  { href: '/admin/messages', label: 'Messages', icon: '✉️' },
-  { href: '/admin/clients', label: 'Clients', icon: '👥' },
-  { href: '/admin/leads', label: 'Leads & CRM', icon: '📋' },
-  { href: '/admin/reports', label: 'Monthly Reports', icon: '📊' },
-  { href: '/admin/stats', label: 'Statistics', icon: '📈' },
-  { href: '/admin/invoices', label: 'Invoices', icon: '💳' },
-  { href: '/admin/plans', label: 'Plans & Coupons', icon: '🏷️' },
-  { href: '/admin/activity', label: 'Activity Log', icon: '📜' },
-  { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
+  { href: '/admin/tickets', label: 'All Tickets', icon: '🎫', perm: 'tickets.view' },
+  { href: '/admin/messages', label: 'Messages', icon: '✉️', perm: 'messages.view' },
+  { href: '/admin/clients', label: 'Clients', icon: '👥', perm: 'clients.view' },
+  { href: '/admin/leads', label: 'Leads & CRM', icon: '📋', perm: 'leads.view' },
+  { href: '/admin/reports', label: 'Monthly Reports', icon: '📊', perm: 'reports.view' },
+  { href: '/admin/stats', label: 'Statistics', icon: '📈', perm: 'reports.view' },
+  { href: '/admin/invoices', label: 'Invoices', icon: '💳', perm: 'invoices.view' },
+  { href: '/admin/plans', label: 'Plans & Coupons', icon: '🏷️', perm: 'plans.view' },
+  { href: '/admin/activity', label: 'Activity Log', icon: '📜', perm: 'activity.view' },
+  { href: '/admin/team', label: 'Team', icon: '👤', perm: 'admins.manage' },
+  { href: '/admin/settings', label: 'Settings', icon: '⚙️', perm: 'settings.manage' },
   { href: '/portal/settings', label: 'My Account', icon: '🔐' },
 ]
 
-const clientLinks = [
+const clientLinks: { href: string; label: string; icon: string; cap?: ClientCapability }[] = [
   { href: '/portal/dashboard', label: 'Dashboard', icon: '⊞' },
   { href: '/portal/tickets', label: 'My Tickets', icon: '🎫' },
   { href: '/portal/message', label: 'Message Us', icon: '✉️' },
   { href: '/portal/usage', label: 'Plan Usage', icon: '📦' },
   { href: '/portal/reports', label: 'Monthly Reports', icon: '📊' },
-  { href: '/portal/invoices', label: 'Invoices', icon: '💳' },
+  { href: '/portal/invoices', label: 'Invoices', icon: '💳', cap: 'billing' },
+  { href: '/portal/team', label: 'Team', icon: '👥', cap: 'team' },
   { href: '/portal/activity', label: 'Activity Log', icon: '📜' },
   { href: '/portal/settings', label: 'Account Settings', icon: '🔐' },
 ]
@@ -37,11 +40,27 @@ export function Sidebar({ profile }: { profile: Profile }) {
   const router = useRouter()
   const supabase = createClient()
   const isAdmin = profile.role === 'admin'
-  const links = isAdmin ? adminLinks : clientLinks
   const [newLeads, setNewLeads] = useState(0)
   const [unpaidInvoices, setUnpaidInvoices] = useState(0)
   const [unreadMessages, setUnreadMessages] = useState(0)
+  const [teamEnabled, setTeamEnabled] = useState(false)
   const messagesPath = isAdmin ? '/admin/messages' : '/portal/message'
+
+  // Admins only see menu items they have permission for (master sees all).
+  const links = isAdmin
+    ? adminLinks.filter(l => !l.perm || can(profile as any, l.perm))
+    : clientLinks
+        .filter(l => !l.cap || clientCan(profile as any, l.cap))
+        // Team is a plan feature — hide unless the client's package enables it
+        .filter(l => l.href !== '/portal/team' || teamEnabled)
+
+  // Does this client's plan include teams? (controls the Team menu item)
+  useEffect(() => {
+    if (isAdmin || !profile.client_id) return
+    const sb = createClient()
+    sb.from('clients').select('package:support_packages(team_enabled)').eq('id', profile.client_id).single()
+      .then(({ data }: any) => setTeamEnabled(!!data?.package?.team_enabled))
+  }, [isAdmin, profile.client_id])
 
   // Live count of new leads for the admin badge
   useEffect(() => {

@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { randomUUID } from 'crypto'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createNotification, getClientProfileId } from '@/lib/notifications'
+import { sendNewInvoiceToClient } from '@/lib/email'
 
 // Per-client extras ledger: track usage of purchased extras
 // (e.g. "Extra Website Page — 1 of 2 used").
@@ -39,12 +42,67 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const caller = await getCaller()
   if (!caller || caller.profile.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
-  const { name, qty_total } = await request.json()
+  const body = await request.json()
+  const admin = await createAdminClient()
+
+  // ── Capacity block: stacks extra hours/tickets on the plan + auto-invoices ──
+  if (body.kind === 'block') {
+    const hours = Math.max(0, Number(body.hours) || 0)
+    const tickets = Math.max(0, Number(body.tickets) || 0)
+    const price = Math.max(0, Number(body.price) || 0)
+    if (hours <= 0 && tickets <= 0) {
+      return NextResponse.json({ error: 'Add at least some hours or tickets' }, { status: 400 })
+    }
+    const label = (body.label || '').trim() ||
+      `Extra capacity${hours ? ` +${hours}h` : ''}${tickets ? ` +${tickets} tickets` : ''}`
+
+    const blockId = randomUUID()
+    const rows: any[] = []
+    if (hours > 0) rows.push({ client_id: id, name: label, qty_total: hours, qty_used: 0, unit: 'hours', block_id: blockId })
+    if (tickets > 0) rows.push({ client_id: id, name: label, qty_total: tickets, qty_used: 0, unit: 'tickets', block_id: blockId })
+    const { error: insErr } = await admin.from('client_extras').insert(rows)
+    if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 })
+
+    // Auto-create an invoice for the block's price
+    if (price > 0) {
+      const billing_month = new Date().toISOString().slice(0, 7) // YYYY-MM
+      const { data: inv } = await admin.from('invoices')
+        .insert({ client_id: id, amount: price, billing_month, description: label, status: 'Pending' })
+        .select('*, client:clients(email, contact_name, business_name)')
+        .single()
+      if (inv) {
+        const profileId = await getClientProfileId(id)
+        if (profileId) {
+          createNotification({
+            userId: profileId,
+            title: `New invoice: $${price} (${billing_month})`,
+            body: `${label}. Pay online from your portal.`,
+            link: '/portal/invoices',
+            type: 'info',
+          }).catch(() => {})
+        }
+        const ci = (inv as any).client
+        if (ci?.email) {
+          sendNewInvoiceToClient({
+            clientEmail: ci.email,
+            clientName: ci.contact_name || ci.business_name || 'there',
+            amount: price,
+            billingMonth: billing_month,
+            description: label,
+            dueDate: null,
+          }).catch(() => {})
+        }
+      }
+    }
+    return NextResponse.json({ ok: true }, { status: 201 })
+  }
+
+  // ── Plain tracked extra (manual "used" counter) ──
+  const { name, qty_total } = body
   if (!name?.trim() || !qty_total || qty_total < 1) {
     return NextResponse.json({ error: 'Name and a quantity of at least 1 are required' }, { status: 400 })
   }
 
-  const admin = await createAdminClient()
   const { data, error } = await admin
     .from('client_extras')
     .insert({ client_id: id, name: name.trim(), qty_total: Number(qty_total), qty_used: 0 })

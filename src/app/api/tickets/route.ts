@@ -4,6 +4,7 @@ import { sendNewTicketAlertToAdmin, sendNewCommentNotification } from '@/lib/ema
 import { createNotification, notifyAdmin, getClientProfileId } from '@/lib/notifications'
 import { getAdminEmail } from '@/lib/settings'
 import { getClientPlanState } from '@/lib/planUsage'
+import { clientCan } from '@/lib/permissions'
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -22,6 +23,8 @@ export async function GET(request: NextRequest) {
 
   if (profile?.role !== 'admin') {
     query = query.eq('client_id', profile?.client_id)
+    // Members without "all tickets" only see what they created
+    if (!clientCan(profile as any, 'allTickets')) query = query.eq('created_by', user.id)
   } else if (clientId) {
     query = query.eq('client_id', clientId)
   }
