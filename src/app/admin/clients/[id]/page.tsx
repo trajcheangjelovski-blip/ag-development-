@@ -15,7 +15,6 @@ export default function AdminClientDetail() {
   const [tickets, setTickets] = useState<any[]>([])
   const [timeEntries, setTimeEntries] = useState<any[]>([])
   const [packages, setPackages] = useState<any[]>([])
-  const [extras, setExtras] = useState<any[]>([])
   const [usage, setUsage] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showEdit, setShowEdit] = useState(false)
@@ -28,18 +27,16 @@ export default function AdminClientDetail() {
 
   async function load() {
     setLoading(true)
-    const [cRes, tRes, teRes, pkgRes, exRes] = await Promise.all([
+    const [cRes, tRes, teRes, pkgRes] = await Promise.all([
       fetch(`/api/clients/${id}`),
       fetch(`/api/tickets?client_id=${id}`),
       fetch(`/api/time-entries?client_id=${id}&month=${month}`),
       fetch('/api/packages'),
-      fetch(`/api/clients/${id}/extras`),
     ])
     if (cRes.ok) { const c = await cRes.json(); setClient(c); setEditForm(c) }
     if (tRes.ok) setTickets(await tRes.json())
     if (teRes.ok) setTimeEntries(await teRes.json())
     if (pkgRes.ok) setPackages(await pkgRes.json())
-    if (exRes.ok) { const d = await exRes.json(); setExtras(d.extras || []) }
     // Shared usage source — same numbers as the client dashboard (plan period + top-ups)
     const uRes = await fetch(`/api/clients/${id}/usage`)
     if (uRes.ok) setUsage(await uRes.json())

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { stripeRequest } from '@/lib/stripe'
 import { getPlans, effectivePrice, type Plan } from '@/lib/plans'
+import { rateLimit, clientIp } from '@/lib/rateLimit'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
@@ -10,6 +11,9 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 //  - Cart checkout (public): body { items: string[] } of catalog IDs.
 //  - Invoice payment (logged-in client): body { invoice_id: string }.
 export async function POST(request: NextRequest) {
+  if (!rateLimit(`checkout:${clientIp(request)}`, 12, 60_000)) {
+    return NextResponse.json({ error: 'Too many attempts. Please wait a moment and try again.' }, { status: 429 })
+  }
   const body = await request.json()
 
   try {

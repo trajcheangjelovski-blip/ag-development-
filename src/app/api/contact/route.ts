@@ -3,10 +3,14 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { sendNewLeadNotification } from '@/lib/email'
 import { notifyAdmin } from '@/lib/notifications'
 import { getAdminEmail } from '@/lib/settings'
+import { rateLimit, clientIp } from '@/lib/rateLimit'
 
 // Public contact form: stores the message as a lead, notifies admins in the
 // panel, and emails support.
 export async function POST(request: NextRequest) {
+  if (!rateLimit(`contact:${clientIp(request)}`, 5, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a minute and try again.' }, { status: 429 })
+  }
   const supabase = await createAdminClient()
   const body = await request.json()
   const name = (body.name || '').trim()

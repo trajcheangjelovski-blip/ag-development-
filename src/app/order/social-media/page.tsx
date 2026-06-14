@@ -128,7 +128,7 @@ function DesignSummary({ plan }: { plan: typeof DESIGN_PLANS[0] }) {
         </div>
       </div>
       <div style={{ background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', color: '#7c3aed', lineHeight: 1.6 }}>
-        🔒 <strong>No payment today.</strong> We&apos;ll contact you within 1 business day to confirm details and arrange payment.
+        🔒 <strong>Secure checkout via Stripe.</strong> You&apos;ll enter payment on the next step. Cancel your subscription anytime.
       </div>
     </div>
   )
@@ -152,6 +152,7 @@ function SocialOrderContent() {
   const [platforms, setPlatforms] = useState<string[]>(['Facebook', 'Instagram'])
   const [hasLogo, setHasLogo] = useState<'yes' | 'no' | ''>('')
   const [form, setForm] = useState({ businessName: '', fullName: '', email: '', phone: '', brandNotes: '', message: '' })
+  const [coupon, setCoupon] = useState('')
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768)
@@ -183,7 +184,8 @@ function SocialOrderContent() {
     if (Object.keys(errs).length) { setErrors(errs); return }
     setLoading(true); setApiError('')
     try {
-      const res = await fetch('/api/leads', {
+      // Capture the customer's details as a lead (best-effort — don't block checkout)
+      fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -200,18 +202,23 @@ function SocialOrderContent() {
             form.message,
           ].filter(Boolean).join('\n') || undefined,
         }),
+      }).catch(() => {})
+
+      // Send the customer to Stripe Checkout for the selected plan
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: [`social-${plan.id}`], coupon_code: coupon.trim() || undefined }),
       })
-      if (!res.ok) {
-        const d = await res.json().catch(() => ({})) as { error?: string }
-        setApiError(d.error || 'Something went wrong. Please try again.')
-      } else {
-        setSubmittedName(form.fullName.split(' ')[0] || 'there')
-        setSubmitted(true)
-        window.scrollTo({ top: 0, behavior: 'smooth' })
+      const data = await res.json().catch(() => ({})) as { url?: string; error?: string }
+      if (res.ok && data.url) {
+        window.location.href = data.url
+        return
       }
+      setApiError(data.error || 'Could not start checkout. Please try again.')
+      setLoading(false)
     } catch {
       setApiError('Network error. Please check your connection and try again.')
-    } finally {
       setLoading(false)
     }
   }
@@ -441,9 +448,14 @@ function SocialOrderContent() {
                   </div>
                 </div>
 
-                <div style={{ marginBottom: apiError ? '16px' : 0 }}>
+                <div>
                   <label style={lbl}>Message / Notes</label>
                   <textarea rows={3} style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }} placeholder="Any other details about your brand, content preferences, or requirements..." value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
+                </div>
+
+                <div style={{ marginBottom: apiError ? '16px' : 0 }}>
+                  <label style={lbl}>Discount code (optional)</label>
+                  <input style={{ ...inputStyle, textTransform: 'uppercase' }} placeholder="Enter coupon code" value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} />
                 </div>
 
                 {apiError && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '12px 16px', fontSize: '13px', color: '#dc2626', lineHeight: 1.6 }}>{apiError}</div>}
@@ -455,11 +467,11 @@ function SocialOrderContent() {
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '24px' }}>
               <button type="button" onClick={() => goTo(1)} style={btnBack}>← Back</button>
               <button type="submit" disabled={loading} style={{ ...btnPrimary, flex: 1, opacity: loading ? 0.65 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                {loading ? 'Submitting…' : 'Submit My Order →'}
+                {loading ? 'Redirecting to payment…' : 'Continue to Secure Payment →'}
               </button>
             </div>
             <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', marginTop: '12px' }}>
-              🔒 No payment required now. We&apos;ll contact you to confirm everything before any charges.
+              🔒 Secure checkout powered by Stripe. Cancel anytime.
             </p>
           </form>
         )}

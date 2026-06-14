@@ -3,6 +3,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { sendNewLeadNotification } from '@/lib/email'
 import { notifyAdmin } from '@/lib/notifications'
 import { getAdminEmail } from '@/lib/settings'
+import { rateLimit, clientIp } from '@/lib/rateLimit'
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient()
@@ -23,6 +24,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  if (!rateLimit(`leads:${clientIp(request)}`, 5, 60_000)) {
+    return NextResponse.json({ error: 'Too many requests. Please wait a minute and try again.' }, { status: 429 })
+  }
   // Public lead form: use service-role client so anonymous visitors can submit
   // (input is validated below; only whitelisted fields are inserted)
   const supabase = await createAdminClient()

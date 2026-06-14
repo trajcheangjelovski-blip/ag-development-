@@ -19,6 +19,28 @@ const nextConfig = {
       },
     ],
   },
+
+  // Security headers applied to every response
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          // Force HTTPS for 2 years (only takes effect over HTTPS)
+          { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains; preload' },
+          // Block clickjacking — the app can't be framed by other sites
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          // Stop MIME-type sniffing
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          // Don't leak full URLs to other origins
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // Lock down powerful browser features by default
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          { key: 'X-DNS-Prefetch-Control', value: 'on' },
+        ],
+      },
+    ]
+  },
 }
 
 module.exports = nextConfig

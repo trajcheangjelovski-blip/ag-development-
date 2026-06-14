@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { AddToCartButton } from '@/components/public/Cart'
 
 type TabId = 'build' | 'care' | 'it' | 'design' | 'custom'
 
@@ -708,6 +709,9 @@ function ITSupportTab() {
                 >
                   Get Started →
                 </a>
+                <div style={{ marginTop: 8 }}>
+                  <AddToCartButton id={`it-${p.id}`} />
+                </div>
                 <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: '#16a34a', fontWeight: 600 }}>
                   ✓ Standalone plan — no website needed
                 </div>
@@ -857,6 +861,9 @@ function DesignSocialTab() {
                 >
                   Get Started →
                 </a>
+                <div style={{ marginTop: 8 }}>
+                  <AddToCartButton id={`social-${p.id}`} />
+                </div>
                 <div style={{ textAlign: 'center', marginTop: 8, fontSize: 11, color: '#16a34a', fontWeight: 600 }}>
                   ✓ Standalone plan — no website needed
                 </div>

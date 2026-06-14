@@ -83,6 +83,26 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
   // Attachments for the reply box
   const [attachments, setAttachments] = useState<File[]>([])
 
+  // Remote support session link
+  const [remoteDraft, setRemoteDraft] = useState<string>((initialTicket as any).remote_url || '')
+  const [savingRemote, setSavingRemote] = useState(false)
+  async function saveRemote(url: string) {
+    setSavingRemote(true)
+    setError('')
+    const res = await fetch(`/api/tickets/${ticketId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ remote_url: url }),
+    })
+    if (res.ok) {
+      setTicket(prev => ({ ...prev, remote_url: url } as Ticket))
+      setRemoteDraft(url)
+    } else {
+      setError('Failed to save the remote session link')
+    }
+    setSavingRemote(false)
+  }
+
   function addAttachments(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || [])
     const oversize = files.find(f => f.size > 200 * 1024 * 1024)
@@ -318,7 +338,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
   const charWarning = charCount > MAX_COMMENT_LENGTH * 0.9
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <button
         onClick={() => router.push(backHref)}
@@ -328,8 +348,8 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
       </button>
 
       <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
-        <div>
-          <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-2">{ticket.title}</h1>
+        <div className="min-w-0">
+          <h1 className="font-display text-xl sm:text-2xl font-extrabold text-slate-800 mb-2 break-words">{ticket.title}</h1>
           <div className="flex flex-wrap items-center gap-2">
             <StatusBadge status={ticket.status} />
             {!isMessage && <PriorityBadge priority={ticket.priority} />}
@@ -386,6 +406,36 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
       {error && <div className="mb-4"><Alert type="error" message={error} /></div>}
 
+      {/* ── Remote support session ── */}
+      {!isMessage && (isAdmin || ticket.remote_url) && (
+        <div className="card p-4 mb-4 flex flex-wrap items-center gap-3">
+          <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">🖥 Remote session</span>
+          {ticket.remote_url && (
+            <a href={ticket.remote_url} target="_blank" rel="noreferrer" className="btn-secondary text-sm">
+              Join Remote Session →
+            </a>
+          )}
+          {isAdmin ? (
+            <div className="flex items-center gap-2 w-full sm:flex-1 sm:w-auto sm:min-w-[240px]">
+              <input
+                className="form-input text-sm py-1.5 flex-1 min-w-0"
+                placeholder="Paste a Chrome Remote Desktop / Quick Assist / Meet link…"
+                value={remoteDraft}
+                onChange={e => setRemoteDraft(e.target.value)}
+              />
+              <button onClick={() => saveRemote(remoteDraft.trim())} disabled={savingRemote} className="btn-ghost text-sm flex-shrink-0">
+                {savingRemote ? 'Saving…' : ticket.remote_url ? 'Update' : 'Save'}
+              </button>
+              {ticket.remote_url && (
+                <button onClick={() => saveRemote('')} disabled={savingRemote} className="text-xs text-red-500 hover:text-red-600 flex-shrink-0">Clear</button>
+              )}
+            </div>
+          ) : (
+            !ticket.remote_url && <span className="text-xs text-slate-400">No active remote session.</span>
+          )}
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ── Main column ── */}
         <div className="lg:col-span-2 space-y-4">
@@ -416,7 +466,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                   {p.before_image_url && (
                     <div>
                       <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Before Screenshot</div>
-                      <img src={p.before_image_url} alt="Before" className="rounded-lg border border-slate-200 max-h-64 object-cover" />
+                      <img src={p.before_image_url} alt="Before" className="rounded-lg border border-slate-200 max-h-64 max-w-full object-cover" />
                     </div>
                   )}
                   {p.after_note && (
@@ -428,7 +478,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                   {p.after_image_url && (
                     <div>
                       <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">After Screenshot</div>
-                      <img src={p.after_image_url} alt="After" className="rounded-lg border border-slate-200 max-h-64 object-cover" />
+                      <img src={p.after_image_url} alt="After" className="rounded-lg border border-slate-200 max-h-64 max-w-full object-cover" />
                     </div>
                   )}
                   {p.completion_note && (
@@ -683,7 +733,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 </div>
               )}
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={postComment}
                   disabled={postingComment || (!commentBody.trim() && !attachments.length)}
@@ -695,7 +745,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                   📎 Attach Files
                   <input type="file" multiple className="hidden" onChange={addAttachments} disabled={postingComment} />
                 </label>
-                <span className="text-xs text-slate-400">Screenshots or files, up to 200MB each</span>
+                <span className="text-xs text-slate-400 w-full sm:w-auto">Screenshots or files, up to 200MB each</span>
               </div>
             </div>
           </div>

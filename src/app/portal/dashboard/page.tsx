@@ -5,7 +5,7 @@ import { StatCard, StatusBadge, PriorityBadge, ProgressBar, EmptyState } from '@
 import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
 import { BuyExtraHourButton } from '@/components/portal/BuyExtraHourButton'
 import { getClientPlanState } from '@/lib/planUsage'
-import { formatDate, formatDateTime, formatMinutes, formatRelativeTime, currentBillingMonth } from '@/lib/utils'
+import { formatDate, formatDateTime, formatMinutes, currentBillingMonth } from '@/lib/utils'
 import { clientCan } from '@/lib/permissions'
 import Link from 'next/link'
 
@@ -42,48 +42,6 @@ export default async function ClientDashboard() {
     supabase.from('invoices').select('*').eq('client_id', clientId).in('status', ['Pending', 'Overdue']).order('due_date', { ascending: true }),
     supabase.from('client_extras').select('*').eq('client_id', clientId).order('created_at'),
   ])
-
-  // "Recent Messages from Us" = the Messages feature only (category 'Message'),
-  // NOT ticket replies or status changes. Includes admin-started message threads
-  // and admin replies within message threads.
-  let recentMessages: any[] = []
-  const { data: msgThreads } = await supabase
-    .from('tickets')
-    .select('id, title, description, created_at, creator:profiles!created_by(role)')
-    .eq('client_id', clientId)
-    .eq('category', 'Message')
-    .eq('hidden_for_client', false)
-    .order('created_at', { ascending: false })
-    .limit(10)
-
-  const msgIds = (msgThreads || []).map((t: any) => t.id)
-  let adminReplies: any[] = []
-  if (msgIds.length > 0) {
-    const { data: comments } = await supabase
-      .from('ticket_comments')
-      .select('id, body, created_at, ticket_id, author:profiles(id, full_name, role, avatar_url), ticket:tickets(id, title)')
-      .in('ticket_id', msgIds)
-      .eq('comment_type', 'public')
-      .order('created_at', { ascending: false })
-      .limit(20)
-    adminReplies = (comments || []).filter((c: any) => c.author?.role === 'admin')
-  }
-
-  // Admin-started message threads (the opening message lives in the description)
-  const adminOpeners = (msgThreads || [])
-    .filter((t: any) => t.creator?.role === 'admin')
-    .map((t: any) => ({
-      id: `thread-${t.id}`,
-      body: t.description,
-      created_at: t.created_at,
-      ticket_id: t.id,
-      ticket: { id: t.id, title: t.title },
-      author: { full_name: 'AG Development', role: 'admin' },
-    }))
-
-  recentMessages = [...adminReplies, ...adminOpeners]
-    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 3)
 
   const pkg = (client as any)?.package
   const dueInvoices = unpaidInvoices || []
@@ -277,50 +235,6 @@ export default async function ClientDashboard() {
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {/* Recent Messages from Us */}
-        {recentMessages.length > 0 && (
-          <div className="card overflow-hidden mb-6">
-            <div className="px-5 py-4 border-b border-blue-100 bg-blue-50 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-base">💬</span>
-                <h2 className="font-display font-bold text-blue-900">Recent Messages from Us</h2>
-              </div>
-              <Link href="/portal/message" className="text-xs text-blue-600 font-medium hover:underline">View All Messages →</Link>
-            </div>
-            <div className="divide-y divide-slate-100">
-              {recentMessages.map((c: any) => (
-                <Link
-                  key={c.id}
-                  href={`/portal/message/${c.ticket_id}`}
-                  className="flex gap-4 px-5 py-4 hover:bg-slate-50 transition-colors group"
-                >
-                  {c.author?.avatar_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.author.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-0.5 border border-slate-200" />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0 mt-0.5">
-                      AG
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <span className="text-xs text-slate-500 font-semibold">
-                        {c.author?.full_name || 'AG Development'} on{' '}
-                        <span className="text-slate-700">{c.ticket?.title}</span>
-                      </span>
-                      <span className="text-xs text-slate-400 flex-shrink-0">{formatRelativeTime(c.created_at)}</span>
-                    </div>
-                    <p className="text-sm text-slate-700 leading-relaxed line-clamp-2">
-                      {c.body}
-                    </p>
-                  </div>
-                  <div className="text-slate-300 group-hover:text-slate-500 transition-colors self-center flex-shrink-0 text-sm">→</div>
-                </Link>
-              ))}
-            </div>
           </div>
         )}
 

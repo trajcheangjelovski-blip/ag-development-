@@ -35,10 +35,10 @@ function buildServiceColumns(price: (id: string, fallback: number) => number) {
       icon: '🎨',
       heading: 'Design & Social Media',
       links: [
-        { label: 'Social Media Content',  href: '/order/social-media?plan=business',  description: `Monthly posts & stories from $${price('social-starter', 29)}/mo` },
-        { label: 'Website Banners',       href: '/contact?service=website-banner',    description: 'Custom banners from $20' },
-        { label: 'Logo & Brand Design',   href: '/contact?service=logo-design',       description: 'Logo design from $49' },
-        { label: 'All Design Services',   href: '/pricing#social-media',              description: 'View all design packages' },
+        { label: `Social Starter — $${price('social-starter', 29)}/mo`,   href: '/order/social-media?plan=starter',  description: '2 posts/stories per month' },
+        { label: `Social Business — $${price('social-business', 59)}/mo`, href: '/order/social-media?plan=business', description: '6 posts + 1 banner per month' },
+        { label: `Social Growth — $${price('social-growth', 99)}/mo`,     href: '/order/social-media?plan=growth',   description: '12 posts + 2 banners per month' },
+        { label: 'View All Design Plans',  href: '/pricing#social-media',            description: 'Compare all design packages' },
       ],
     },
   ]

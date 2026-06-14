@@ -260,6 +260,31 @@ ALTER TABLE support_packages ADD COLUMN IF NOT EXISTS team_seats   INTEGER;
 -- so a single "block" shows as one entry (and deletes as one).
 ALTER TABLE client_extras ADD COLUMN IF NOT EXISTS block_id UUID;
 
+-- 14) Remote support session link attached to a ticket (Chrome Remote Desktop,
+-- Quick Assist code, Google Meet, etc.). Admin sets it; client launches it.
+ALTER TABLE tickets ADD COLUMN IF NOT EXISTS remote_url TEXT;
+
+-- 15) Live popup chat (Messenger-style) between a client and AG. One continuous
+-- conversation per client.
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  client_id UUID REFERENCES clients(id) ON DELETE CASCADE NOT NULL,
+  sender_id UUID REFERENCES profiles(id),
+  sender_role TEXT NOT NULL CHECK (sender_role IN ('admin','client')),
+  body TEXT NOT NULL,
+  read_by_admin BOOLEAN NOT NULL DEFAULT FALSE,
+  read_by_client BOOLEAN NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS chat_messages_client_idx ON chat_messages(client_id, created_at);
+ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins manage chat" ON chat_messages;
+CREATE POLICY "Admins manage chat" ON chat_messages FOR ALL USING (get_user_role() = 'admin');
+DROP POLICY IF EXISTS "Clients view own chat" ON chat_messages;
+CREATE POLICY "Clients view own chat" ON chat_messages FOR SELECT USING (client_id = get_user_client_id());
+DROP POLICY IF EXISTS "Clients send own chat" ON chat_messages;
+CREATE POLICY "Clients send own chat" ON chat_messages FOR INSERT WITH CHECK (client_id = get_user_client_id());
+
 -- 13) A plan can have BOTH a recurring monthly price and a one-time setup fee.
 --   price      = recurring monthly amount (already exists)
 --   setup_fee  = one-time amount charged once when the plan is assigned

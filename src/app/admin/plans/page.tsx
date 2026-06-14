@@ -406,6 +406,7 @@ export default function AdminPlans() {
             <div className="px-5 py-3.5 border-b border-slate-200 bg-slate-50">
               <h2 className="font-display font-bold text-slate-800 text-sm">{cat}</h2>
             </div>
+            <div className="overflow-x-auto">
             <table className="w-full">
               <tbody>
                 {plans.filter(p => p.category === cat).map(p => (
@@ -439,6 +440,7 @@ export default function AdminPlans() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         ))}
 
@@ -719,6 +721,7 @@ export default function AdminPlans() {
               No client plans yet. Run the latest <code>pending-migrations.sql</code> to seed the standard plans, or create one above.
             </div>
           ) : (
+            <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr>
@@ -783,6 +786,7 @@ export default function AdminPlans() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </div>
 

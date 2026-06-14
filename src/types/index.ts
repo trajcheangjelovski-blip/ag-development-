@@ -10,6 +10,7 @@ export type TicketCategory =
   | 'Business Email'
   | 'New Feature Request'
   | 'General IT Support'
+  | 'Message'
 
 export type LeadStatus = 'New' | 'Contacted' | 'Proposal Sent' | 'Won' | 'Lost'
 export type InvoiceStatus = 'Pending' | 'Paid' | 'Overdue' | 'Cancelled'
@@ -82,6 +83,7 @@ export interface Ticket {
   affected_site: string | null
   status: TicketStatus
   assigned_to: string | null
+  remote_url?: string | null
   created_at: string
   updated_at: string
   // joined

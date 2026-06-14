@@ -13,11 +13,6 @@ export const PERMISSION_GROUPS: { group: string; perms: { key: string; label: st
     { key: 'tickets.close', label: 'Close tickets' },
     { key: 'tickets.delete', label: 'Delete tickets' },
   ]},
-  { group: 'Messages', perms: [
-    { key: 'messages.view', label: 'View messages' },
-    { key: 'messages.send', label: 'Send messages' },
-    { key: 'messages.delete', label: 'Delete messages' },
-  ]},
   { group: 'Clients', perms: [
     { key: 'clients.view', label: 'View clients' },
     { key: 'clients.create', label: 'Create clients' },
@@ -68,7 +63,6 @@ export const PRESETS: Record<PresetKey, { label: string; description: string; pe
     description: 'Runs operations: tickets, messages, clients, leads, invoices, reports. No admin management, settings, plan pricing, or destructive deletes.',
     permissions: [
       'tickets.view', 'tickets.reply', 'tickets.status', 'tickets.close',
-      'messages.view', 'messages.send',
       'clients.view', 'clients.create', 'clients.edit', 'clients.reset_password',
       'leads.view', 'leads.edit',
       'invoices.view', 'invoices.create', 'invoices.edit', 'invoices.mark_paid',
@@ -83,7 +77,6 @@ export const PRESETS: Record<PresetKey, { label: string; description: string; pe
     description: 'Handles tickets & messages for assigned clients. No billing, plans, settings, or deletes.',
     permissions: [
       'tickets.view', 'tickets.reply', 'tickets.status', 'tickets.close',
-      'messages.view', 'messages.send',
       'clients.view',
       'reports.view',
       'activity.view',
@@ -105,7 +98,7 @@ export const PRESETS: Record<PresetKey, { label: string; description: string; pe
     label: 'Viewer (read-only)',
     description: 'Can see dashboards, tickets, and stats but change nothing.',
     permissions: [
-      'tickets.view', 'messages.view', 'clients.view', 'leads.view',
+      'tickets.view', 'clients.view', 'leads.view',
       'invoices.view', 'plans.view', 'reports.view', 'activity.view',
     ],
     scope: 'all',

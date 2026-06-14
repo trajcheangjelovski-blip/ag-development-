@@ -10,7 +10,6 @@ import type { Profile } from '@/types'
 const adminLinks: { href: string; label: string; icon: string; perm?: string }[] = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: '⊞' },
   { href: '/admin/tickets', label: 'All Tickets', icon: '🎫', perm: 'tickets.view' },
-  { href: '/admin/messages', label: 'Messages', icon: '✉️', perm: 'messages.view' },
   { href: '/admin/clients', label: 'Clients', icon: '👥', perm: 'clients.view' },
   { href: '/admin/leads', label: 'Leads & CRM', icon: '📋', perm: 'leads.view' },
   { href: '/admin/reports', label: 'Monthly Reports', icon: '📊', perm: 'reports.view' },
@@ -26,7 +25,6 @@ const adminLinks: { href: string; label: string; icon: string; perm?: string }[]
 const clientLinks: { href: string; label: string; icon: string; cap?: ClientCapability }[] = [
   { href: '/portal/dashboard', label: 'Dashboard', icon: '⊞' },
   { href: '/portal/tickets', label: 'My Tickets', icon: '🎫' },
-  { href: '/portal/message', label: 'Message Us', icon: '✉️' },
   { href: '/portal/usage', label: 'Plan Usage', icon: '📦' },
   { href: '/portal/reports', label: 'Monthly Reports', icon: '📊' },
   { href: '/portal/invoices', label: 'Invoices', icon: '💳', cap: 'billing' },
@@ -35,16 +33,14 @@ const clientLinks: { href: string; label: string; icon: string; cap?: ClientCapa
   { href: '/portal/settings', label: 'Account Settings', icon: '🔐' },
 ]
 
-export function Sidebar({ profile }: { profile: Profile }) {
+export function Sidebar({ profile, open = false, onClose }: { profile: Profile; open?: boolean; onClose?: () => void }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const isAdmin = profile.role === 'admin'
   const [newLeads, setNewLeads] = useState(0)
   const [unpaidInvoices, setUnpaidInvoices] = useState(0)
-  const [unreadMessages, setUnreadMessages] = useState(0)
   const [teamEnabled, setTeamEnabled] = useState(false)
-  const messagesPath = isAdmin ? '/admin/messages' : '/portal/message'
 
   // Admins only see menu items they have permission for (master sees all).
   const links = isAdmin
@@ -110,31 +106,6 @@ export function Sidebar({ profile }: { profile: Profile }) {
     return () => { sb.removeChannel(channel); clearInterval(interval) }
   }, [isAdmin, profile.client_id, pathname])
 
-  // Live count of unread messages for the Messages link badge (both roles)
-  useEffect(() => {
-    if (!profile.id) return
-    const sb = createClient()
-
-    async function loadCount() {
-      const { count } = await sb
-        .from('notifications')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
-        .eq('is_read', false)
-        .eq('link', messagesPath)
-      setUnreadMessages(count ?? 0)
-    }
-    loadCount()
-
-    const channel = sb
-      .channel('sidebar-messages-count')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'notifications', filter: `user_id=eq.${profile.id}` }, loadCount)
-      .subscribe()
-    const interval = setInterval(loadCount, 60000)
-
-    return () => { sb.removeChannel(channel); clearInterval(interval) }
-  }, [profile.id, messagesPath, pathname])
-
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push('/login')
@@ -144,7 +115,16 @@ export function Sidebar({ profile }: { profile: Profile }) {
   const initials = profile.full_name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-60 flex flex-col z-50" style={{ background: '#0f1f3d' }}>
+    <>
+    {/* Mobile backdrop */}
+    {open && <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={onClose} />}
+    <aside
+      className={cn(
+        'fixed top-0 left-0 bottom-0 w-60 flex flex-col z-50 transform transition-transform duration-200 md:translate-x-0',
+        open ? 'translate-x-0' : '-translate-x-full',
+      )}
+      style={{ background: '#0f1f3d' }}
+    >
       {/* Logo */}
       <div className="p-5 border-b border-white/10">
         <Link href="/" className="flex items-center gap-2.5">
@@ -165,6 +145,7 @@ export function Sidebar({ profile }: { profile: Profile }) {
             <Link
               key={link.href}
               href={link.href}
+              onClick={onClose}
               className={cn(
                 'sidebar-link',
                 (pathname === link.href || pathname.startsWith(link.href + '/')) && 'sidebar-link-active'
@@ -180,11 +161,6 @@ export function Sidebar({ profile }: { profile: Profile }) {
               {link.href === '/portal/invoices' && unpaidInvoices > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[22px] text-center leading-none flex-shrink-0">
                   +{unpaidInvoices > 99 ? '99' : unpaidInvoices}
-                </span>
-              )}
-              {link.href === messagesPath && unreadMessages > 0 && (
-                <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[22px] text-center leading-none flex-shrink-0">
-                  {unreadMessages > 99 ? '99+' : unreadMessages}
                 </span>
               )}
             </Link>
@@ -236,5 +212,6 @@ export function Sidebar({ profile }: { profile: Profile }) {
         </button>
       </div>
     </aside>
+    </>
   )
 }

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import { AddToCartButton } from '@/components/public/Cart'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -340,6 +341,9 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
       >
         Get Started →
       </a>
+      <div style={{ marginTop: 8 }}>
+        <AddToCartButton id={section === 'it' ? `it-${plan.id}` : `social-${plan.id}`} />
+      </div>
     </div>
   )
 }
