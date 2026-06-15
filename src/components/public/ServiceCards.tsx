@@ -145,6 +145,19 @@ export function ServiceCards() {
         @media (max-width: 767px) {
           .sc-grid { grid-template-columns: 1fr !important; }
         }
+        .sc-btn {
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease !important;
+        }
+        .sc-btn:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+          filter: brightness(1.1);
+        }
+        .sc-btn:active {
+          transform: translateY(0) scale(0.98);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+          filter: brightness(0.97);
+        }
       `}</style>
 
       <div style={{ maxWidth: 1050, margin: '0 auto' }}>
@@ -240,7 +253,8 @@ export function ServiceCards() {
                 {/* Button */}
                 <Link
                   href={card.href}
-                  style={{ display: 'block', padding: '13px 20px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center' as const, textDecoration: 'none', color: 'white', background: card.accent, transition: 'all 0.2s ease', boxSizing: 'border-box' as const }}
+                  className="sc-btn"
+                  style={{ display: 'block', padding: '13px 20px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center' as const, textDecoration: 'none', color: 'white', background: card.accent, boxSizing: 'border-box' as const }}
                 >
                   {card.button}
                 </Link>

@@ -92,23 +92,98 @@ export default function HomePage() {
         className="relative overflow-hidden min-h-screen flex flex-col justify-center px-6 grain"
         style={{ background: 'linear-gradient(135deg, #060e1e 0%, #0a1628 30%, #0f1f3d 60%, #162b52 100%)' }}
       >
-        {/* Ambient orbs */}
+        {/* ── Strong glowing orbs ── */}
         <div
-          className="absolute -top-32 -right-32 w-[700px] h-[700px] rounded-full pointer-events-none animate-float"
-          style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.18) 0%, transparent 70%)', filter: 'blur(40px)' }}
+          className="absolute -top-40 -right-40 w-[900px] h-[900px] rounded-full pointer-events-none animate-float"
+          style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.55) 0%, rgba(37,99,235,0.15) 40%, transparent 70%)', filter: 'blur(50px)' }}
         />
         <div
-          className="absolute -bottom-40 -left-20 w-[500px] h-[500px] rounded-full pointer-events-none animate-float-alt"
-          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%)', filter: 'blur(50px)' }}
+          className="absolute -bottom-40 -left-20 w-[700px] h-[700px] rounded-full pointer-events-none animate-float-alt"
+          style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.50) 0%, rgba(124,58,237,0.15) 40%, transparent 70%)', filter: 'blur(55px)' }}
         />
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full pointer-events-none opacity-30"
-          style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.05) 0%, transparent 60%)', filter: 'blur(60px)' }}
+          className="absolute -top-10 -left-10 w-[550px] h-[550px] rounded-full pointer-events-none animate-float-slow"
+          style={{ background: 'radial-gradient(circle, rgba(99,102,241,0.40) 0%, transparent 65%)', filter: 'blur(60px)', animationDelay: '2s' }}
         />
+        <div
+          className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full pointer-events-none animate-orb-pulse"
+          style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.45) 0%, transparent 65%)', filter: 'blur(50px)', animationDelay: '1s' }}
+        />
+        {/* Center deep glow */}
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[600px] pointer-events-none animate-orb-pulse"
+          style={{ background: 'radial-gradient(ellipse, rgba(37,99,235,0.18) 0%, transparent 60%)', filter: 'blur(80px)', animationDelay: '3s' }}
+        />
+
+        {/* ── Aurora drift band ── */}
+        <div
+          className="absolute pointer-events-none animate-aurora-drift"
+          style={{
+            top: '25%', left: '-15%', width: '130%', height: '260px',
+            background: 'linear-gradient(180deg, transparent 0%, rgba(37,99,235,0.14) 35%, rgba(124,58,237,0.16) 65%, transparent 100%)',
+            filter: 'blur(35px)',
+          }}
+        />
+
+        {/* ── Sweeping light beam ── */}
+        <div
+          className="absolute inset-y-0 pointer-events-none animate-sweep"
+          style={{
+            left: 0, width: 180,
+            background: 'linear-gradient(90deg, transparent 0%, rgba(147,197,253,0.12) 50%, transparent 100%)',
+          }}
+        />
+        {/* second beam with delay */}
+        <div
+          className="absolute inset-y-0 pointer-events-none animate-sweep"
+          style={{
+            left: 0, width: 120, animationDelay: '4.5s',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(196,181,253,0.10) 50%, transparent 100%)',
+          }}
+        />
+
+        {/* ── Rotating rings ── */}
+        <div className="absolute pointer-events-none" style={{ top: '45%', left: '58%', width: 600, height: 600, marginLeft: -300, marginTop: -300 }}>
+          <div className="animate-spin-slow w-full h-full rounded-full" style={{ border: '1px solid rgba(96,165,250,0.30)' }} />
+        </div>
+        <div className="absolute pointer-events-none" style={{ top: '45%', left: '58%', width: 880, height: 880, marginLeft: -440, marginTop: -440 }}>
+          <div className="animate-spin-slow-r w-full h-full rounded-full" style={{ border: '1px solid rgba(167,139,250,0.18)' }} />
+        </div>
+
+        {/* ── Twinkling star particles ── */}
+        {[
+          { top: '12%', left: '6%',  delay: 0,   dur: 2.6, size: 5, blue: true },
+          { top: '22%', left: '18%', delay: 1.1, dur: 3.2, size: 3, blue: false },
+          { top: '55%', left: '9%',  delay: 0.5, dur: 2.9, size: 6, blue: true },
+          { top: '70%', left: '22%', delay: 2.0, dur: 3.5, size: 4, blue: false },
+          { top: '18%', left: '70%', delay: 0.8, dur: 2.7, size: 5, blue: true },
+          { top: '32%', left: '82%', delay: 1.6, dur: 3.1, size: 4, blue: false },
+          { top: '60%', left: '75%', delay: 0.3, dur: 2.4, size: 6, blue: true },
+          { top: '78%', left: '60%', delay: 2.3, dur: 3.8, size: 4, blue: false },
+          { top: '40%', left: '40%', delay: 1.3, dur: 3.0, size: 3, blue: true },
+          { top: '85%', left: '40%', delay: 0.9, dur: 2.8, size: 5, blue: false },
+          { top: '48%', left: '55%', delay: 1.7, dur: 3.3, size: 4, blue: true },
+          { top: '8%',  left: '45%', delay: 2.5, dur: 2.5, size: 3, blue: false },
+        ].map((p, i) => (
+          <div
+            key={i}
+            className="absolute rounded-full pointer-events-none animate-twinkle"
+            style={{
+              top: p.top, left: p.left,
+              width: p.size, height: p.size,
+              background: p.blue ? 'rgba(147,197,253,1)' : 'rgba(196,181,253,1)',
+              boxShadow: p.blue
+                ? `0 0 ${p.size * 3}px ${p.size}px rgba(96,165,250,0.7)`
+                : `0 0 ${p.size * 3}px ${p.size}px rgba(167,139,250,0.65)`,
+              animationDelay: `${p.delay}s`,
+              animationDuration: `${p.dur}s`,
+            }}
+          />
+        ))}
 
         {/* Grid dots pattern */}
         <div
-          className="absolute inset-0 opacity-[0.035] pointer-events-none"
+          className="absolute inset-0 opacity-[0.04] pointer-events-none"
           style={{ backgroundImage: "radial-gradient(rgba(255,255,255,0.8) 1px, transparent 1px)", backgroundSize: "40px 40px" }}
         />
 
@@ -149,7 +224,7 @@ export default function HomePage() {
 
           {/* Stats */}
           <div className="animate-fade-up-4 grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-white/10">
-            {[['50+', 'Happy Clients'], ['99%', 'Satisfaction'], ['48hr', 'Response Time'], ['5★', 'Average Rating']].map(([n, l]) => (
+            {[['6+', 'Happy Clients'], ['99%', 'Satisfaction'], ['3hr', 'Response Time'], ['5★', 'Average Rating']].map(([n, l]) => (
               <div key={l} className="text-center md:text-left">
                 <div className="font-display text-4xl font-extrabold gradient-text mb-1">{n}</div>
                 <div className="text-sm text-white/45 font-medium">{l}</div>

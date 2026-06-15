@@ -129,6 +129,30 @@ export function ServicesSection() {
         @media (max-width: 767px) {
           .ss-grid { grid-template-columns: 1fr !important; }
         }
+        .ss-btn-ghost {
+          transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease !important;
+        }
+        .ss-btn-ghost:hover {
+          transform: translateY(-2px) scale(1.02);
+          background: rgba(255,255,255,0.1) !important;
+          border-color: rgba(255,255,255,0.6) !important;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+        }
+        .ss-btn-ghost:active {
+          transform: translateY(0) scale(0.98);
+        }
+        .ss-btn-primary {
+          transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease !important;
+        }
+        .ss-btn-primary:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 12px 32px rgba(37,99,235,0.55) !important;
+          filter: brightness(1.12);
+        }
+        .ss-btn-primary:active {
+          transform: translateY(0) scale(0.98);
+          filter: brightness(0.97);
+        }
       `}</style>
 
       <div style={{ maxWidth: 1100, margin: '0 auto' }}>
@@ -297,6 +321,7 @@ export function ServicesSection() {
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 14, justifyContent: 'center' }}>
               <Link
                 href="/services"
+                className="ss-btn-ghost"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -315,6 +340,7 @@ export function ServicesSection() {
               </Link>
               <Link
                 href="/order/custom-plan"
+                className="ss-btn-primary"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

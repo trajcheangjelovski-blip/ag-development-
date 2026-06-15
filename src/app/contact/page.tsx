@@ -50,9 +50,9 @@ export default function ContactPage() {
             <div className="space-y-5">
               {[
                 ['📧', 'Email', 'support@ag-development.dev'],
-                ['💬', 'Response Time', 'Within 1 business day'],
-                ['🕘', 'Business Hours', 'Mon–Fri, 9am–6pm Eastern'],
-                ['🌎', 'Location', 'US-based, Remote Support'],
+                ['💬', 'Response Time', 'Within 3 hours'],
+                ['🕘', 'Business Hours', '24/7'],
+                ['🌎', 'Location', 'Remote Support'],
               ].map(([icon, label, val]) => (
                 <div key={label} className="flex gap-3 items-start">
                   <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl flex-shrink-0">{icon}</div>

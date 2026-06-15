@@ -142,6 +142,7 @@ function SocialOrderContent() {
 
   const [step, setStep] = useState(1)
   const [mobile, setMobile] = useState(false)
+  const [tablet, setTablet] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(initialPlan)
   const [hoveredPlan, setHoveredPlan] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
@@ -155,11 +156,17 @@ function SocialOrderContent() {
   const [coupon, setCoupon] = useState('')
 
   useEffect(() => {
-    const check = () => setMobile(window.innerWidth < 768)
+    const check = () => {
+      const w = window.innerWidth
+      setMobile(w < 640)
+      setTablet(w >= 640 && w < 1024)
+    }
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
   }, [])
+
+  const isDesktop = !mobile && !tablet
 
   const plan = DESIGN_PLANS.find(p => p.id === selectedPlan) ?? DESIGN_PLANS[1]
 
@@ -265,7 +272,7 @@ function SocialOrderContent() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#f8fafc' }}>
-      <div style={{ maxWidth: '900px', margin: '0 auto', padding: mobile ? '28px 16px' : '40px 24px' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', padding: mobile ? '20px 16px' : tablet ? '28px 20px' : '40px 24px' }}>
 
         {/* Breadcrumb */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px', fontSize: '12px', color: '#94a3b8' }}>
@@ -305,9 +312,14 @@ function SocialOrderContent() {
                       boxShadow: sel ? '0 0 0 4px rgba(124,58,237,0.1), 0 8px 24px rgba(124,58,237,0.12)' : hov ? '0 8px 30px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06)' : '0 1px 3px rgba(0,0,0,0.06)',
                       transform: sel ? 'translateY(-3px)' : hov ? 'translateY(-4px)' : 'translateY(0px)',
                       transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                      borderRadius: '16px', padding: '28px 32px', cursor: 'pointer',
-                      position: 'relative', minHeight: '200px', boxSizing: 'border-box',
-                      display: 'flex', gap: '20px',
+                      borderRadius: '16px',
+                      padding: mobile ? '16px' : tablet ? '20px' : '28px 32px',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      minHeight: mobile ? 'auto' : tablet ? '170px' : '200px',
+                      boxSizing: 'border-box',
+                      display: mobile ? 'block' : 'flex',
+                      gap: mobile ? undefined : tablet ? '16px' : '20px',
                     }}
                   >
                     {p.popular && (
@@ -316,32 +328,70 @@ function SocialOrderContent() {
                     {sel && (
                       <div style={{ position: 'absolute', left: 0, top: '15%', height: '70%', width: '4px', background: 'linear-gradient(180deg, #7c3aed, #2563eb)', borderRadius: '0 4px 4px 0' }} />
                     )}
-                    {/* Left side */}
-                    <div style={{ width: '180px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ fontSize: '32px', lineHeight: 1, marginBottom: '8px' }}>{p.icon}</div>
-                      <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{p.name}</div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginBottom: '8px' }}>
-                        <span style={{ fontSize: '24px', fontWeight: 800, color: '#7c3aed', display: 'inline-block', transition: 'transform 0.2s ease', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}>${p.price}</span>
-                        <span style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8' }}>/mo</span>
-                      </div>
-                      <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', width: 'fit-content', marginBottom: '10px' }}>{p.badge}</span>
-                      <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.65, margin: '0 0 8px', flex: 1 }}>{p.description}</p>
-                      <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
-                        <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
-                      </p>
-                    </div>
-                    {/* Right side */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '12px' }}>What&apos;s included</div>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                        {p.features.map(f => (
-                          <li key={f} style={{ fontSize: '13px', color: '#374151', lineHeight: 1.85, display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
-                            <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✓</span>
-                            <span>{f}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+
+                    {mobile ? (
+                      /* ── Mobile layout: vertical stack ── */
+                      <>
+                        {/* Header row: icon + name + price */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+                          <div style={{ fontSize: '28px', lineHeight: 1, flexShrink: 0 }}>{p.icon}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{p.name}</div>
+                            <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginTop: '2px' }}>
+                              <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}>${p.price}</span>
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>/mo</span>
+                            </div>
+                          </div>
+                          <span style={{ ...badgeStyle(p.badge, sel), fontSize: '9px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', flexShrink: 0, whiteSpace: 'nowrap' }}>{p.badge}</span>
+                        </div>
+                        {/* Description */}
+                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.6, margin: '0 0 10px' }}>{p.description}</p>
+                        {/* Features */}
+                        <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '7px' }}>What&apos;s included</div>
+                        <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 10px' }}>
+                          {p.features.map(f => (
+                            <li key={f} style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7, display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                              <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                        {/* Good for */}
+                        <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                          <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
+                        </p>
+                      </>
+                    ) : (
+                      /* ── Tablet / Desktop layout: two columns ── */
+                      <>
+                        {/* Left column */}
+                        <div style={{ width: tablet ? '145px' : '180px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+                          <div style={{ fontSize: tablet ? '28px' : '32px', lineHeight: 1, marginBottom: '8px' }}>{p.icon}</div>
+                          <div style={{ fontSize: tablet ? '16px' : '18px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{p.name}</div>
+                          <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginBottom: '8px' }}>
+                            <span style={{ fontSize: tablet ? '20px' : '24px', fontWeight: 800, color: '#7c3aed', display: 'inline-block', transition: 'transform 0.2s ease', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}>${p.price}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8' }}>/mo</span>
+                          </div>
+                          <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', width: 'fit-content', marginBottom: '10px' }}>{p.badge}</span>
+                          <p style={{ fontSize: tablet ? '12px' : '13px', color: '#64748b', lineHeight: 1.65, margin: '0 0 8px', flex: 1 }}>{p.description}</p>
+                          <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                            <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
+                          </p>
+                        </div>
+                        {/* Right column: features */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '12px' }}>What&apos;s included</div>
+                          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                            {p.features.map(f => (
+                              <li key={f} style={{ fontSize: tablet ? '12px' : '13px', color: '#374151', lineHeight: 1.85, display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
+                                <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✓</span>
+                                <span>{f}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </>
+                    )}
                   </div>
                 )
               })}
@@ -360,11 +410,11 @@ function SocialOrderContent() {
               <p style={{ fontSize: '15px', color: '#64748b', margin: 0 }}>Almost done — we&apos;ll confirm your plan and reach out within 1 business day.</p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 320px', gap: '24px', alignItems: 'start' }}>
-              {mobile && <DesignSummary plan={plan} />}
+            <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
+              {!isDesktop && <DesignSummary plan={plan} />}
 
-              <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0', padding: mobile ? '24px 20px' : '32px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+              <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0', padding: mobile ? '20px 16px' : tablet ? '24px 20px' : '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr', gap: '16px', marginBottom: '16px' }}>
                   <div>
                     <label style={lbl}>Business Name <span style={{ color: '#ef4444' }}>*</span></label>
                     <input style={errors.businessName ? inputError : inputStyle} placeholder="e.g. Bloom Florist" value={form.businessName} onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))} />
@@ -377,7 +427,7 @@ function SocialOrderContent() {
                   </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr', gap: '16px', marginBottom: '16px' }}>
                   <div>
                     <label style={lbl}>Email Address <span style={{ color: '#ef4444' }}>*</span></label>
                     <input type="email" style={errors.email ? inputError : inputStyle} placeholder="you@company.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
@@ -461,7 +511,7 @@ function SocialOrderContent() {
                 {apiError && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '12px 16px', fontSize: '13px', color: '#dc2626', lineHeight: 1.6 }}>{apiError}</div>}
               </div>
 
-              {!mobile && <div style={{ position: 'sticky', top: '80px' }}><DesignSummary plan={plan} /></div>}
+              {isDesktop && <div style={{ position: 'sticky', top: '80px' }}><DesignSummary plan={plan} /></div>}
             </div>
 
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '24px' }}>
