@@ -142,13 +142,53 @@ export default function HomePage() {
           }}
         />
 
-        {/* ── Rotating rings ── */}
-        <div className="absolute pointer-events-none" style={{ top: '45%', left: '58%', width: 600, height: 600, marginLeft: -300, marginTop: -300 }}>
-          <div className="animate-spin-slow w-full h-full rounded-full" style={{ border: '1px solid rgba(96,165,250,0.30)' }} />
-        </div>
-        <div className="absolute pointer-events-none" style={{ top: '45%', left: '58%', width: 880, height: 880, marginLeft: -440, marginTop: -440 }}>
-          <div className="animate-spin-slow-r w-full h-full rounded-full" style={{ border: '1px solid rgba(167,139,250,0.18)' }} />
-        </div>
+        {/* ── Orbit ring (static) ── */}
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            top: '45%', left: '60%',
+            width: 520, height: 520,
+            marginLeft: -260, marginTop: -260,
+            border: '1px solid rgba(96,165,250,0.22)',
+            boxShadow: 'inset 0 0 40px rgba(96,165,250,0.04)',
+          }}
+        />
+        {/* Outer faint ring */}
+        <div
+          className="absolute pointer-events-none rounded-full"
+          style={{
+            top: '45%', left: '60%',
+            width: 680, height: 680,
+            marginLeft: -340, marginTop: -340,
+            border: '1px solid rgba(167,139,250,0.12)',
+          }}
+        />
+
+        {/* ── Blue planet orbiting inner ring ── */}
+        <div
+          className="absolute pointer-events-none animate-orbit-planet"
+          style={{
+            top: '45%', left: '60%',
+            width: 20, height: 20,
+            marginLeft: -10, marginTop: -10,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle at 35% 30%, #93c5fd, #2563eb 55%, #1e3a8a)',
+            boxShadow: '0 0 14px 5px rgba(96,165,250,0.55), 0 0 30px rgba(37,99,235,0.35)',
+          }}
+        />
+
+        {/* ── Purple moon orbiting outer ring ── */}
+        <div
+          className="absolute pointer-events-none animate-orbit-moon"
+          style={{
+            top: '45%', left: '60%',
+            width: 12, height: 12,
+            marginLeft: -6, marginTop: -6,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle at 35% 30%, #c4b5fd, #7c3aed 55%, #4c1d95)',
+            boxShadow: '0 0 10px 4px rgba(167,139,250,0.55), 0 0 22px rgba(124,58,237,0.35)',
+          }}
+        />
 
         {/* ── Twinkling star particles ── */}
         {[
