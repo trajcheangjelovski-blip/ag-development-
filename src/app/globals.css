@@ -330,3 +330,49 @@
   line-height: 1;
   margin: 6px 0 4px;
 }
+
+/* ── Mobile scroll performance ───────────────────────────────────────────────
+   Backdrop-blur and large animated blur "orbs" force a full repaint on every
+   scroll frame, which stutters on phones. Drop them on small screens (keeping
+   the desktop experience untouched). One-shot entrance fades are left alone. */
+@media (max-width: 768px) {
+  .backdrop-blur,
+  .backdrop-blur-sm,
+  .backdrop-blur-md,
+  .backdrop-blur-lg,
+  .backdrop-blur-xl,
+  .glass,
+  .glass-dark {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  .animate-float,
+  .animate-float-alt,
+  .animate-float-slow,
+  .animate-orb-pulse,
+  .animate-aurora-drift,
+  .animate-sweep,
+  .animate-spin-slow,
+  .animate-spin-slow-r,
+  .animate-light-ray,
+  .animate-orbit-planet,
+  .animate-orbit-moon,
+  .animate-gradient,
+  .animate-glow,
+  .animate-twinkle,
+  .animate-run-across,
+  .animate-run-bob {
+    animation: none !important;
+  }
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
