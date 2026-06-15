@@ -113,6 +113,16 @@
   66%       { transform: translateY(4px) translateX(-4px); }
 }
 
+@keyframes runAcross {
+  0%   { transform: translateX(-90px); }
+  100% { transform: translateX(calc(100vw + 90px)); }
+}
+
+@keyframes runBob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-5px); }
+}
+
 @keyframes glow {
   0%, 100% { box-shadow: 0 0 20px rgba(37,99,235,0.3); }
   50%       { box-shadow: 0 0 40px rgba(37,99,235,0.6); }
@@ -212,6 +222,8 @@
 .animate-light-ray     { animation: lightRay 6s ease-in-out infinite; }
 .animate-orbit-planet  { animation: orbitPlanet 22s linear infinite; }
 .animate-orbit-moon    { animation: orbitMoon 34s linear infinite; }
+.animate-run-across  { animation: runAcross 7s linear infinite; }
+.animate-run-bob     { animation: runBob 0.42s ease-in-out infinite; }
 .animate-glow        { animation: glow 2s ease-in-out infinite; }
 .animate-gradient    { animation: gradientShift 8s ease infinite; background-size: 300% 300%; }
 .animate-pulse-dot   { animation: pulseDot 1.8s ease-in-out infinite; }
