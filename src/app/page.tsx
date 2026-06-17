@@ -7,8 +7,16 @@ import { ServicesSection } from '@/components/public/ServicesSection'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'AG Development — Websites, IT Support & Digital Growth for Small Businesses',
-  description: 'Get reliable help with your website, email, domain, social media, and tech — without hiring full-time IT or a design agency.',
+  title: 'Websites, IT Support & Digital Growth for Small Businesses',
+  description: 'AG Development helps small businesses with websites, remote IT support, email setup, social media design, and digital growth — no full-time hire needed.',
+  keywords: ['website development small business', 'remote IT support', 'small business website', 'WordPress support', 'Shopify help', 'email setup', 'social media design'],
+  openGraph: {
+    title: 'AG Development — Websites, IT Support & Digital Growth for Small Businesses',
+    description: 'Reliable tech help for small businesses. Websites, IT, email, design — all remote, all transparent.',
+    url: 'https://ag-development.dev',
+    images: [{ url: '/og-image.png', width: 1200, height: 630, alt: 'AG Development Homepage' }],
+  },
+  alternates: { canonical: 'https://ag-development.dev' },
 }
 
 const iconProps = {

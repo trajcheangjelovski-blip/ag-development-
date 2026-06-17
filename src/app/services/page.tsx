@@ -4,8 +4,15 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Services — AG Development',
-  description: 'Website development, maintenance, graphic design, social media, IT support, and custom platforms for small businesses.',
+  title: 'Our Services',
+  description: 'Website development, maintenance, IT support, graphic design, social media content, email setup, domain & DNS — remote services for small businesses.',
+  keywords: ['website maintenance', 'IT support', 'social media design', 'email setup', 'domain DNS', 'graphic design small business'],
+  openGraph: {
+    title: 'Services — AG Development',
+    description: 'Website development, IT support, design, and digital growth services for small businesses.',
+    url: 'https://ag-development.dev/services',
+  },
+  alternates: { canonical: 'https://ag-development.dev/services' },
 }
 
 const categories = [

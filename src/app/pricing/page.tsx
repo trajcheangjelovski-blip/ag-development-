@@ -9,8 +9,15 @@ import type { Metadata } from 'next'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Pricing — AG Development',
-  description: 'Build your website once. Maintain it monthly. Simple, honest pricing for small businesses.',
+  title: 'Pricing',
+  description: 'Transparent monthly pricing for website care, IT support, and social media design. No hidden fees. Plans starting from $29/mo.',
+  keywords: ['website maintenance pricing', 'IT support cost', 'small business tech pricing', 'monthly website plan'],
+  openGraph: {
+    title: 'Pricing — AG Development',
+    description: 'Monthly plans for website care, IT support, and social media design. Starting at $29/mo.',
+    url: 'https://ag-development.dev/pricing',
+  },
+  alternates: { canonical: 'https://ag-development.dev/pricing' },
 }
 
 // ── Data ──────────────────────────────────────────────────────────────────────
