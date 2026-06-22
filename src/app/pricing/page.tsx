@@ -146,17 +146,17 @@ const carePlans = [
 ]
 
 const extraServices = [
-  ['Domain Registration & Setup', '$15–$20/yr', 'One-time setup'],
-  ['Business Email Setup (Google / M365)', '$50', 'One-time setup'],
-  ['Speed Optimization Audit', '$79', 'One-time'],
-  ['SEO On-Page Optimization (per page)', '$39', 'Per page'],
-  ['Google Analytics Setup + Events', '$59', 'One-time'],
-  ['Landing Page (ads / promo / event)', '$299–$499', 'One-time'],
-  ['Additional Website Page', '$79–$149', 'Per page'],
-  ['New Section Added to Existing Page', '$49–$99', 'Per section'],
+  ['Domain Registration & Setup', '$20–$25/yr', 'One-time setup'],
+  ['Business Email Setup (Google / M365)', '$20', 'One-time setup'],
+  ['Speed Optimization Audit', '$50', 'One-time'],
+  ['SEO On-Page Optimization (per page)', '$20', 'Per page'],
+  ['Google Analytics Setup', '$50', 'One-time'],
+  ['Landing Page (ads / promo / event)', '$100–$150', 'One-time'],
+  ['Additional Website Page', '$15–$20', 'Per page'],
+  ['New Section Added to Existing Page', '$15–$20', 'Per section'],
   ['SSL Setup / Renewal Help', '$29', 'One-time'],
   ['Website Migration', '$99–$199', 'One-time'],
-  ['WordPress to Shopify Transfer', '$299', 'One-time'],
+  ['WordPress to Shopify Transfer', '$150', 'One-time'],
 ]
 
 const notIncluded = [

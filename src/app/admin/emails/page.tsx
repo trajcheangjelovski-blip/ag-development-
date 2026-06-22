@@ -119,6 +119,10 @@ export default function AdminEmails() {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id || null))
     loadCampaigns()
     loadTemplates()
+    // Auto-refresh the list so a scheduled email flips to the green "sent"
+    // badge on its own once the cron delivers it — no manual reload needed.
+    const poll = setInterval(loadCampaigns, 20000)
+    return () => clearInterval(poll)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

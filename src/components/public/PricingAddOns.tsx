@@ -149,12 +149,12 @@ const socialPlans: Plan[] = [
 ]
 
 const designServices: [string, string][] = [
-  ['Basic Logo Design', '$49–$99'],
-  ['Flyer or Event Poster', '$30–$60'],
-  ['Website Banner', '$20–$30'],
-  ['Social Media Banner Pack (5)', '$49'],
-  ['Business Card Design', '$30–$49'],
-  ['Brand Starter Kit (logo + colors + fonts)', 'from $299'],
+  ['Basic Logo Design', '$10–$30'],
+  ['Flyer or Event Poster', '$5–$15'],
+  ['Website Banner', '$5–$10'],
+  ['Social Media Banner Pack (5)', '$30'],
+  ['Business Card Design', '$5–$15'],
+  ['Brand Starter Kit (logo + colors + fonts)', 'from $100'],
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
