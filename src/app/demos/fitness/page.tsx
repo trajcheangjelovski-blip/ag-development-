@@ -56,7 +56,7 @@ export default function FitnessDemo() {
 
       {/* Hero */}
       <header className="relative px-6 py-28 sm:py-36 text-center overflow-hidden" style={{ background: "linear-gradient(rgba(11,15,10,0.72), rgba(11,15,10,0.9)), url('/demos/fitness/hero.jpg') center/cover no-repeat, radial-gradient(ellipse at center, #1a2410 0%, #0b0f0a 70%)" }}>
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden hidden lg:block">
           <div className="absolute -top-16 left-10 w-80 h-80 rounded-full blur-3xl animate-float-slow" style={{ background: 'rgba(132,204,22,0.3)' }} />
           <div className="absolute bottom-0 right-10 w-72 h-72 rounded-full blur-3xl animate-orb-pulse" style={{ background: 'rgba(163,230,53,0.22)' }} />
           <div className="absolute top-1/3 left-0 right-0">
