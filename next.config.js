@@ -3,6 +3,10 @@ const nextConfig = {
   // Required for Docker/self-hosted deployment
   output: 'standalone',
 
+  // Don't run ESLint during the production build. Linting is a dev-time concern;
+  // skipping it keeps `next build` from failing on tooling/peer-dependency issues.
+  eslint: { ignoreDuringBuilds: true },
+
   // Pin the workspace root so Next stops picking the stray lockfile in your home folder
   turbopack: {
     root: __dirname,
