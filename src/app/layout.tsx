@@ -34,11 +34,18 @@ export const metadata: Metadata = {
     siteName: 'AG Development',
     title: 'AG Development — Websites, IT Support & Design for Small Businesses',
     description: 'Reliable websites, IT support, email setup, social media design, and digital growth for small businesses — remote, transparent, and affordable.',
+    images: [{
+      url: '/og.png',          // resolved against metadataBase → https://ag-development.dev/og.png
+      width: 1200,
+      height: 630,
+      alt: 'AG Development — Websites & reliable IT support for small businesses',
+    }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'AG Development — Websites, IT Support & Design for Small Businesses',
     description: 'Reliable websites, IT support, and digital growth for small businesses.',
+    images: ['/og.png'],
   },
   robots: {
     index: true,
