@@ -222,7 +222,10 @@ export default function AdminEmails() {
           html: message,
           attachments,
           recipients,
-          scheduledFor: mode === 'later' ? scheduledFor : null,
+          // Convert the picker's local time to a proper UTC ISO string in the
+          // browser (which knows the user's timezone) so the server stores the
+          // exact instant the admin intended, regardless of the server's zone.
+          scheduledFor: mode === 'later' && scheduledFor ? new Date(scheduledFor).toISOString() : null,
         }),
       })
       const data = await res.json()
