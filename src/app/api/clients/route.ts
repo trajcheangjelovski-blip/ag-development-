@@ -36,9 +36,18 @@ export async function POST(request: NextRequest) {
   }
 
   // Create client record
+  // Coerce empty strings to null so optional fields (esp. the package_id UUID) don't break the insert.
   const { data: client, error: clientError } = await supabase
     .from('clients')
-    .insert({ business_name, contact_name, email, phone, website, package_id, notes })
+    .insert({
+      business_name,
+      contact_name,
+      email,
+      phone: phone || null,
+      website: website || null,
+      package_id: package_id || null,
+      notes: notes || null,
+    })
     .select()
     .single()
 
