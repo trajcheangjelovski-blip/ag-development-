@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Rich email editor (react-quill-new) */
+.rich-editor .ql-container { border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; font-size: 14px; }
+.rich-editor .ql-toolbar { border-top-left-radius: 8px; border-top-right-radius: 8px; }
+.rich-editor .ql-editor { min-height: 180px; }
+
 @layer base {
   :root {
     --navy: #0f1f3d;

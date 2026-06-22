@@ -13,6 +13,7 @@ export default function AdminSettings() {
 
   const [adminEmail, setAdminEmail] = useState('')
   const [emailFrom, setEmailFrom] = useState('')
+  const [notificationFrom, setNotificationFrom] = useState('')
   const [apiKey, setApiKey] = useState('')
 
   // Chatbot
@@ -42,6 +43,7 @@ export default function AdminSettings() {
         setMaskedKey(data.resend_api_key_masked)
         setAdminEmail(data.admin_email || '')
         setEmailFrom(data.email_from || '')
+        setNotificationFrom(data.notification_from || '')
         setStripeConfigured(data.stripe_configured)
         setStripeSecretMasked(data.stripe_secret_key_masked || '')
         setStripeWebhookMasked(data.stripe_webhook_secret_masked || '')
@@ -61,6 +63,7 @@ export default function AdminSettings() {
       const body: Record<string, string> = {}
       if (adminEmail.trim()) body.admin_email = adminEmail.trim()
       if (emailFrom.trim()) body.email_from = emailFrom.trim()
+      if (notificationFrom.trim()) body.notification_from = notificationFrom.trim()
       if (apiKey.trim()) body.resend_api_key = apiKey.trim()
       if (stripeSecret.trim()) body.stripe_secret_key = stripeSecret.trim()
       if (stripePublishable.trim()) body.stripe_publishable_key = stripePublishable.trim()
@@ -172,14 +175,17 @@ export default function AdminSettings() {
             </div>
 
             <div>
-              <label className="form-label">Sender (From)</label>
+              <label className="form-label">Notification Sender (From)</label>
               <input
                 className="form-input"
-                placeholder="AG Development <support@ag-development.dev>"
-                value={emailFrom}
-                onChange={e => setEmailFrom(e.target.value)}
+                placeholder="AG Development <notification@ag-development.dev>"
+                value={notificationFrom}
+                onChange={e => setNotificationFrom(e.target.value)}
               />
-              <p className="text-xs text-slate-400 mt-1.5">All outgoing emails — lead replies, ticket updates, client invites — are sent from this address.</p>
+              <p className="text-xs text-slate-400 mt-1.5">
+                Automated notifications — new subscription, new message, new lead, new ticket, invoices, client invites —
+                are sent from this address via the shared notification mailbox (SMTP env vars).
+              </p>
             </div>
 
             <div>
@@ -191,7 +197,21 @@ export default function AdminSettings() {
                 value={adminEmail}
                 onChange={e => setAdminEmail(e.target.value)}
               />
-              <p className="text-xs text-slate-400 mt-1.5">New leads, orders, messages, and ticket alerts are emailed here. Replies from leads also go to this address.</p>
+              <p className="text-xs text-slate-400 mt-1.5">New leads, orders, messages, and ticket alerts are emailed here.</p>
+            </div>
+
+            <div>
+              <label className="form-label">Default Sender (legacy)</label>
+              <input
+                className="form-input"
+                placeholder="AG Development <support@ag-development.dev>"
+                value={emailFrom}
+                onChange={e => setEmailFrom(e.target.value)}
+              />
+              <p className="text-xs text-slate-400 mt-1.5">
+                Fallback only. Lead replies and composed/bulk emails now send from each admin&apos;s personal
+                connection, configured under Account Settings.
+              </p>
             </div>
           </div>
 

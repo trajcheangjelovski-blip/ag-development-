@@ -18,11 +18,12 @@
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^14.2.3",
+    "react-quill-new": "^3.8.3",
     "resend": "^4.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
-    "@types/nodemailer": "^6.4.17",
+    "@types/nodemailer": "^6.4.24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "autoprefixer": "^10.0.1",

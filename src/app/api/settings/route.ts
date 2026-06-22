@@ -4,7 +4,7 @@ import { invalidateSettingsCache, getEmailSettings } from '@/lib/settings'
 import { getStripeConfig } from '@/lib/stripe'
 
 const EDITABLE_KEYS = [
-  'admin_email', 'email_from', 'resend_api_key',
+  'admin_email', 'email_from', 'notification_from', 'resend_api_key',
   'stripe_secret_key', 'stripe_publishable_key', 'stripe_webhook_secret',
   'anthropic_api_key',
 ] as const
@@ -41,6 +41,7 @@ export async function GET() {
     tableMissing,
     admin_email: effective.adminEmail,
     email_from: effective.from,
+    notification_from: effective.notificationFrom,
     resend_api_key_masked: keyConfigured ? `••••••••${apiKey.slice(-4)}` : '',
     email_configured: keyConfigured,
     stripe_configured: stripeConfigured,

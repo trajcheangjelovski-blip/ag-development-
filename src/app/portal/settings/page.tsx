@@ -14,19 +14,81 @@ export default function AccountSettings() {
   const [avatarMsg, setAvatarMsg] = useState<{ ok: boolean; text: string } | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // Personal email connection (admins only)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [usingResend, setUsingResend] = useState(false)
+  const [conn, setConn] = useState({ host: '', port: 587, secure: false, user: '', fromName: '', fromEmail: '' })
+  const [connPass, setConnPass] = useState('')
+  const [passwordSet, setPasswordSet] = useState(false)
+  const [connBusy, setConnBusy] = useState(false)
+  const [connTesting, setConnTesting] = useState(false)
+  const [connMsg, setConnMsg] = useState<{ ok: boolean; text: string } | null>(null)
+
   useEffect(() => {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
-      const { data } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', user.id).single()
+      const { data } = await supabase.from('profiles').select('full_name, avatar_url, role').eq('id', user.id).single()
       if (data) {
         setFullName(data.full_name || '')
         setAvatarUrl(data.avatar_url)
+        setIsAdmin(data.role === 'admin')
+        if (data.role === 'admin') {
+          const res = await fetch('/api/account/email-connection')
+          if (res.ok) {
+            const c = await res.json()
+            setUsingResend(!!c.usingResend)
+            if (!c.tableMissing) {
+              setConn({
+                host: c.host || '', port: c.port || 587, secure: !!c.secure,
+                user: c.user || '', fromName: c.fromName || '', fromEmail: c.fromEmail || '',
+              })
+              setPasswordSet(!!c.passwordSet)
+            }
+          }
+        }
       }
     }
     load()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  async function saveConnection() {
+    setConnBusy(true)
+    setConnMsg(null)
+    try {
+      const body: Record<string, unknown> = { ...conn }
+      if (connPass.trim()) body.password = connPass.trim()
+      const res = await fetch('/api/account/email-connection', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'Could not save')
+      setConnMsg({ ok: true, text: 'Email connection saved.' })
+      if (connPass.trim()) { setPasswordSet(true); setConnPass('') }
+    } catch (e) {
+      setConnMsg({ ok: false, text: e instanceof Error ? e.message : 'Could not save' })
+    } finally {
+      setConnBusy(false)
+    }
+  }
+
+  async function testConnection() {
+    setConnTesting(true)
+    setConnMsg(null)
+    try {
+      const res = await fetch('/api/account/email-connection', { method: 'POST' })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data?.error || 'Test failed')
+      setConnMsg({ ok: true, text: `Test email sent to ${data.to}. Check your inbox.` })
+    } catch (e) {
+      setConnMsg({ ok: false, text: e instanceof Error ? e.message : 'Test failed' })
+    } finally {
+      setConnTesting(false)
+    }
+  }
 
   async function uploadAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -164,6 +226,82 @@ export default function AccountSettings() {
             </div>
           </div>
         </div>
+
+        {isAdmin && (
+          <div className="card p-7 mb-6">
+            <h2 className="font-display font-bold text-slate-800 mb-1" style={{ fontSize: 16 }}>
+              My Email Connection
+            </h2>
+            <p className="text-sm text-slate-500 mb-5">
+              {usingResend
+                ? <>Lead replies and composed/bulk emails go out from <strong>your own address on the verified domain</strong> (e.g. you@ag-development.dev), sent via Resend. Replies come back to your login email.</>
+                : <>Lead replies and composed/bulk emails go out from <strong>your own mailbox</strong>. Enter your personal SMTP details. Your password is encrypted and never shown again.</>}
+            </p>
+
+            {connMsg && (
+              <div className="mb-4">
+                <Alert type={connMsg.ok ? 'success' : 'error'} message={connMsg.text} />
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {!usingResend && (
+                <>
+                  <div className="sm:col-span-2">
+                    <label className="form-label">SMTP Host</label>
+                    <input className="form-input" placeholder="smtp.office365.com"
+                      value={conn.host} onChange={e => setConn({ ...conn, host: e.target.value })} />
+                  </div>
+                  <div>
+                    <label className="form-label">Port</label>
+                    <input type="number" className="form-input" placeholder="587"
+                      value={conn.port} onChange={e => setConn({ ...conn, port: Number(e.target.value) })} />
+                  </div>
+                  <div className="flex items-end pb-2">
+                    <label className="flex items-center gap-2 text-sm text-slate-700">
+                      <input type="checkbox" checked={conn.secure}
+                        onChange={e => setConn({ ...conn, secure: e.target.checked })} />
+                      Use SSL/TLS (port 465)
+                    </label>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="form-label">Username</label>
+                    <input className="form-input" placeholder="you@yourdomain.com" autoComplete="off"
+                      value={conn.user} onChange={e => setConn({ ...conn, user: e.target.value })} />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <label className="form-label">Password</label>
+                    <input type="password" className="form-input" autoComplete="new-password"
+                      placeholder={passwordSet ? '•••••••• (saved) — enter new to replace' : 'Mailbox or app password'}
+                      value={connPass} onChange={e => setConnPass(e.target.value)} />
+                  </div>
+                </>
+              )}
+              <div>
+                <label className="form-label">From Name</label>
+                <input className="form-input" placeholder="Your Name"
+                  value={conn.fromName} onChange={e => setConn({ ...conn, fromName: e.target.value })} />
+              </div>
+              <div>
+                <label className="form-label">From Email{usingResend && ' (on ag-development.dev)'}</label>
+                <input type="email" className="form-input"
+                  placeholder={usingResend ? 'you@ag-development.dev' : 'you@yourdomain.com'}
+                  value={conn.fromEmail} onChange={e => setConn({ ...conn, fromEmail: e.target.value })} />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6 pt-5 border-t border-slate-100">
+              <button onClick={saveConnection} disabled={connBusy}
+                className="flex items-center justify-center gap-2 px-6 py-2.5 font-semibold text-sm text-white rounded-lg disabled:opacity-60"
+                style={{ background: '#0f1f3d' }}>
+                {connBusy ? <><Spinner size="sm" /> Saving…</> : 'Save Connection'}
+              </button>
+              <button onClick={testConnection} disabled={connTesting} className="btn-ghost px-5">
+                {connTesting ? 'Sending test…' : 'Send Test Email'}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="card p-7">
           <h2 className="font-display font-bold text-slate-800 mb-1" style={{ fontSize: 16 }}>

@@ -12,6 +12,7 @@ const adminLinks: { href: string; label: string; icon: string; perm?: string }[]
   { href: '/admin/tickets', label: 'All Tickets', icon: '🎫', perm: 'tickets.view' },
   { href: '/admin/clients', label: 'Clients', icon: '👥', perm: 'clients.view' },
   { href: '/admin/leads', label: 'Leads & CRM', icon: '📋', perm: 'leads.view' },
+  { href: '/admin/emails', label: 'Email', icon: '✉️', perm: 'emails.send' },
   { href: '/admin/reports', label: 'Monthly Reports', icon: '📊', perm: 'reports.view' },
   { href: '/admin/stats', label: 'Statistics', icon: '📈', perm: 'reports.view' },
   { href: '/admin/invoices', label: 'Invoices', icon: '💳', perm: 'invoices.view' },
@@ -215,3 +216,4 @@ export function Sidebar({ profile, open = false, onClose }: { profile: Profile; 
     </>
   )
 }
+ 

@@ -1,39 +1,108 @@
 import nodemailer, { type Transporter } from 'nodemailer'
+import { Resend } from 'resend'
 import { getEmailSettings } from '@/lib/settings'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-// SMTP transport (e.g. a Hetzner mailbox). Built once and reused.
-// Configure via env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS.
-let transporter: Transporter | null = null
-function getTransport(): Transporter {
-  if (transporter) return transporter
+const TIMEOUTS = { connectionTimeout: 8000, greetingTimeout: 8000, socketTimeout: 10000 }
+
+// Primary delivery path. When a Resend API key is configured (admin Settings or
+// RESEND_API_KEY env), all mail is sent through Resend — no SMTP needed. SMTP is
+// only the fallback used when no Resend key is present. NOTE: Resend can only
+// send from addresses on a domain verified in your Resend account, so every
+// "from" must be on that domain (e.g. ag-development.dev).
+// A file to attach. `content` is base64-encoded bytes.
+export type EmailAttachment = { filename: string; content: string; contentType?: string }
+
+async function sendViaResend(
+  apiKey: string,
+  opts: { from: string; to: string; replyTo?: string; subject: string; html: string; attachments?: EmailAttachment[] },
+) {
+  const resend = new Resend(apiKey)
+  const { error } = await resend.emails.send({
+    from: opts.from,
+    to: opts.to,
+    replyTo: opts.replyTo,
+    subject: opts.subject,
+    html: opts.html,
+    attachments: opts.attachments?.map(a => ({ filename: a.filename, content: a.content })),
+  })
+  if (error) {
+    const msg = typeof error === 'string' ? error : (error as { message?: string }).message
+    throw new Error(msg || 'Resend rejected the email')
+  }
+}
+
+// ── Notification transport ──────────────────────────────────────────────────
+// The shared mailbox used for all automated NOTIFICATIONS (new ticket, lead,
+// message, subscription, invoice, client invite, status updates). Configured via
+// env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS. Built once and reused.
+let notifTransporter: Transporter | null = null
+function getNotificationTransport(): Transporter {
+  if (notifTransporter) return notifTransporter
   const host = process.env.SMTP_HOST
   const port = Number(process.env.SMTP_PORT || 587)
   const user = process.env.SMTP_USER
   const pass = process.env.SMTP_PASS
   if (!host || !user || !pass) {
-    throw new Error('Email is not configured. Set SMTP_HOST, SMTP_USER and SMTP_PASS in your environment.')
+    throw new Error('Notification email is not configured. Set SMTP_HOST, SMTP_USER and SMTP_PASS in your environment.')
   }
-  transporter = nodemailer.createTransport({
-    host,
-    port,
+  notifTransporter = nodemailer.createTransport({
+    host, port,
     secure: port === 465, // 465 = implicit TLS; 587 = STARTTLS
     auth: { user, pass },
-    // Fail fast instead of hanging the request if the mail host is slow/unreachable
-    connectionTimeout: 8000,
-    greetingTimeout: 8000,
-    socketTimeout: 10000,
+    ...TIMEOUTS,
   })
-  return transporter
+  return notifTransporter
 }
 
-// All emails are sent over SMTP. The "from" address comes from admin Settings
-// (app_settings table), falling back to the EMAIL_FROM env var.
+// SMTP fallback connection (used only when no Resend key is configured).
+export type SmtpConnection = {
+  host: string
+  port: number
+  secure?: boolean
+  user: string
+  pass: string
+  from: string        // "Name <email>" or bare email
+  replyTo?: string
+}
+
+// The identity a personal email is sent under (lead replies, composed/bulk).
+// `from` must be on your Resend-verified domain; `replyTo` is the admin's real
+// inbox so replies come back to them. `smtp` is only used in SMTP-fallback mode.
+export type PersonalSender = {
+  from: string
+  replyTo?: string
+  smtp?: SmtpConnection
+}
+
+function buildTransport(c: SmtpConnection): Transporter {
+  return nodemailer.createTransport({
+    host: c.host,
+    port: c.port,
+    secure: c.secure ?? c.port === 465,
+    auth: { user: c.user, pass: c.pass },
+    ...TIMEOUTS,
+  })
+}
+
+// Send a notification email. Uses Resend when configured; otherwise the shared
+// SMTP notification mailbox. The "from" is the app_settings 'notification_from'
+// key (default notification@ag-development.dev).
 async function sendMail(payload: { to: string; subject: string; html: string; replyTo?: string }) {
   const cfg = await getEmailSettings()
-  await getTransport().sendMail({
-    from: cfg.from,
+  if (cfg.apiKey) {
+    await sendViaResend(cfg.apiKey, {
+      from: cfg.notificationFrom,
+      to: payload.to,
+      replyTo: payload.replyTo,
+      subject: payload.subject,
+      html: payload.html,
+    })
+    return
+  }
+  await getNotificationTransport().sendMail({
+    from: cfg.notificationFrom,
     to: payload.to,
     subject: payload.subject,
     html: payload.html,
@@ -289,27 +358,71 @@ export async function sendNewInvoiceToClient({
   } catch (e) { console.error('Email error:', e) }
 }
 
-// ── Custom email to a lead (composed in the admin panel) ───────────────────────
-// Unlike the fire-and-forget notifications above, this THROWS on failure so the
-// admin UI can tell the user whether the email actually went out.
-export async function sendLeadEmail({
-  to, subject, message,
+// ── Generic composed email (lead replies, admin broadcasts) ────────────────────
+// Turns a plain-text message into the branded HTML template and sends it from
+// the admin's OWN mailbox (personal connection). Unlike the fire-and-forget
+// notifications above, this THROWS on failure so callers can tell whether the
+// email actually went out.
+export async function sendComposedEmail({
+  to, subject, message, html, attachments, sender,
 }: {
   to: string
   subject: string
-  message: string
+  message?: string            // plain text (auto-formatted into paragraphs)
+  html?: string               // pre-formatted HTML body (from the rich editor)
+  attachments?: EmailAttachment[]
+  sender: PersonalSender
 }) {
-  const htmlBody = message
-    .split(/\n{2,}/)
-    .map(p => `<p style="margin:0 0 14px;line-height:1.7">${p.replace(/\n/g, '<br/>')}</p>`)
-    .join('')
+  const bodyHtml = html != null
+    ? html
+    : (message || '')
+        .split(/\n{2,}/)
+        .map(p => `<p style="margin:0 0 14px;line-height:1.7">${p.replace(/\n/g, '<br/>')}</p>`)
+        .join('')
+  const finalHtml = wrap(bodyHtml)
 
+  const cfg = await getEmailSettings()
+  if (cfg.apiKey) {
+    await sendViaResend(cfg.apiKey, { from: sender.from, to, replyTo: sender.replyTo || sender.from, subject, html: finalHtml, attachments })
+    return
+  }
+  if (!sender.smtp) {
+    throw new Error('No email transport configured. Add a Resend API key in Settings or set up your SMTP connection.')
+  }
+  await buildTransport(sender.smtp).sendMail({
+    from: sender.from, to, replyTo: sender.replyTo || sender.from, subject, html: finalHtml,
+    attachments: attachments?.map(a => ({ filename: a.filename, content: Buffer.from(a.content, 'base64'), contentType: a.contentType })),
+  })
+}
+
+// Backwards-compatible alias used by the leads CRM email route.
+export async function sendLeadEmail(args: {
+  to: string; subject: string; message?: string; html?: string; attachments?: EmailAttachment[]; sender: PersonalSender
+}) {
+  return sendComposedEmail(args)
+}
+
+// Verify the shared NOTIFICATION mailbox (env SMTP_*) by sending a test message.
+// Used by admin Settings → Send test email.
+export async function sendNotificationTest(to: string) {
   const cfg = await getEmailSettings()
   await sendMail({
     to,
-    replyTo: cfg.adminEmail,
-    subject,
-    html: wrap(htmlBody),
+    subject: 'Test notification email from AG Development',
+    html: wrap(`<p style="margin:0 0 14px;line-height:1.7">This is a test of your notification mailbox.</p>
+      <p style="margin:0;line-height:1.7">From: ${cfg.notificationFrom}<br/>To: ${to}</p>`),
+  })
+}
+
+// Verify a personal sender by sending a test message to the admin's own inbox.
+// Throws on any failure so the UI can show the reason.
+export async function sendConnectionTest(sender: PersonalSender) {
+  const to = sender.replyTo || sender.from
+  await sendComposedEmail({
+    to,
+    subject: 'Test email from your AG Development sender',
+    message: `This is a test from your personal sending identity.\n\nFrom: ${sender.from}\nReplies go to: ${to}\n\nIf you're reading this, lead replies and composed emails will send correctly.`,
+    sender,
   })
 }
 

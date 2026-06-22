@@ -42,6 +42,9 @@ export const PERMISSION_GROUPS: { group: string; perms: { key: string; label: st
   { group: 'Activity Log', perms: [
     { key: 'activity.view', label: 'View activity log' },
   ]},
+  { group: 'Email', perms: [
+    { key: 'emails.send', label: 'Send & schedule emails' },
+  ]},
 ]
 
 export const ALL_GRANTABLE: string[] = PERMISSION_GROUPS.flatMap(g => g.perms.map(p => p.key))
@@ -69,6 +72,7 @@ export const PRESETS: Record<PresetKey, { label: string; description: string; pe
       'plans.view',
       'reports.view', 'reports.export',
       'activity.view',
+      'emails.send',
     ],
     scope: 'all',
   },

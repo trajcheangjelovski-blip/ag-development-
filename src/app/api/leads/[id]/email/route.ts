@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { sendLeadEmail } from '@/lib/email'
+import { getAdminSender } from '@/lib/settings'
 
 // Send a composed email to a lead from the admin panel.
 // On success, a lead still in "New" automatically moves to "Contacted",
@@ -22,8 +23,17 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { data: lead, error: leadError } = await supabase.from('leads').select('*').eq('id', id).single()
   if (leadError || !lead) return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
 
+  // Lead replies go out under the admin's OWN sending identity.
+  const sender = await getAdminSender(user.id)
+  if (!sender) {
+    return NextResponse.json(
+      { error: 'Set up your sending identity in Account Settings before sending lead emails.' },
+      { status: 400 },
+    )
+  }
+
   try {
-    await sendLeadEmail({ to: lead.email, subject: subject.trim(), message: message.trim() })
+    await sendLeadEmail({ to: lead.email, subject: subject.trim(), message: message.trim(), sender })
   } catch (e) {
     const msg = e instanceof Error ? e.message : 'Email failed to send'
     return NextResponse.json({ error: `Email failed: ${msg}` }, { status: 502 })

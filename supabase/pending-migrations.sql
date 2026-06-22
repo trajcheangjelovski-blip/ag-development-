@@ -289,3 +289,101 @@ CREATE POLICY "Clients send own chat" ON chat_messages FOR INSERT WITH CHECK (cl
 --   price      = recurring monthly amount (already exists)
 --   setup_fee  = one-time amount charged once when the plan is assigned
 ALTER TABLE support_packages ADD COLUMN IF NOT EXISTS setup_fee NUMERIC NOT NULL DEFAULT 0;
+
+-- 16) Admin email broadcasts: send or schedule an email to one or many
+-- recipients from the admin panel. One row per "campaign" (send job).
+--   recipients   : JSON array of email addresses to send to
+--   status       : 'scheduled' (waiting) | 'sending' | 'sent' | 'failed' | 'canceled'
+--   scheduled_for: when to send; NULL/past with status 'scheduled' = send asap
+--   sent_count / failed_count: per-recipient delivery tally
+--   results      : JSON [{ email, ok, error? }] captured at send time
+CREATE TABLE IF NOT EXISTS email_campaigns (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  subject TEXT NOT NULL,
+  body TEXT NOT NULL,
+  recipients JSONB NOT NULL DEFAULT '[]'::jsonb,
+  status TEXT NOT NULL DEFAULT 'scheduled'
+    CHECK (status IN ('scheduled','sending','sent','failed','canceled')),
+  scheduled_for TIMESTAMPTZ,
+  sent_at TIMESTAMPTZ,
+  total INTEGER NOT NULL DEFAULT 0,
+  sent_count INTEGER NOT NULL DEFAULT 0,
+  failed_count INTEGER NOT NULL DEFAULT 0,
+  results JSONB,
+  error TEXT,
+  created_by UUID REFERENCES profiles(id) ON DELETE SET NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE INDEX IF NOT EXISTS email_campaigns_due_idx
+  ON email_campaigns(status, scheduled_for);
+ALTER TABLE email_campaigns ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins manage email campaigns" ON email_campaigns;
+CREATE POLICY "Admins manage email campaigns" ON email_campaigns
+  FOR ALL USING (get_user_role() = 'admin');
+
+-- 17) Per-admin personal email sending connection.
+-- Automated NOTIFICATIONS (new ticket/lead/message/subscription/invoice) are sent
+-- by the shared notification mailbox (SMTP_* env) using the From address in the
+-- app_settings 'notification_from' key (default notification@ag-development.dev).
+-- Lead replies and composed/bulk emails instead go out from EACH ADMIN'S OWN
+-- mailbox, configured here. The password is stored encrypted at rest (AES-256-GCM
+-- via src/lib/crypto.ts); the app never returns it to the browser.
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_host       TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_port       INTEGER;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_secure     BOOLEAN;          -- true = 465 implicit TLS
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_user       TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_pass_enc   TEXT;             -- encrypted, never exposed
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_from_name  TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS smtp_from_email TEXT;
+
+-- Notification From address (used by the shared notification mailbox).
+-- Stored in the existing app_settings key/value table; edit it from admin Settings.
+INSERT INTO app_settings (key, value)
+VALUES ('notification_from', 'AG Development <notification@ag-development.dev>')
+ON CONFLICT (key) DO NOTHING;
+
+-- 18) Rich compose: HTML body + attachments on campaigns, reusable templates,
+-- and a private Storage bucket for attachment files.
+--   is_html     : body holds ready HTML (from the rich editor) vs plain text
+--   attachments : JSON [{ path, filename, contentType, size }] — files live in
+--                 the email-attachments Storage bucket; only metadata is stored here
+ALTER TABLE email_campaigns ADD COLUMN IF NOT EXISTS is_html     BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE email_campaigns ADD COLUMN IF NOT EXISTS attachments JSONB;
+
+-- Reusable email templates. scope 'personal' = only the owner sees it;
+-- 'shared' = visible to every admin. Templates can carry attachments too.
+CREATE TABLE IF NOT EXISTS email_templates (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  owner_id UUID REFERENCES profiles(id) ON DELETE CASCADE NOT NULL,
+  name TEXT NOT NULL,
+  subject TEXT,
+  body TEXT,
+  is_html BOOLEAN NOT NULL DEFAULT TRUE,
+  attachments JSONB,
+  scope TEXT NOT NULL DEFAULT 'personal' CHECK (scope IN ('personal','shared')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE email_templates ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins view templates" ON email_templates;
+CREATE POLICY "Admins view templates" ON email_templates FOR SELECT
+  USING (get_user_role() = 'admin' AND (owner_id = auth.uid() OR scope = 'shared'));
+DROP POLICY IF EXISTS "Admins insert own templates" ON email_templates;
+CREATE POLICY "Admins insert own templates" ON email_templates FOR INSERT
+  WITH CHECK (get_user_role() = 'admin' AND owner_id = auth.uid());
+DROP POLICY IF EXISTS "Admins update own templates" ON email_templates;
+CREATE POLICY "Admins update own templates" ON email_templates FOR UPDATE
+  USING (get_user_role() = 'admin' AND owner_id = auth.uid());
+DROP POLICY IF EXISTS "Admins delete own templates" ON email_templates;
+CREATE POLICY "Admins delete own templates" ON email_templates FOR DELETE
+  USING (get_user_role() = 'admin' AND owner_id = auth.uid());
+
+-- Private bucket for email attachments. Admins upload directly from the browser;
+-- the server reads files back (service role) at send time to attach them.
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('email-attachments', 'email-attachments', false)
+ON CONFLICT (id) DO NOTHING;
+DROP POLICY IF EXISTS "Admins manage email attachments" ON storage.objects;
+CREATE POLICY "Admins manage email attachments" ON storage.objects FOR ALL
+  USING (bucket_id = 'email-attachments' AND get_user_role() = 'admin')
+  WITH CHECK (bucket_id = 'email-attachments' AND get_user_role() = 'admin');
