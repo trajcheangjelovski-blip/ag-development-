@@ -99,7 +99,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <Link href="/review" className="bg-white text-slate-900 font-bold text-sm px-6 py-3 rounded-xl hover:bg-blue-50 transition-all">
-              Get a Free Website Review
+              See a Demo of Your Website for Your Business
             </Link>
             <Link href="/contact" className="border border-white/30 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-all">
               Start Your Website Project →
@@ -256,7 +256,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Link href="/review" className="bg-white text-slate-900 font-bold text-sm px-6 py-3 rounded-xl hover:bg-blue-50 transition-all">
-              Get a Free Website Review
+              See a Demo of Your Website for Your Business
             </Link>
             <Link href="/contact" className="border border-white/30 text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-white/10 transition-all">
               Start Your Website Project →

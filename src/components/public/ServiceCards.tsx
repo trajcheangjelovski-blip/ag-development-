@@ -272,13 +272,13 @@ export function ServiceCards() {
         <div style={{ textAlign: 'center', padding: '20px 24px', background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', maxWidth: 600, margin: '0 auto' }}>
           <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>
             <strong style={{ color: '#0f1f3d' }}>Not sure what you need?</strong>
-            {' '}Get a free website review and we&apos;ll recommend the right service for your business.
+            {' '}See a free demo for your business and we&apos;ll recommend the right service.
           </div>
           <Link
             href="/review"
             style={{ display: 'inline-block', marginTop: 12, padding: '10px 22px', background: '#0f1f3d', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}
           >
-            Get Free Review →
+            See a Demo of Your Website for Your Business →
           </Link>
         </div>
 

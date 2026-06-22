@@ -11,7 +11,7 @@ const GREETING: Msg = {
 
 const QUICK_QUESTIONS = [
   'How much does a website cost?',
-  'What does the free website review include?',
+  'What does the free business demo include?',
   'Do your plans include hosting?',
 ]
 

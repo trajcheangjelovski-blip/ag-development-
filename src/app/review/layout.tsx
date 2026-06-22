@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Free Website Review',
-  description: 'Get a free website review from AG Development. We\'ll identify issues, recommend improvements, and tell you exactly what we can fix.',
+  title: 'See a Demo of Your Website for Your Business',
+  description: 'Get a free custom website demo built for your business by AG Development — no cost, no commitment. See what your new site could look like.',
   openGraph: {
-    title: 'Free Website Review — AG Development',
-    description: 'Request a free website audit. We\'ll identify problems and recommend the right plan.',
+    title: 'See a Demo of Your Website for Your Business — AG Development',
+    description: 'Request a free custom website demo built for your business. See what your new site could look like before you commit.',
     url: 'https://ag-development.dev/review',
   },
   alternates: { canonical: 'https://ag-development.dev/review' },

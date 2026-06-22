@@ -212,10 +212,10 @@ export default function ServicesPage() {
         />
         <div className="max-w-2xl mx-auto relative z-10">
           <h2 className="font-display text-3xl lg:text-4xl font-extrabold text-white mb-4">Not Sure What You Need?</h2>
-          <p className="text-white/55 text-lg mb-9">Start with a free website review — no pressure, no commitment.</p>
+          <p className="text-white/55 text-lg mb-9">Start with a free demo for your business — no pressure, no commitment.</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/review" className="btn-shimmer btn-glow inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white">
-              Get Free Website Review →
+              See a Demo of Your Website for Your Business →
             </Link>
             <Link href="/pricing" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all">
               View Pricing Plans

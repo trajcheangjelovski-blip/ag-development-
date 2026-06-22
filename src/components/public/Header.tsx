@@ -18,7 +18,7 @@ function buildServiceColumns(price: (id: string, fallback: number) => number) {
         { label: 'Website Creation',      href: '/order?package=business-site&step=1',   description: `Build a new website from $${price('starter-site', 150)}` },
         { label: 'Website Maintenance',   href: '/order/website-care',                   description: `Care plans from $${price('basic-care', 29)}/mo — hosting included` },
         { label: 'E-commerce Store',      href: '/order?package=ecommerce-store&step=1', description: 'Shopify & WooCommerce stores' },
-        { label: 'Free Website Review',   href: '/review',                               description: 'Get a free audit of your site' },
+        { label: 'See a Demo of Your Website for Your Business', href: '/review',                          description: 'Get a free demo built for your business' },
       ],
     },
     {
@@ -255,7 +255,7 @@ export function PublicHeader() {
                     textDecoration: 'none',
                   }}
                 >
-                  Get Free Website Review →
+                  See a Demo of Your Website for Your Business →
                 </a>
               </div>
             </div>
@@ -285,7 +285,7 @@ export function PublicHeader() {
             Sign In
           </Link>
           <Link href="/review" className="btn-secondary text-sm px-4 py-2.5">
-            Free Website Review
+            See a Demo of Your Website for Your Business
           </Link>
         </div>
 
@@ -411,7 +411,7 @@ export function PublicHeader() {
               Sign In
             </Link>
             <Link href="/review" className="block text-center btn-secondary py-2.5" onClick={closeAll}>
-              Free Website Review
+              See a Demo of Your Website for Your Business
             </Link>
           </div>
         </div>

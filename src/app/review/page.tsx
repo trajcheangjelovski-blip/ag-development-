@@ -94,8 +94,8 @@ export default function ReviewPage() {
       <PublicHeader />
       <section className="text-white text-center py-16 px-6" style={{ background: 'linear-gradient(135deg, #0f1f3d 0%, #162b52 100%)' }}>
         <div className="max-w-xl mx-auto">
-          <h1 className="font-display text-4xl font-extrabold mb-4">Get Your Free Website Review</h1>
-          <p className="text-white/75 text-lg">Fill out this form and we&apos;ll personally review your website and send actionable recommendations — at no cost.</p>
+          <h1 className="font-display text-4xl font-extrabold mb-4">See a Demo of Your Website for Your Business</h1>
+          <p className="text-white/75 text-lg">Fill out this form and we&apos;ll build a free custom demo for your business and send it over — at no cost, no commitment.</p>
         </div>
       </section>
 

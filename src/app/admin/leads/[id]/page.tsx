@@ -18,8 +18,8 @@ function emailTemplate(lead: any): { subject: string; message: string } {
 
   if (type === 'Review') {
     return {
-      subject: `Your free website design — ${lead.business_name}`,
-      message: `Hi ${firstName},\n\nThanks for requesting a free website review for ${lead.business_name}!\n\nWe've taken a look at your business details and prepared a custom website design for you. You'll find it attached / linked below.\n\nIf you like what you see, just reply to this email and we'll take it from there — no pressure, no commitment.\n\nBest regards,\nAG Development Team`,
+      subject: `Your free website demo — ${lead.business_name}`,
+      message: `Hi ${firstName},\n\nThanks for requesting a free demo for ${lead.business_name}!\n\nWe've taken a look at your business details and prepared a custom website demo for you. You'll find it attached / linked below.\n\nIf you like what you see, just reply to this email and we'll take it from there — no pressure, no commitment.\n\nBest regards,\nAG Development Team`,
     }
   }
   if (type === 'Message') {

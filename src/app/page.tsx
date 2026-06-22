@@ -260,7 +260,7 @@ export default function HomePage() {
               href="/review"
               className="btn-shimmer btn-glow inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white"
             >
-              Get Free Website Review →
+              See a Demo of Your Website for Your Business →
             </Link>
             <Link
               href="/pricing"
@@ -409,11 +409,11 @@ export default function HomePage() {
             Real IT Support for<br />Real Small Businesses
           </h2>
           <p className="text-white/55 text-lg mb-10 leading-relaxed">
-            Start with a free website review — no pressure, no commitment. We&apos;ll tell you exactly what we can improve.
+            Start with a free demo for your business — no pressure, no commitment. We&apos;ll show you exactly what we can build.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/review" className="btn-shimmer btn-glow inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white">
-              Get Free Website Review →
+              See a Demo of Your Website for Your Business →
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all">
               Ask a Question
