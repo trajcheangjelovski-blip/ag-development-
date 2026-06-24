@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { Spinner } from '@/components/ui'
+import { fbTrack } from '@/lib/fbpixel'
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -26,6 +27,7 @@ export default function ContactPage() {
         throw new Error(data?.error || 'Something went wrong. Please try again.')
       }
       setSent(true)
+      fbTrack('Lead', { content_name: 'Contact Form' })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.')
     } finally {

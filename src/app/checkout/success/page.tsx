@@ -4,12 +4,23 @@ import Link from 'next/link'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { useCart } from '@/components/public/Cart'
+import { fbTrack, takePendingPurchase } from '@/lib/fbpixel'
 
 export default function CheckoutSuccessPage() {
   const { clear } = useCart()
 
-  // Payment completed — empty the cart
-  useEffect(() => { clear() }, [clear])
+  // Payment completed — fire the Purchase conversion, then empty the cart.
+  useEffect(() => {
+    const pending = takePendingPurchase()
+    fbTrack('Purchase', {
+      value: pending?.value ?? 0,
+      currency: pending?.currency ?? 'USD',
+      content_ids: pending?.content_ids,
+      content_type: 'product',
+      num_items: pending?.num_items,
+    })
+    clear()
+  }, [clear])
 
   return (
     <>

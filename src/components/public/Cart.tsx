@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { CATALOG, getCatalogItem } from '@/lib/catalog'
+import { fbTrack } from '@/lib/fbpixel'
 
 // ── Cart state (persisted in localStorage) ────────────────────────────────────
 
@@ -76,9 +77,20 @@ export function AddToCartButton({ id, className }: { id: string; className?: str
   if (!item) return null
   const inCart = has(id)
 
+  function handleAdd() {
+    add(id)
+    fbTrack('AddToCart', {
+      content_ids: [id],
+      content_name: item!.name,
+      content_type: 'product',
+      value: item!.price,
+      currency: 'USD',
+    })
+  }
+
   return (
     <button
-      onClick={() => add(id)}
+      onClick={handleAdd}
       disabled={inCart}
       className={className || 'block w-full text-center py-2.5 rounded-xl font-bold text-sm transition-all border'}
       style={inCart

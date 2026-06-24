@@ -5,6 +5,7 @@ import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { useCart } from '@/components/public/Cart'
 import { Spinner } from '@/components/ui'
+import { fbTrack, setPendingPurchase } from '@/lib/fbpixel'
 
 type ApiPlan = {
   id: string
@@ -75,6 +76,16 @@ export default function CartPage() {
   async function checkout() {
     setLoading(true)
     setError('')
+    const netTotal = Math.max(0, Math.round((dueToday - discountAmount) * 100) / 100)
+    fbTrack('InitiateCheckout', {
+      content_ids: items,
+      content_type: 'product',
+      num_items: items.length,
+      value: netTotal,
+      currency: 'USD',
+    })
+    // Stash so the success page can fire Purchase with the order value.
+    setPendingPurchase({ value: netTotal, currency: 'USD', content_ids: items, num_items: items.length })
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
