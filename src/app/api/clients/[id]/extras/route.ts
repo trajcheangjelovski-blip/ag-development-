@@ -38,6 +38,15 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    return await handlePost(request, params)
+  } catch (e: any) {
+    console.error('Add extra error:', e)
+    return NextResponse.json({ error: e?.message || 'Unexpected server error while adding the extra' }, { status: 500 })
+  }
+}
+
+async function handlePost(request: NextRequest, params: Promise<{ id: string }>) {
   const { id } = await params
   const caller = await getCaller()
   if (!caller || caller.profile.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
@@ -99,18 +108,73 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
   // ── Plain tracked extra (manual "used" counter) ──
   const { name, qty_total } = body
+  const price = Math.max(0, Number(body.price) || 0)
   if (!name?.trim() || !qty_total || qty_total < 1) {
     return NextResponse.json({ error: 'Name and a quantity of at least 1 are required' }, { status: 400 })
   }
 
+  // grant_type decides whether the extra adds to the plan's allowance:
+  //   'tickets' / 'hours' → counted by getClientPlanState (boosts the client's
+  //                          ticket / hour allowance and shows on the dashboard)
+  //   'items'             → a standalone tracked add-on (manual used counter)
+  const grantType = body.grant_type === 'hours' ? 'hours' : body.grant_type === 'tickets' ? 'tickets' : 'items'
+  const grantQty = Math.max(1, Number(body.grant_qty) || 1)
+  const storedQty = Math.max(1, Math.round(Number(qty_total) * grantQty))
+
   const { data, error } = await admin
     .from('client_extras')
-    .insert({ client_id: id, name: name.trim(), qty_total: Number(qty_total), qty_used: 0 })
+    .insert({ client_id: id, name: name.trim(), qty_total: storedQty, qty_used: 0, unit: grantType })
     .select()
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-  return NextResponse.json(data, { status: 201 })
+
+  // Optionally charge the client for the extra by auto-creating an invoice.
+  // Isolated in its own try/catch: a billing hiccup must never undo the extra
+  // that was just added (which is the admin's primary action here).
+  let invoiced = false
+  let invoiceError: string | null = null
+  if (price > 0) {
+    try {
+      const qty = Number(qty_total)
+      const label = qty > 1 ? `${name.trim()} × ${qty}` : name.trim()
+      const billing_month = new Date().toISOString().slice(0, 7) // YYYY-MM
+      const { data: inv, error: invErr } = await admin.from('invoices')
+        .insert({ client_id: id, amount: Math.round(price), billing_month, description: label, status: 'Pending' })
+        .select('*, client:clients(email, contact_name, business_name)')
+        .single()
+      if (invErr) {
+        invoiceError = invErr.message
+      } else if (inv) {
+        invoiced = true
+        const profileId = await getClientProfileId(id)
+        if (profileId) {
+          createNotification({
+            userId: profileId,
+            title: `New invoice: $${price} (${billing_month})`,
+            body: `${label}. Pay online from your portal.`,
+            link: '/portal/invoices',
+            type: 'info',
+          }).catch(() => {})
+        }
+        const ci = (inv as any).client
+        if (ci?.email) {
+          sendNewInvoiceToClient({
+            clientEmail: ci.email,
+            clientName: ci.contact_name || ci.business_name || 'there',
+            amount: price,
+            billingMonth: billing_month,
+            description: label,
+            dueDate: null,
+          }).catch(() => {})
+        }
+      }
+    } catch (e: any) {
+      invoiceError = e?.message || 'Could not create the invoice'
+    }
+  }
+
+  return NextResponse.json({ ...data, invoiced, invoiceError }, { status: 201 })
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {

@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import { usePlans } from '@/lib/usePlans'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -167,7 +168,16 @@ function ITOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
-  const plan = IT_PLANS.find(p => p.id === selectedPlan) ?? IT_PLANS[1]
+  // Live prices from the admin panel (/api/plans). Admin plan IDs are prefixed
+  // with "it-" (e.g. it-basic), so match against `it-${p.id}` and override the
+  // hard-coded fallback price with the admin-managed effective price.
+  const apiPlans = usePlans()
+  const itPlans = IT_PLANS.map(p => {
+    const api = apiPlans.find(x => x.id === `it-${p.id}`)
+    return api ? { ...p, price: api.effective_price } : p
+  })
+
+  const plan = itPlans.find(p => p.id === selectedPlan) ?? itPlans[1]
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -290,7 +300,7 @@ function ITOrderContent() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
-              {IT_PLANS.map(p => {
+              {itPlans.map(p => {
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
                 return (

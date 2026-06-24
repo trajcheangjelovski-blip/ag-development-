@@ -55,8 +55,12 @@ export default async function ClientDashboard() {
   const planState = await getClientPlanState(clientId)
   const usedMinutes = planState?.usedMinutes ?? (monthEntries?.reduce((s, e) => s + e.minutes, 0) || 0)
   const usedRequests = planState?.usedRequests ?? (monthTickets?.length || 0)
-  const includedHours = pkg?.hours_per_month || 0
-  const includedRequests = pkg?.requests_per_month || 0
+  const baseHours = pkg?.hours_per_month || 0
+  const baseRequests = pkg?.requests_per_month || 0
+  // Include unused extra credits (e.g. extra tickets/hours added by the admin)
+  // in the allowance shown on the stat cards and progress bars.
+  const includedHours = planState ? planState.includedMinutes / 60 : baseHours
+  const includedRequests = planState?.includedRequests ?? baseRequests
   const periodLabel = planState
     ? `${formatDate(planState.periodStart.toISOString())} — ${formatDate(planState.periodEnd.toISOString())}`
     : new Date().toLocaleString('default', { month: 'long', year: 'numeric' })
@@ -71,8 +75,8 @@ export default async function ClientDashboard() {
     }
   }
   const planTerms: string[] = pkg ? [
-    includedRequests > 0 ? `${includedRequests} support requests per month` : '',
-    includedHours > 0 ? `${includedHours}h of support work per month` : '',
+    baseRequests > 0 ? `${baseRequests} support requests per month` : '',
+    baseHours > 0 ? `${baseHours}h of support work per month` : '',
     pkg.response_time ? `First response: ${pkg.response_time.toLowerCase().startsWith('within') ? pkg.response_time.toLowerCase() : pkg.response_time}` : '',
     pkg.extra_hourly_rate ? `Extra work beyond included hours at $${pkg.extra_hourly_rate}/hr` : '',
   ].filter(Boolean) : []

@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import { usePlans } from '@/lib/usePlans'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -168,7 +169,16 @@ function SocialOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
-  const plan = DESIGN_PLANS.find(p => p.id === selectedPlan) ?? DESIGN_PLANS[1]
+  // Live prices from the admin panel (/api/plans). Admin plan IDs are prefixed
+  // with "social-" (e.g. social-starter), so match against `social-${p.id}` and
+  // override the hard-coded fallback price with the admin-managed effective price.
+  const apiPlans = usePlans()
+  const designPlans = DESIGN_PLANS.map(p => {
+    const api = apiPlans.find(x => x.id === `social-${p.id}`)
+    return api ? { ...p, price: api.effective_price } : p
+  })
+
+  const plan = designPlans.find(p => p.id === selectedPlan) ?? designPlans[1]
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -297,7 +307,7 @@ function SocialOrderContent() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
-              {DESIGN_PLANS.map(p => {
+              {designPlans.map(p => {
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
                 return (
