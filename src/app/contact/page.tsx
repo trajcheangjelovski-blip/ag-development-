@@ -51,7 +51,7 @@ export default function ContactPage() {
             <p className="text-slate-500 leading-relaxed mb-8">We work with small businesses across the US. Everything is handled remotely — no on-site visits required.</p>
             <div className="space-y-5">
               {[
-                ['📧', 'Email', 'support@ag-development.dev'],
+                ['📧', 'Email', 'trajche.angjelovski@ag-development.dev'],
                 ['💬', 'Response Time', 'Within 3 hours'],
                 ['🕘', 'Business Hours', '24/7'],
                 ['🌎', 'Location', 'Remote Support'],
