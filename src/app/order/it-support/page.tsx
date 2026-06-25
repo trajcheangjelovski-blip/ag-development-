@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { usePlanPriceMap } from '@/lib/usePlans'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
+import { usePlans } from '@/lib/usePlans'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -168,6 +169,7 @@ function ITOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
+<<<<<<< HEAD
   // Live prices from the admin panel (catalog id = `it-${card id}`)
   const priceMap = usePlanPriceMap()
   const IT_PLANS_LIVE = useMemo(
@@ -179,6 +181,18 @@ function ITOrderContent() {
   )
 
   const plan = IT_PLANS_LIVE.find(p => p.id === selectedPlan) ?? IT_PLANS_LIVE[1]
+=======
+  // Live prices from the admin panel (/api/plans). Admin plan IDs are prefixed
+  // with "it-" (e.g. it-basic), so match against `it-${p.id}` and override the
+  // hard-coded fallback price with the admin-managed effective price.
+  const apiPlans = usePlans()
+  const itPlans = IT_PLANS.map(p => {
+    const api = apiPlans.find(x => x.id === `it-${p.id}`)
+    return api ? { ...p, price: api.effective_price } : p
+  })
+
+  const plan = itPlans.find(p => p.id === selectedPlan) ?? itPlans[1]
+>>>>>>> 1c927072496de38ffcc9b4d6f43d843e0147f819
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -301,7 +315,11 @@ function ITOrderContent() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
+<<<<<<< HEAD
               {IT_PLANS_LIVE.map(p => {
+=======
+              {itPlans.map(p => {
+>>>>>>> 1c927072496de38ffcc9b4d6f43d843e0147f819
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
                 return (

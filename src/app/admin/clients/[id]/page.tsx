@@ -5,7 +5,6 @@ import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge, ProgressBar, Spinner, Alert } from '@/components/ui'
 import { formatDate, formatMinutes, currentBillingMonth } from '@/lib/utils'
 import { ResetClientPasswordButton } from '@/components/portal/ResetClientPasswordButton'
-import { ClientExtrasCard } from '@/components/portal/ClientExtrasCard'
 import Link from 'next/link'
 
 export default function AdminClientDetail() {
@@ -184,12 +183,6 @@ export default function AdminClientDetail() {
                   </div>
                 </div>
                 <div><label className="form-label">Notes</label><textarea className="form-input min-h-20 resize-none" value={editForm.notes || ''} onChange={e => setEditForm((p: any) => ({ ...p, notes: e.target.value }))} /></div>
-              </div>
-
-              {/* Capacity & extras — add more hours/tickets or item add-ons here */}
-              <div className="mt-5 pt-4 border-t border-slate-200">
-                <p className="text-xs text-slate-400 mb-2">Add a second plan&apos;s worth of hours/tickets, or item add-ons. These stack on the base package above.</p>
-                <ClientExtrasCard clientId={String(id)} onChange={load} />
               </div>
 
               <div className="flex justify-end gap-2 mt-5">
