@@ -1,7 +1,8 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { usePlanPriceMap } from '@/lib/usePlans'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 
@@ -167,7 +168,17 @@ function ITOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
-  const plan = IT_PLANS.find(p => p.id === selectedPlan) ?? IT_PLANS[1]
+  // Live prices from the admin panel (catalog id = `it-${card id}`)
+  const priceMap = usePlanPriceMap()
+  const IT_PLANS_LIVE = useMemo(
+    () => IT_PLANS.map(p => {
+      const live = priceMap[`it-${p.id}`]
+      return live != null ? { ...p, price: live } : p
+    }),
+    [priceMap],
+  )
+
+  const plan = IT_PLANS_LIVE.find(p => p.id === selectedPlan) ?? IT_PLANS_LIVE[1]
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -290,7 +301,7 @@ function ITOrderContent() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
-              {IT_PLANS.map(p => {
+              {IT_PLANS_LIVE.map(p => {
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
                 return (

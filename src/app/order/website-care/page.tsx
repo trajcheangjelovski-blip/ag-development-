@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import Link from 'next/link'
+import { usePlanPriceMap } from '@/lib/usePlans'
 import type { CSSProperties } from 'react'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
@@ -162,7 +163,17 @@ export default function WebsiteCarePage() {
     }
   }, [selectedPlan])
 
-  const plan = CARE_PLANS.find(p => p.id === selectedPlan) ?? null
+  // Live prices from the admin panel (card id already matches the catalog id)
+  const priceMap = usePlanPriceMap()
+  const CARE_PLANS_LIVE = useMemo(
+    () => CARE_PLANS.map(p => {
+      const live = priceMap[p.id]
+      return live != null ? { ...p, price: live } : p
+    }),
+    [priceMap],
+  )
+
+  const plan = CARE_PLANS_LIVE.find(p => p.id === selectedPlan) ?? null
 
   function validate() {
     const e: Record<string, string> = {}
@@ -330,7 +341,7 @@ export default function WebsiteCarePage() {
             gap: mobile ? '12px' : '16px',
             marginBottom: '40px',
           }}>
-            {CARE_PLANS.map(p => {
+            {CARE_PLANS_LIVE.map(p => {
               const sel = selectedPlan === p.id
               const hov = hoveredPlan  === p.id
               return (
@@ -501,7 +512,7 @@ export default function WebsiteCarePage() {
                           style={{ padding: '7px 2px', textAlign: 'center' as const, fontWeight: 700, color: sel ? '#2563eb' : '#374151', background: sel ? '#eff6ff' : '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '10px', cursor: 'pointer', lineHeight: 1.3 }}
                         >
                           <div>{col.short}</div>
-                          <div style={{ fontSize: 9, fontWeight: sel ? 800 : 600, color: sel ? '#2563eb' : '#94a3b8', marginTop: 1 }}>{col.price}</div>
+                          <div style={{ fontSize: 9, fontWeight: sel ? 800 : 600, color: sel ? '#2563eb' : '#94a3b8', marginTop: 1 }}>{`$${CARE_PLANS_LIVE.find(p => p.id === col.id)?.price ?? ''}`}</div>
                           {sel && <div style={{ fontSize: 8, color: '#2563eb', marginTop: 1 }}>▲</div>}
                         </th>
                       )
@@ -537,15 +548,15 @@ export default function WebsiteCarePage() {
                     <tr style={{ background: '#f8fafc' }}>
                       <th style={{ padding: '10px 14px', textAlign: 'left' as const, fontWeight: 700, color: '#374151', borderBottom: '1px solid #e2e8f0', fontSize: '11px', minWidth: 160 }}>Feature</th>
                       {[
-                        { id: 'basic-care',   label: 'Basic $29' },
-                        { id: 'content-care', label: 'Content $49' },
-                        { id: 'growth-care',  label: 'Growth $100' },
-                        { id: 'full-care',    label: 'Full $150' },
+                        { id: 'basic-care',   label: 'Basic' },
+                        { id: 'content-care', label: 'Content' },
+                        { id: 'growth-care',  label: 'Growth' },
+                        { id: 'full-care',    label: 'Full' },
                       ].map(col => {
                         const sel = selectedPlan === col.id
                         return (
                           <th key={col.id} onClick={() => setSelectedPlan(col.id)} style={{ padding: '10px 14px', textAlign: 'center' as const, fontWeight: 700, color: sel ? '#2563eb' : '#374151', background: sel ? '#eff6ff' : '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                            {col.label}
+                            {`${col.label} $${CARE_PLANS_LIVE.find(p => p.id === col.id)?.price ?? ''}`}
                             {sel && <span style={{ display: 'block', fontSize: 9, fontWeight: 600, color: '#2563eb', marginTop: 2 }}>▲ Selected</span>}
                           </th>
                         )
@@ -563,7 +574,7 @@ export default function WebsiteCarePage() {
                             const isSel = selectedPlan === colId
                             return (
                               <td key={ci} style={{ padding: '9px 14px', textAlign: 'center' as const, borderBottom: '1px solid #f1f5f9', background: isSel ? '#f0f7ff' : 'inherit', color: val === '✓' ? '#16a34a' : val === '—' ? '#cbd5e1' : isPrice ? '#2563eb' : '#374151', fontWeight: val === '✓' || isPrice ? 700 : 400, fontSize: isPrice ? 12 : 11 }}>
-                                {val}
+                                {isPrice ? `$${CARE_PLANS_LIVE.find(p => p.id === colId)?.price ?? ''}/mo` : val}
                               </td>
                             )
                           })}

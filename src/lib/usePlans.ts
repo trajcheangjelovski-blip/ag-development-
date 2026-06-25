@@ -66,3 +66,16 @@ export function useMergedCards<T extends { id: string }>(staticCards: readonly T
     [staticCards, apiPlans],
   )
 }
+
+// Price-only overlay. Returns a map of catalog id -> live effective (sale-aware)
+// price. Use on pages that keep their own card copy but whose card ids differ
+// from the catalog ids (e.g. it-support 'basic' -> catalog 'it-basic'). This
+// changes ONLY the displayed price, leaving every other card field untouched.
+export function usePlanPriceMap(): Record<string, number> {
+  const apiPlans = usePlans()
+  return useMemo(() => {
+    const m: Record<string, number> = {}
+    for (const p of apiPlans) m[p.id] = p.effective_price
+    return m
+  }, [apiPlans])
+}

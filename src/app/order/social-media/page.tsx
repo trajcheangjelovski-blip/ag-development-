@@ -1,7 +1,8 @@
 'use client'
 
-import { Suspense, useState, useEffect } from 'react'
+import { Suspense, useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { usePlanPriceMap } from '@/lib/usePlans'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
 
@@ -168,7 +169,17 @@ function SocialOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
-  const plan = DESIGN_PLANS.find(p => p.id === selectedPlan) ?? DESIGN_PLANS[1]
+  // Live prices from the admin panel (catalog id = `social-${card id}`)
+  const priceMap = usePlanPriceMap()
+  const DESIGN_PLANS_LIVE = useMemo(
+    () => DESIGN_PLANS.map(p => {
+      const live = priceMap[`social-${p.id}`]
+      return live != null ? { ...p, price: live } : p
+    }),
+    [priceMap],
+  )
+
+  const plan = DESIGN_PLANS_LIVE.find(p => p.id === selectedPlan) ?? DESIGN_PLANS_LIVE[1]
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -297,7 +308,7 @@ function SocialOrderContent() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
-              {DESIGN_PLANS.map(p => {
+              {DESIGN_PLANS_LIVE.map(p => {
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
                 return (
