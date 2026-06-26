@@ -14,6 +14,15 @@ export default function ResetPasswordPage() {
   const router = useRouter()
   const supabase = createClient()
 
+  // Ensure the recovery link established a session before allowing a reset.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
+        setError('This reset link is invalid or has expired. Please request a new one.')
+      }
+    })
+  }, [])
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (password !== confirm) { setError('Passwords do not match'); return }
