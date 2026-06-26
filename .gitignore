@@ -5,3 +5,6 @@ node_modules/
 .env.production
 *.log
 .DS_Store
+agdev-mk.zip
+ziSyoj3t
+tsconfig.tsbuildinfo
