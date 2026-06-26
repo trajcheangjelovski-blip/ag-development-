@@ -3,6 +3,10 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { getPlans, effectivePrice } from '@/lib/plans'
 import { getCardDefaults } from '@/lib/planDefaults'
 
+// Always render fresh so admin price changes show immediately (never cached).
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 // GET: public — active plans with effective (sale-aware) prices.
 //      Content fields fall back to the built-in site card copy, so the admin
 //      editor always shows what's actually displayed on the website.

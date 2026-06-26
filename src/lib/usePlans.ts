@@ -25,7 +25,7 @@ export type ApiPlan = {
 export function usePlans() {
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>([])
   useEffect(() => {
-    fetch('/api/plans')
+    fetch('/api/plans', { cache: 'no-store' })
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setApiPlans(d) })
       .catch(() => {})
