@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { Spinner, Alert } from '@/components/ui'
+import { formatPrice } from '@/lib/money'
 
 type Plan = {
   id: string
@@ -51,6 +52,11 @@ export default function AdminPlans() {
   const [couponsTableMissing, setCouponsTableMissing] = useState(false)
   const [loading, setLoading] = useState(true)
   const [banner, setBanner] = useState<{ ok: boolean; text: string } | null>(null)
+
+  // Pricing region for the sellable-plans table: 'us' (USD, `plans`) or 'mk'
+  // (denars, `plans_mk`). Coupons and custom packages are region-agnostic.
+  const [planRegion, setPlanRegion] = useState<'us' | 'mk'>('us')
+  const cur = (n: number) => formatPrice(n, planRegion === 'mk' ? 'MKD' : 'USD', planRegion === 'mk' ? 'mk' : 'en')
 
   // Plan edit modal
   const [editPlan, setEditPlan] = useState<Plan | null>(null)
@@ -165,7 +171,7 @@ export default function AdminPlans() {
 
   async function loadAll() {
     const [plansRes, couponsRes, pkgRes] = await Promise.all([
-      fetch('/api/plans?all=1'),
+      fetch(`/api/plans?all=1&region=${planRegion}`),
       fetch('/api/coupons'),
       fetch('/api/packages'),
     ])
@@ -178,7 +184,7 @@ export default function AdminPlans() {
     }
     setLoading(false)
   }
-  useEffect(() => { loadAll() }, [])
+  useEffect(() => { loadAll() }, [planRegion])
 
   async function savePlan() {
     if (!editPlan) return
@@ -197,7 +203,7 @@ export default function AdminPlans() {
     const res = await fetch('/api/plans', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...editPlan, features, details }),
+      body: JSON.stringify({ ...editPlan, features, details, region: planRegion }),
     })
     const data = await res.json()
     if (res.ok) {
@@ -213,7 +219,7 @@ export default function AdminPlans() {
   async function deletePlan(p: Plan) {
     if (!confirm(`Delete "${p.name}"? This permanently removes the item. Existing client records keep their copy.`)) return
     setBanner(null)
-    const res = await fetch(`/api/plans?id=${encodeURIComponent(p.id)}`, { method: 'DELETE' })
+    const res = await fetch(`/api/plans?id=${encodeURIComponent(p.id)}&region=${planRegion}`, { method: 'DELETE' })
     const data = await res.json().catch(() => ({}))
     if (res.ok) {
       setBanner({ ok: true, text: `"${p.name}" deleted.` })
@@ -368,6 +374,7 @@ export default function AdminPlans() {
         sort: 100,
         grant_type: extraForm.grant_type,
         grant_qty: Number(extraForm.grant_qty) || 1,
+        region: planRegion,
       }),
     })
     const data = await res.json()
@@ -400,6 +407,25 @@ export default function AdminPlans() {
           </div>
         )}
 
+        {/* ── Region toggle (sellable plans pricing) ── */}
+        <div className="card px-5 py-3.5 mb-5 flex flex-wrap items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">Pricing region</span>
+          {(['us', 'mk'] as const).map(r => (
+            <button
+              key={r}
+              onClick={() => setPlanRegion(r)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                planRegion === r ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+              }`}
+            >
+              {r === 'us' ? '🇺🇸 US — USD' : '🇲🇰 Macedonia — MKD'}
+            </button>
+          ))}
+          {planRegion === 'mk' && (
+            <span className="text-xs text-slate-400 ml-1">Prices shown/entered in denars · Stripe charges the EUR equivalent at checkout. Run <code>regional-pricing.sql</code> first if plans don&apos;t load.</span>
+          )}
+        </div>
+
         {/* ── Sellable plans ── */}
         {categories.map(cat => (
           <div key={cat} className="card overflow-hidden mb-5">
@@ -424,11 +450,11 @@ export default function AdminPlans() {
                     <td className="px-5 py-3.5 text-right whitespace-nowrap">
                       {p.sale_active && p.sale_price != null ? (
                         <>
-                          <span className="text-xs text-slate-400 line-through mr-1.5">${p.price}</span>
-                          <span className="font-bold text-slate-800">${p.sale_price}</span>
+                          <span className="text-xs text-slate-400 line-through mr-1.5">{cur(p.price)}</span>
+                          <span className="font-bold text-slate-800">{cur(p.sale_price)}</span>
                         </>
                       ) : (
-                        <span className="font-bold text-slate-800">${p.price}</span>
+                        <span className="font-bold text-slate-800">{cur(p.price)}</span>
                       )}
                       <span className="text-xs text-slate-400">{p.billing_interval ? '/mo' : ' one-time'}</span>
                     </td>
@@ -846,7 +872,7 @@ export default function AdminPlans() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="form-label">Regular price ($)</label>
+                    <label className="form-label">Regular price ({planRegion === 'mk' ? 'MKD/ден' : 'USD'})</label>
                     <input type="number" min="0" className="form-input" value={editPlan.price} onChange={e => setEditPlan(p => p && ({ ...p, price: Number(e.target.value) }))} />
                   </div>
                   <div>
@@ -866,7 +892,7 @@ export default function AdminPlans() {
                   </label>
                   {editPlan.sale_active && (
                     <div>
-                      <label className="form-label">Sale price ($){editPlan.billing_interval ? ' per month' : ''}</label>
+                      <label className="form-label">Sale price ({planRegion === 'mk' ? 'MKD/ден' : 'USD'}){editPlan.billing_interval ? ' per month' : ''}</label>
                       <input
                         type="number"
                         min="0"
