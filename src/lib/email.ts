@@ -16,7 +16,7 @@ export type EmailAttachment = { filename: string; content: string; contentType?:
 
 async function sendViaResend(
   apiKey: string,
-  opts: { from: string; to: string; replyTo?: string; subject: string; html: string; attachments?: EmailAttachment[] },
+  opts: { from: string; to: string; replyTo?: string; subject: string; html: string; attachments?: EmailAttachment[]; headers?: Record<string, string> },
 ) {
   const resend = new Resend(apiKey)
   const { error } = await resend.emails.send({
@@ -25,6 +25,7 @@ async function sendViaResend(
     replyTo: opts.replyTo,
     subject: opts.subject,
     html: opts.html,
+    headers: opts.headers,
     attachments: opts.attachments?.map(a => ({ filename: a.filename, content: a.content })),
   })
   if (error) {
@@ -363,6 +364,20 @@ export async function sendNewInvoiceToClient({
 // the admin's OWN mailbox (personal connection). Unlike the fire-and-forget
 // notifications above, this THROWS on failure so callers can tell whether the
 // email actually went out.
+// Rich-text editors (Quill) frequently replace ordinary spaces with
+// non-breaking spaces (&nbsp; / U+00A0), especially on paste. A body where every
+// word is joined by &nbsp; is a classic spam signal — Outlook/Hotmail treat it
+// as content obfuscation and push the message to Junk. Normalize them back to
+// real spaces (and collapse the runs that creates) before sending.
+function normalizeEmailHtml(html: string): string {
+  return html
+    .replace(/ /g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#160;/g, ' ')
+    .replace(/&#x0*a0;/gi, ' ')
+    .replace(/ {2,}/g, ' ')
+}
+
 export async function sendComposedEmail({
   to, subject, message, html, attachments, sender,
 }: {
@@ -379,18 +394,27 @@ export async function sendComposedEmail({
         .split(/\n{2,}/)
         .map(p => `<p style="margin:0 0 14px;line-height:1.7">${p.replace(/\n/g, '<br/>')}</p>`)
         .join('')
-  const finalHtml = wrap(bodyHtml)
+
+  // Composed/outreach mail needs an unsubscribe path. Its absence is penalised by
+  // spam filters (mail-tester, SpamAssassin) and by Gmail/Yahoo/Outlook bulk-sender
+  // rules — pushing mail to Junk. We route opt-outs to the sender's own inbox (so
+  // they can honour them) via both a List-Unsubscribe header and a visible footer.
+  const unsubTo = sender.replyTo || sender.from
+  const unsubMailto = `mailto:${unsubTo}?subject=Unsubscribe`
+  const unsubFooter = `<p style="margin:16px 0 0;line-height:1.6;color:#94a3b8;font-size:12px">Don't want to receive these emails? <a href="${unsubMailto}" style="color:#94a3b8;text-decoration:underline">Unsubscribe</a>.</p>`
+  const finalHtml = wrap(normalizeEmailHtml(bodyHtml) + unsubFooter)
+  const headers = { 'List-Unsubscribe': `<${unsubMailto}>` }
 
   const cfg = await getEmailSettings()
   if (cfg.apiKey) {
-    await sendViaResend(cfg.apiKey, { from: sender.from, to, replyTo: sender.replyTo || sender.from, subject, html: finalHtml, attachments })
+    await sendViaResend(cfg.apiKey, { from: sender.from, to, replyTo: sender.replyTo || sender.from, subject, html: finalHtml, attachments, headers })
     return
   }
   if (!sender.smtp) {
     throw new Error('No email transport configured. Add a Resend API key in Settings or set up your SMTP connection.')
   }
   await buildTransport(sender.smtp).sendMail({
-    from: sender.from, to, replyTo: sender.replyTo || sender.from, subject, html: finalHtml,
+    from: sender.from, to, replyTo: sender.replyTo || sender.from, subject, html: finalHtml, headers,
     attachments: attachments?.map(a => ({ filename: a.filename, content: Buffer.from(a.content, 'base64'), contentType: a.contentType })),
   })
 }
