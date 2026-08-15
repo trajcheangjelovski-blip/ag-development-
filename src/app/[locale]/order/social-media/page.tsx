@@ -170,7 +170,6 @@ function SocialOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
-<<<<<<< HEAD
   // Live prices from the admin panel (catalog id = `social-${card id}`)
   const priceMap = usePlanPriceMap()
   const DESIGN_PLANS_LIVE = useMemo(
@@ -182,18 +181,6 @@ function SocialOrderContent() {
   )
 
   const plan = DESIGN_PLANS_LIVE.find(p => p.id === selectedPlan) ?? DESIGN_PLANS_LIVE[1]
-=======
-  // Live prices from the admin panel (/api/plans). Admin plan IDs are prefixed
-  // with "social-" (e.g. social-starter), so match against `social-${p.id}` and
-  // override the hard-coded fallback price with the admin-managed effective price.
-  const apiPlans = usePlans()
-  const designPlans = DESIGN_PLANS.map(p => {
-    const api = apiPlans.find(x => x.id === `social-${p.id}`)
-    return api ? { ...p, price: api.effective_price } : p
-  })
-
-  const plan = designPlans.find(p => p.id === selectedPlan) ?? designPlans[1]
->>>>>>> 1c927072496de38ffcc9b4d6f43d843e0147f819
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -322,11 +309,7 @@ function SocialOrderContent() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
-<<<<<<< HEAD
               {DESIGN_PLANS_LIVE.map(p => {
-=======
-              {designPlans.map(p => {
->>>>>>> 1c927072496de38ffcc9b4d6f43d843e0147f819
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
                 return (

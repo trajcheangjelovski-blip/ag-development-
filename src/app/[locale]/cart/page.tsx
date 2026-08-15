@@ -1,11 +1,14 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useLocale } from 'next-intl'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { useCart } from '@/components/public/Cart'
 import { Spinner } from '@/components/ui'
 import { fbTrack, setPendingPurchase } from '@/lib/fbpixel'
+import { regionFromLocale } from '@/i18n/routing'
+import { formatPrice, chargeCurrencyForRegion, eurFromMkd } from '@/lib/money'
 
 type ApiPlan = {
   id: string
@@ -13,6 +16,7 @@ type ApiPlan = {
   description: string
   category: string
   price: number
+  currency: string
   billing_interval: 'month' | null
   sale_active: boolean
   effective_price: number
@@ -22,6 +26,10 @@ type AppliedCoupon = { code: string; percent_off: number | null; amount_off: num
 
 export default function CartPage() {
   const { items, remove } = useCart()
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+  const displayCurrency = region === 'mk' ? 'MKD' : 'USD'
+  const fmt = (n: number) => formatPrice(n, displayCurrency, locale)
   const [plans, setPlans] = useState<ApiPlan[]>([])
   const [plansLoading, setPlansLoading] = useState(true)
   const [loading, setLoading] = useState(false)
@@ -34,12 +42,12 @@ export default function CartPage() {
   const [couponError, setCouponError] = useState('')
 
   useEffect(() => {
-    fetch('/api/plans')
+    fetch(`/api/plans?region=${region}`)
       .then(r => r.json())
       .then(data => { if (Array.isArray(data)) setPlans(data) })
       .catch(() => {})
       .finally(() => setPlansLoading(false))
-  }, [])
+  }, [region])
 
   const cartItems = items.map(id => plans.find(p => p.id === id)).filter(Boolean) as ApiPlan[]
   const oneTimeTotal = cartItems.filter(i => !i.billing_interval).reduce((s, i) => s + i.effective_price, 0)
@@ -82,15 +90,15 @@ export default function CartPage() {
       content_type: 'product',
       num_items: items.length,
       value: netTotal,
-      currency: 'USD',
+      currency: displayCurrency,
     })
     // Stash so the success page can fire Purchase with the order value.
-    setPendingPurchase({ value: netTotal, currency: 'USD', content_ids: items, num_items: items.length })
+    setPendingPurchase({ value: netTotal, currency: displayCurrency, content_ids: items, num_items: items.length })
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, ...(coupon ? { coupon_code: coupon.code } : {}) }),
+        body: JSON.stringify({ items, region, ...(coupon ? { coupon_code: coupon.code } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data?.error || 'Checkout failed')
@@ -139,9 +147,9 @@ export default function CartPage() {
                     <div className="text-right flex-shrink-0">
                       <div className="font-display font-extrabold text-slate-800">
                         {item.sale_active && item.effective_price < item.price && (
-                          <span className="text-xs font-medium text-slate-400 line-through mr-1.5">${item.price}</span>
+                          <span className="text-xs font-medium text-slate-400 line-through mr-1.5">{fmt(item.price)}</span>
                         )}
-                        ${item.effective_price}{item.billing_interval && <span className="text-xs font-medium text-slate-400">/mo</span>}
+                        {fmt(item.effective_price)}{item.billing_interval && <span className="text-xs font-medium text-slate-400">/mo</span>}
                       </div>
                       <div className="text-[11px] text-slate-400">{item.billing_interval ? 'Monthly subscription' : 'One-time'}</div>
                     </div>
@@ -165,7 +173,7 @@ export default function CartPage() {
                     <div className="text-sm">
                       <span className="font-bold text-green-700">🎟️ {coupon.code}</span>
                       <span className="text-slate-500 ml-2">
-                        {coupon.percent_off ? `${coupon.percent_off}% off` : `$${coupon.amount_off} off`} applied
+                        {coupon.percent_off ? `${coupon.percent_off}% off` : `${fmt(coupon.amount_off || 0)} off`} applied
                       </span>
                     </div>
                     <button onClick={() => setCoupon(null)} className="text-xs font-semibold text-red-500 hover:text-red-600">Remove</button>
@@ -194,30 +202,35 @@ export default function CartPage() {
                   {oneTimeTotal > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500">One-time total</span>
-                      <span className="font-bold text-slate-800">${oneTimeTotal}</span>
+                      <span className="font-bold text-slate-800">{fmt(oneTimeTotal)}</span>
                     </div>
                   )}
                   {monthlyTotal > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-500">Monthly subscription total</span>
-                      <span className="font-bold text-slate-800">${monthlyTotal}/mo</span>
+                      <span className="font-bold text-slate-800">{fmt(monthlyTotal)}/mo</span>
                     </div>
                   )}
                   {coupon && discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
                       <span className="text-green-600 font-medium">Coupon discount ({coupon.code})</span>
-                      <span className="font-bold text-green-600">−${discountAmount.toFixed(2)}</span>
+                      <span className="font-bold text-green-600">−{fmt(discountAmount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between pt-3 border-t border-slate-100">
                     <span className="font-display font-bold text-slate-800">Due today</span>
                     <span className="font-display text-xl font-extrabold text-slate-800">
-                      ${Math.max(0, dueToday - discountAmount).toFixed(2).replace(/\.00$/, '')}
+                      {fmt(Math.max(0, dueToday - discountAmount))}
                     </span>
                   </div>
+                  {region === 'mk' && dueToday - discountAmount > 0 && (
+                    <p className="text-xs text-slate-400">
+                      Плаќањата се процесираат преку Stripe во евра — ќе бидете наплатени приближно €{eurFromMkd(Math.max(0, dueToday - discountAmount)).toFixed(2)} (цената е прикажана во денари).
+                    </p>
+                  )}
                   {monthlyTotal > 0 && (
                     <p className="text-xs text-slate-400">
-                      Subscriptions renew automatically at ${monthlyTotal}/month{coupon ? ' (coupon applies to the first payment)' : ''}. Cancel per our terms (6-month minimum on care plans).
+                      Subscriptions renew automatically at {fmt(monthlyTotal)}/month{coupon ? ' (coupon applies to the first payment)' : ''}. Cancel per our terms (6-month minimum on care plans).
                     </p>
                   )}
                 </div>
