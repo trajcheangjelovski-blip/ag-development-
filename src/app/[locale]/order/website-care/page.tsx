@@ -1,9 +1,13 @@
 'use client'
 
 import { useState, useRef, useEffect, useMemo } from 'react'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import { usePlanPriceMap } from '@/lib/usePlans'
 import type { CSSProperties } from 'react'
+import { regionFromLocale } from '@/i18n/routing'
+import { formatPrice } from '@/lib/money'
+import { Price } from '@/components/public/Price'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -175,6 +179,14 @@ export default function WebsiteCarePage() {
 
   const plan = CARE_PLANS_LIVE.find(p => p.id === selectedPlan) ?? null
 
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+  const fmt = (n: number) => formatPrice(n, region === 'mk' ? 'MKD' : 'USD', locale)
+  const carePrice = (id: string) => {
+    const pr = CARE_PLANS_LIVE.find(p => p.id === id)?.price
+    return pr != null ? fmt(pr) : ''
+  }
+
   function validate() {
     const e: Record<string, string> = {}
     if (!form.businessName.trim()) e.businessName = 'Required'
@@ -202,7 +214,7 @@ export default function WebsiteCarePage() {
           email:         form.email.trim(),
           phone:         form.phone.trim() || undefined,
           website:       form.website.trim(),
-          help_type:     `Website Care Plan: ${plan.name} ($${plan.price}/month)${platform ? ` - Platform: ${platform}` : ''}`,
+          help_type:     `Website Care Plan: ${plan.name} (${fmt(plan.price)}/month)${platform ? ` - Platform: ${platform}` : ''}`,
           budget:        plan.price,
           message:       form.notes.trim() || undefined,
           status:        'New',
@@ -257,7 +269,7 @@ export default function WebsiteCarePage() {
                 <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#16a34a', margin: '0 0 8px' }}>Your Selected Plan</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '15px', fontWeight: 700, color: '#0f1f3d' }}>{plan.icon} {plan.name}</span>
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}>${plan.price}/mo</span>
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}><Price amount={plan.price} />/mo</span>
                 </div>
                 <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '6px 0 0' }}>🏠 Web hosting included</p>
               </div>
@@ -386,7 +398,7 @@ export default function WebsiteCarePage() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{p.name}</div>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginTop: '2px' }}>
-                            <span style={{ fontSize: '21px', fontWeight: 800, color: '#2563eb' }}>${p.price}</span>
+                            <span style={{ fontSize: '21px', fontWeight: 800, color: '#2563eb' }}><Price amount={p.price} /></span>
                             <span style={{ fontSize: '12px', color: '#94a3b8' }}>/mo</span>
                           </div>
                         </div>
@@ -432,7 +444,7 @@ export default function WebsiteCarePage() {
                         <div style={{ fontSize: tablet ? '15px' : '17px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{p.name}</div>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginBottom: '8px' }}>
                           <span style={{ fontSize: tablet ? '21px' : '24px', fontWeight: 800, color: '#2563eb', transition: 'transform 0.2s', display: 'inline-block', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}>
-                            ${p.price}
+                            <Price amount={p.price} />
                           </span>
                           <span style={{ fontSize: '12px', color: '#94a3b8' }}>/mo</span>
                         </div>
@@ -512,7 +524,7 @@ export default function WebsiteCarePage() {
                           style={{ padding: '7px 2px', textAlign: 'center' as const, fontWeight: 700, color: sel ? '#2563eb' : '#374151', background: sel ? '#eff6ff' : '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '10px', cursor: 'pointer', lineHeight: 1.3 }}
                         >
                           <div>{col.short}</div>
-                          <div style={{ fontSize: 9, fontWeight: sel ? 800 : 600, color: sel ? '#2563eb' : '#94a3b8', marginTop: 1 }}>{`$${CARE_PLANS_LIVE.find(p => p.id === col.id)?.price ?? ''}`}</div>
+                          <div style={{ fontSize: 9, fontWeight: sel ? 800 : 600, color: sel ? '#2563eb' : '#94a3b8', marginTop: 1 }}>{carePrice(col.id)}</div>
                           {sel && <div style={{ fontSize: 8, color: '#2563eb', marginTop: 1 }}>▲</div>}
                         </th>
                       )
@@ -556,7 +568,7 @@ export default function WebsiteCarePage() {
                         const sel = selectedPlan === col.id
                         return (
                           <th key={col.id} onClick={() => setSelectedPlan(col.id)} style={{ padding: '10px 14px', textAlign: 'center' as const, fontWeight: 700, color: sel ? '#2563eb' : '#374151', background: sel ? '#eff6ff' : '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
-                            {`${col.label} $${CARE_PLANS_LIVE.find(p => p.id === col.id)?.price ?? ''}`}
+                            {`${col.label} ${carePrice(col.id)}`}
                             {sel && <span style={{ display: 'block', fontSize: 9, fontWeight: 600, color: '#2563eb', marginTop: 2 }}>▲ Selected</span>}
                           </th>
                         )
@@ -574,7 +586,7 @@ export default function WebsiteCarePage() {
                             const isSel = selectedPlan === colId
                             return (
                               <td key={ci} style={{ padding: '9px 14px', textAlign: 'center' as const, borderBottom: '1px solid #f1f5f9', background: isSel ? '#f0f7ff' : 'inherit', color: val === '✓' ? '#16a34a' : val === '—' ? '#cbd5e1' : isPrice ? '#2563eb' : '#374151', fontWeight: val === '✓' || isPrice ? 700 : 400, fontSize: isPrice ? 12 : 11 }}>
-                                {isPrice ? `$${CARE_PLANS_LIVE.find(p => p.id === colId)?.price ?? ''}/mo` : val}
+                                {isPrice ? `${carePrice(colId)}/mo` : val}
                               </td>
                             )
                           })}
@@ -746,7 +758,7 @@ function CareSummary({ plan }: { plan: typeof CARE_PLANS[0] }) {
       <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', margin: '0 0 8px' }}>Selected Plan</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
         <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f1f3d' }}>{plan.name}</span>
-        <span style={{ fontSize: '17px', fontWeight: 700, color: '#2563eb' }}>${plan.price}/mo</span>
+        <span style={{ fontSize: '17px', fontWeight: 700, color: '#2563eb' }}><Price amount={plan.price} />/mo</span>
       </div>
       <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '4px 0 12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
         🏠 Web hosting included ✓
@@ -754,7 +766,7 @@ function CareSummary({ plan }: { plan: typeof CARE_PLANS[0] }) {
       <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', marginBottom: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>Monthly Total</span>
-          <span style={{ fontSize: '20px', fontWeight: 800, color: '#2563eb' }}>${plan.price}/mo</span>
+          <span style={{ fontSize: '20px', fontWeight: 800, color: '#2563eb' }}><Price amount={plan.price} />/mo</span>
         </div>
       </div>
       <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', color: '#1e40af', lineHeight: 1.6 }}>

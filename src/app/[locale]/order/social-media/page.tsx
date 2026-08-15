@@ -2,10 +2,13 @@
 
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import { usePlanPriceMap } from '@/lib/usePlans'
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
-import { usePlans } from '@/lib/usePlans'
+import { regionFromLocale } from '@/i18n/routing'
+import { formatPrice } from '@/lib/money'
+import { Price } from '@/components/public/Price'
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 
@@ -111,7 +114,7 @@ function DesignSummary({ plan }: { plan: typeof DESIGN_PLANS[0] }) {
       <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', margin: '0 0 10px' }}>Social Media Plan — Monthly</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
         <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f1f3d' }}>{plan.name}</span>
-        <span style={{ fontSize: '17px', fontWeight: 700, color: '#7c3aed' }}>${plan.price}/mo</span>
+        <span style={{ fontSize: '17px', fontWeight: 700, color: '#7c3aed' }}><Price amount={plan.price} />/mo</span>
       </div>
       <ul style={{ listStyle: 'none', padding: 0, margin: '10px 0 14px' }}>
         {plan.features.slice(0, 3).map(f => (
@@ -126,7 +129,7 @@ function DesignSummary({ plan }: { plan: typeof DESIGN_PLANS[0] }) {
       <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '14px', marginBottom: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>Monthly Total</span>
-          <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}>${plan.price}/mo</span>
+          <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}><Price amount={plan.price} />/mo</span>
         </div>
       </div>
       <div style={{ background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', color: '#7c3aed', lineHeight: 1.6 }}>
@@ -182,6 +185,9 @@ function SocialOrderContent() {
 
   const plan = DESIGN_PLANS_LIVE.find(p => p.id === selectedPlan) ?? DESIGN_PLANS_LIVE[1]
 
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
   function togglePlatform(p: string) {
@@ -212,7 +218,7 @@ function SocialOrderContent() {
           full_name: form.fullName.trim(),
           email: form.email.trim(),
           phone: form.phone.trim() || undefined,
-          help_type: `Social Media Design Only: ${plan.name} ($${plan.price}/month)`,
+          help_type: `Social Media Design Only: ${plan.name} (${formatPrice(plan.price, region === 'mk' ? 'MKD' : 'USD', locale)}/month)`,
           budget: plan.price,
           message: [
             platforms.length ? `Platforms: ${platforms.join(', ')}` : '',
@@ -227,7 +233,7 @@ function SocialOrderContent() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: [`social-${plan.id}`], coupon_code: coupon.trim() || undefined }),
+        body: JSON.stringify({ items: [`social-${plan.id}`], region, coupon_code: coupon.trim() || undefined }),
       })
       const data = await res.json().catch(() => ({})) as { url?: string; error?: string }
       if (res.ok && data.url) {
@@ -350,7 +356,7 @@ function SocialOrderContent() {
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{p.name}</div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginTop: '2px' }}>
-                              <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}>${p.price}</span>
+                              <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}><Price amount={p.price} /></span>
                               <span style={{ fontSize: '11px', color: '#94a3b8' }}>/mo</span>
                             </div>
                           </div>
@@ -381,7 +387,7 @@ function SocialOrderContent() {
                           <div style={{ fontSize: tablet ? '28px' : '32px', lineHeight: 1, marginBottom: '8px' }}>{p.icon}</div>
                           <div style={{ fontSize: tablet ? '16px' : '18px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{p.name}</div>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginBottom: '8px' }}>
-                            <span style={{ fontSize: tablet ? '20px' : '24px', fontWeight: 800, color: '#7c3aed', display: 'inline-block', transition: 'transform 0.2s ease', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}>${p.price}</span>
+                            <span style={{ fontSize: tablet ? '20px' : '24px', fontWeight: 800, color: '#7c3aed', display: 'inline-block', transition: 'transform 0.2s ease', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}><Price amount={p.price} /></span>
                             <span style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8' }}>/mo</span>
                           </div>
                           <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', width: 'fit-content', marginBottom: '10px' }}>{p.badge}</span>
