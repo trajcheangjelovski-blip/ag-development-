@@ -81,6 +81,20 @@ const websites = [
     icon: '🏍️',
     year: '2024',
   },
+  {
+    name: 'The True Defender',
+    nameEn: 'The True Defender',
+    url: 'https://thetruedefender.news',
+    type: 'News Publication',
+    location: 'Online · US News',
+    desc: 'Independent American news publication on a fully custom-built newsroom platform — category sections (Politics, US News, World, Opinion, Story of Hope), fast article publishing updated throughout the day, and an SEO-optimized reading experience.',
+    tags: ['Custom Build', 'News / Publishing', 'CMS', 'SEO'],
+    role: 'Full custom build + hosting & maintenance',
+    grad: 'linear-gradient(135deg, #0b1e3a 0%, #7f1d1d 60%, #b91c1c 100%)',
+    accent: '#b91c1c',
+    icon: '🗞️',
+    year: '2025',
+  },
 ]
 
 

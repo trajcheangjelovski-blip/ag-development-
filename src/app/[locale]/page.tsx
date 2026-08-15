@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { PricingTabs } from '@/components/public/PricingTabs'
@@ -90,7 +91,13 @@ function Stars() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params
+  setRequestLocale(locale)
+  const t = await getTranslations('home')
+  const whyText = t.raw('why') as { title: string; desc: string }[]
+  const stepsText = t.raw('steps') as { title: string; desc: string }[]
+  const testimonialsText = t.raw('testimonials') as string[]
   return (
     <>
       <PublicHeader />
@@ -239,19 +246,19 @@ export default function HomePage() {
           {/* Badge */}
           <div className="animate-fade-up inline-flex items-center gap-2.5 glass rounded-full px-5 py-2 text-xs font-semibold text-white/80 mb-10 w-fit">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot flex-shrink-0" />
-            Trusted by Small Businesses Across the US
+            {t('badge')}
           </div>
 
           {/* Headline */}
           <h1 className="animate-fade-up-1 font-display text-5xl lg:text-7xl font-extrabold leading-[1.05] tracking-tight text-white max-w-4xl mb-7">
-            Websites, IT Support &<br />
-            <span className="gradient-text">Digital Growth</span><br />
-            for Small Businesses
+            {t('headlineLine1')}<br />
+            <span className="gradient-text">{t('headlineHighlight')}</span><br />
+            {t('headlineLine2')}
           </h1>
 
           {/* Subheading */}
           <p className="animate-fade-up-2 text-lg lg:text-xl text-white/60 max-w-2xl mb-12 leading-relaxed">
-            Get reliable help with your website, email, domain, social media, and tech — without hiring full-time IT or a design agency.
+            {t('subheading')}
           </p>
 
           {/* CTAs */}
@@ -260,22 +267,22 @@ export default function HomePage() {
               href="/review"
               className="btn-shimmer btn-glow inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white"
             >
-              See a Demo of Your Website for Your Business →
+              {t('ctaDemo')}
             </Link>
             <Link
               href="/pricing"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all"
             >
-              View Packages
+              {t('ctaPackages')}
             </Link>
           </div>
 
           {/* Stats */}
           <div className="animate-fade-up-4 grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-white/10">
-            {[['6+', 'Happy Clients'], ['99%', 'Satisfaction'], ['3hr', 'Response Time'], ['5★', 'Average Rating']].map(([n, l]) => (
-              <div key={l} className="text-center md:text-left">
+            {[['6+', 'clients'], ['99%', 'satisfaction'], ['3hr', 'response'], ['5★', 'rating']].map(([n, k]) => (
+              <div key={k} className="text-center md:text-left">
                 <div className="font-display text-4xl font-extrabold gradient-text mb-1">{n}</div>
-                <div className="text-sm text-white/45 font-medium">{l}</div>
+                <div className="text-sm text-white/45 font-medium">{t(`stats.${k}`)}</div>
               </div>
             ))}
           </div>
@@ -299,16 +306,16 @@ export default function HomePage() {
       <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-16">
-            <div className="section-label">How It Works</div>
-            <h2 className="section-title">Simple. Transparent. Reliable.</h2>
-            <p className="text-slate-500 text-lg">From sign-up to completed task in 5 easy steps.</p>
+            <div className="section-label">{t('howLabel')}</div>
+            <h2 className="section-title">{t('howTitle')}</h2>
+            <p className="text-slate-500 text-lg">{t('howSubtitle')}</p>
           </div>
           <div className="relative">
             {/* Connecting line */}
             <div className="absolute left-[19px] top-10 bottom-10 w-[2px] bg-gradient-to-b from-blue-500 via-blue-300 to-transparent hidden md:block" />
             <div className="space-y-0">
-              {steps.map(([title, desc], i) => (
-                <div key={title} className="flex gap-6 group">
+              {stepsText.map((s, i) => (
+                <div key={i} className="flex gap-6 group">
                   <div className="flex flex-col items-center flex-shrink-0">
                     <div
                       className="w-10 h-10 rounded-full flex items-center justify-center font-display font-extrabold text-white text-sm z-10 shadow-lg shadow-blue-500/20 transition-all group-hover:scale-110"
@@ -318,8 +325,8 @@ export default function HomePage() {
                     </div>
                   </div>
                   <div className="pb-10 flex-1">
-                    <h3 className="font-display font-bold text-slate-800 mb-1.5 text-lg">{title}</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{desc}</p>
+                    <h3 className="font-display font-bold text-slate-800 mb-1.5 text-lg">{s.title}</h3>
+                    <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
                   </div>
                 </div>
               ))}
@@ -337,13 +344,13 @@ export default function HomePage() {
       >
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">Why Choose Us</div>
-            <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4">IT Support Built for Small Businesses</h2>
-            <p className="text-white/50 text-lg max-w-lg mx-auto">No agency fluff. No enterprise overhead. Just reliable help that fits your budget.</p>
+            <div className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{t('whyChooseLabel')}</div>
+            <h2 className="text-3xl lg:text-4xl font-extrabold text-white mb-4">{t('whyChooseTitle')}</h2>
+            <p className="text-white/50 text-lg max-w-lg mx-auto">{t('whyChooseSubtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {whyUs.map((w, i) => (
-              <div key={w.title} className="relative glass rounded-2xl p-7 card-hover-glow cursor-default overflow-hidden">
+              <div key={i} className="relative glass rounded-2xl p-7 card-hover-glow cursor-default overflow-hidden">
                 <div className="absolute top-5 right-6 font-display text-4xl font-extrabold text-white/[0.07] leading-none select-none">
                   0{i + 1}
                 </div>
@@ -356,8 +363,8 @@ export default function HomePage() {
                 >
                   {w.icon}
                 </div>
-                <h3 className="font-display font-bold text-white mb-2">{w.title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed">{w.desc}</p>
+                <h3 className="font-display font-bold text-white mb-2">{whyText[i].title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{whyText[i].desc}</p>
               </div>
             ))}
           </div>
@@ -368,24 +375,24 @@ export default function HomePage() {
       <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="section-label">Testimonials</div>
-            <h2 className="section-title">What Our Clients Say</h2>
+            <div className="section-label">{t('testimonialsLabel')}</div>
+            <h2 className="section-title">{t('testimonialsTitle')}</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {testimonials.map(t => (
-              <div key={t.name} className="card-hover flex flex-col bg-white border border-slate-100 rounded-2xl p-6 cursor-default shadow-sm">
+            {testimonials.map((tm, i) => (
+              <div key={i} className="card-hover flex flex-col bg-white border border-slate-100 rounded-2xl p-6 cursor-default shadow-sm">
                 <Stars />
-                <p className="text-sm text-slate-600 leading-relaxed mb-5 flex-1">&ldquo;{t.text}&rdquo;</p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-5 flex-1">&ldquo;{testimonialsText[i]}&rdquo;</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0"
-                    style={{ background: t.avatar }}
+                    style={{ background: tm.avatar }}
                   >
-                    {t.initials}
+                    {tm.initials}
                   </div>
                   <div>
-                    <div className="font-semibold text-sm text-slate-800">{t.name}</div>
-                    <div className="text-xs text-slate-400">{t.biz}</div>
+                    <div className="font-semibold text-sm text-slate-800">{tm.name}</div>
+                    <div className="text-xs text-slate-400">{tm.biz}</div>
                   </div>
                 </div>
               </div>
@@ -404,19 +411,19 @@ export default function HomePage() {
           style={{ background: 'radial-gradient(ellipse, rgba(37,99,235,0.15) 0%, transparent 70%)', filter: 'blur(30px)' }}
         />
         <div className="max-w-2xl mx-auto relative z-10">
-          <div className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">Ready to Get Started?</div>
+          <div className="text-blue-400 text-xs font-bold uppercase tracking-widest mb-4">{t('ctaLabel')}</div>
           <h2 className="font-display text-4xl lg:text-5xl font-extrabold text-white mb-5">
-            Real IT Support for<br />Real Small Businesses
+            {t('ctaTitle1')}<br />{t('ctaTitle2')}
           </h2>
           <p className="text-white/55 text-lg mb-10 leading-relaxed">
-            Start with a free demo for your business — no pressure, no commitment. We&apos;ll show you exactly what we can build.
+            {t('ctaSubtitle')}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/review" className="btn-shimmer btn-glow inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white">
-              See a Demo of Your Website for Your Business →
+              {t('ctaDemo')}
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all">
-              Ask a Question
+              {t('ctaAsk')}
             </Link>
           </div>
         </div>

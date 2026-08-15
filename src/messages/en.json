@@ -1,0 +1,242 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "pricing": "Pricing",
+    "portfolio": "Portfolio",
+    "about": "About",
+    "contact": "Contact",
+    "getDemo": "See a Demo",
+    "demoCta": "See a Demo of Your Website for Your Business",
+    "signIn": "Sign In",
+    "notSure": "Not sure what you need?",
+    "colWebsite": "Website Services",
+    "colIT": "L1 IT Support",
+    "colDesign": "Design & Social Media"
+  },
+  "common": {
+    "languageName": "English",
+    "switchTo": "MK"
+  },
+  "home": {
+    "badge": "Trusted by Small Businesses Across the US",
+    "headlineLine1": "Websites, IT Support &",
+    "headlineHighlight": "Digital Growth",
+    "headlineLine2": "for Small Businesses",
+    "subheading": "Get reliable help with your website, email, domain, social media, and tech — without hiring full-time IT or a design agency.",
+    "ctaDemo": "See a Demo of Your Website for Your Business →",
+    "ctaPackages": "View Packages",
+    "stats": {
+      "clients": "Happy Clients",
+      "satisfaction": "Satisfaction",
+      "response": "Response Time",
+      "rating": "Average Rating"
+    },
+    "why": [
+      { "title": "No Full-Time Hire", "desc": "Expert help without the cost of a full-time salary. Pay only for what you use each month." },
+      { "title": "Fixed Monthly Pricing", "desc": "Know exactly what's included. No surprise invoices, no hourly guessing." },
+      { "title": "Reliable Remote Support", "desc": "A remote team that understands small businesses. Plain language, always." },
+      { "title": "Proof of Every Task", "desc": "Before/after screenshots and completion notes for every task we complete." }
+    ],
+    "howLabel": "How It Works",
+    "howTitle": "Simple. Transparent. Reliable.",
+    "howSubtitle": "From sign-up to completed task in 5 easy steps.",
+    "steps": [
+      { "title": "Choose Plan", "desc": "Pick the monthly support plan that fits your business size and budget." },
+      { "title": "Get Access", "desc": "Receive your client portal login. Submit requests and track everything." },
+      { "title": "Submit Request", "desc": "Describe the issue or task. Attach a screenshot if helpful." },
+      { "title": "We Handle It", "desc": "Remote support within your response window. No on-site visits needed." },
+      { "title": "See Proof", "desc": "Before/after screenshots and a completion note once the work is done." }
+    ],
+    "whyChooseLabel": "Why Choose Us",
+    "whyChooseTitle": "IT Support Built for Small Businesses",
+    "whyChooseSubtitle": "No agency fluff. No enterprise overhead. Just reliable help that fits your budget.",
+    "testimonialsLabel": "Testimonials",
+    "testimonialsTitle": "What Our Clients Say",
+    "testimonials": [
+      "AG Development fixed our email issue in less than a day. We were losing leads and they saved us.",
+      "Our online store checkout had problems for weeks. They diagnosed it in hours and documented everything.",
+      "Affordable, professional, and they explain what they fixed. Finally a tech company that speaks plain language.",
+      "We don't have IT staff. AG Development is essentially our outsourced IT team."
+    ],
+    "ctaLabel": "Ready to Get Started?",
+    "ctaTitle1": "Real IT Support for",
+    "ctaTitle2": "Real Small Businesses",
+    "ctaSubtitle": "Start with a free demo for your business — no pressure, no commitment. We'll show you exactly what we can build.",
+    "ctaAsk": "Ask a Question"
+  },
+  "footer": {
+    "tagline": "Websites & Remote IT Support for Small Businesses. No full-time hire. No surprise bills.",
+    "servicesHeading": "Services",
+    "companyHeading": "Company",
+    "contactHeading": "Contact",
+    "services": ["Website Development", "WordPress Support", "Shopify Support", "Domain & DNS", "Business Email", "IT Support"],
+    "company": ["Portfolio", "Pricing", "Free Demo", "Contact", "Client Portal"],
+    "contactResponse": "Response within 1 business day",
+    "contactHours": "Mon–Fri, 9am–6pm",
+    "contactArea": "Remote — serving businesses everywhere",
+    "rights": "© 2025 AG Development. All rights reserved.",
+    "bottomTagline": "Websites & Remote IT Support for Small Businesses"
+  },
+  "serviceCards": {
+    "eyebrow": "OUR SERVICES",
+    "title": "What Does Your Business Need?",
+    "subtitle": "Choose the service that fits your situation. Each path is completely independent — you don't need a website to get IT support or social media design.",
+    "pills": {
+      "newWebsite": "🌐 New Website",
+      "maintenance": "🛡️ Website Maintenance",
+      "it": "🖥️ IT Support",
+      "design": "🎨 Design & Social"
+    },
+    "notSureTitle": "Not sure what you need?",
+    "notSureText": "See a free demo for your business and we'll recommend the right service.",
+    "notSureCta": "See a Demo of Your Website for Your Business →",
+    "cards": {
+      "website": {
+        "badge": "New Website",
+        "title": "Build a New Website",
+        "description": "We design and build your website from scratch. You own it completely. Choose a care plan after to include hosting and maintenance.",
+        "note": "💡 Add a Website Care Plan after to include hosting",
+        "button": "Build My Website →",
+        "tag": "One-time project fee",
+        "items": {
+          "i1": "Starter from {starter} · Business from {business}",
+          "i2": "Premium from {premium} · E-commerce from {ecommerce}",
+          "i3": "Delivered in 5–14 business days",
+          "i4": "You own the website 100%"
+        }
+      },
+      "care": {
+        "badge": "Already Have a Website?",
+        "title": "Maintain Your Website",
+        "description": "Already have a website? We keep it secure, updated, and running smoothly every month. Hosting is included in all care plans.",
+        "note": "✅ No website build needed — works with your existing site",
+        "button": "View Care Plans →",
+        "tag": "Monthly subscription",
+        "items": {
+          "i1": "Basic Care {basic}/mo — backups & security",
+          "i2": "Content Care {content}/mo — + 30min updates",
+          "i3": "Growth Care {growth}/mo — + 1hr updates",
+          "i4": "Full Care {full}/mo — + 2hrs updates",
+          "i5": "🏠 Hosting included in all plans"
+        }
+      },
+      "it": {
+        "badge": "For Teams",
+        "title": "IT Support for Your Team",
+        "description": "First-level tech support for your business team. Passwords, software, printers, browser issues, and basic connectivity — all handled remotely.",
+        "note": "✅ Standalone plan — completely independent from website services",
+        "button": "Get IT Support →",
+        "tag": "Monthly subscription",
+        "items": {
+          "i1": "Basic Support {basic}/mo — 3 tickets, 2 users",
+          "i2": "Team Support {team}/mo — 8 tickets, 5 users",
+          "i3": "Office Support {office}/mo — 15 tickets, 10 users",
+          "i4": "Remote support included",
+          "i5": "No website needed"
+        }
+      },
+      "social": {
+        "badge": "For Brands",
+        "title": "Social Media & Graphic Design",
+        "description": "Monthly branded content for your social media. Posts, stories, banners, and graphics designed for your brand — you just post them.",
+        "note": "✅ Standalone plan — completely independent from website services",
+        "button": "View Design Plans →",
+        "tag": "Monthly subscription",
+        "items": {
+          "i1": "Social Starter {starter}/mo — 2 posts/stories",
+          "i2": "Social Business {business}/mo — 6 posts + 1 banner",
+          "i3": "Social Growth {growth}/mo — 12 posts + 2 banners",
+          "i4": "Custom branded graphics",
+          "i5": "No website needed"
+        }
+      }
+    }
+  },
+  "servicesSection": {
+    "eyebrow": "WHAT WE DO",
+    "title": "One Partner for Your Website, IT Support & Digital Growth",
+    "p1": "From building your website to keeping it updated, supporting your team, managing business email, and creating branded content — AG Development helps your business stay professional online without hiring a full-time in-house team.",
+    "p2": "Need a mix of services? Build a custom monthly plan based on your business needs, team size, and budget.",
+    "customTitle": "Need Support Without Hiring Full-Time Staff?",
+    "customP1": "Many small businesses need reliable IT support, website help, email management, design, and digital services — but hiring full-time employees can be expensive.",
+    "customP2": "With AG Development, you can combine the services your business actually needs into one flexible monthly plan. We can help with daily IT issues, website updates, user management, email support, file access, social media content, and more.",
+    "customP3": "Build a custom support plan that fits your business, your team, and your budget.",
+    "ctaAll": "See all services & pricing →",
+    "ctaBuild": "Build a Custom Plan →",
+    "services": {
+      "website-dev":      { "badge": "One-time",       "subtitle": "One-time website creation",  "title": "Website Development",      "description": "Professional WordPress, Shopify, and business websites built to attract customers and present your company online.", "cta": "View website packages →" },
+      "website-care":     { "badge": "Monthly",        "subtitle": "Monthly maintenance plans",  "title": "Website Care & Hosting",   "description": "Hosting, backups, updates, security checks, content changes, and website support handled every month.", "cta": "View care plans →" },
+      "it-support":       { "badge": "Monthly",        "subtitle": "Monthly team support",       "title": "L1 IT Support",            "description": "First-level IT support for your staff — password resets, software help, printers, scanners, email, user access, and remote troubleshooting.", "cta": "View IT support plans →" },
+      "social-media":     { "badge": "Monthly",        "subtitle": "Monthly content plans",      "title": "Social Media & Design",    "description": "Branded posts, stories, banners, promotional graphics, and social media visuals designed for your business.", "cta": "View design plans →" },
+      "business-email":   { "badge": "Technical help", "subtitle": "Email setup & management",    "title": "Business Email",           "description": "Microsoft 365, Google Workspace, mailbox setup, SPF/DKIM records, email forwarding, and basic email troubleshooting.", "cta": "Request email setup →" },
+      "domain-dns":       { "badge": "Technical help", "subtitle": "Technical website setup",     "title": "Domain, DNS & SSL",        "description": "Domain connection, DNS records, SSL certificates, redirects, hosting setup, and basic domain troubleshooting.", "cta": "Get technical help →" },
+      "graphic-design":   { "badge": "Custom quote",   "subtitle": "Design when you need it",     "title": "One-Time Graphic Design",  "description": "Logos, flyers, banners, business cards, website graphics, and promotional materials for your brand.", "cta": "Request a design →" },
+      "custom-platforms": { "badge": "Custom quote",   "subtitle": "Web apps & business tools",   "title": "Custom Platforms",         "description": "Client portals, booking systems, dashboards, internal tools, CRM-style systems, and custom web applications.", "cta": "Discuss your project →" }
+    }
+  },
+  "pricing": {
+    "label": "Pricing",
+    "title": "Simple, Honest Pricing",
+    "subtitle": "Build your website once. Maintain it monthly. Add what you need.",
+    "tabs": { "build": "Build a Website", "care": "Website Monthly Care", "it": "L1 IT Support", "design": "Design & Social Media", "custom": "Custom" },
+    "getStarted": "Get Started →",
+    "clickToOrder": "Click to order",
+    "mostPopular": "★ Most Popular",
+    "oneTime": "one-time",
+    "perMonth": "/month",
+    "standalone": "✓ Standalone plan — no website needed",
+    "goodForLabel": "Good for",
+    "seeFull": "See full pricing with all details →",
+    "save": "Save {amount}",
+    "buildBanner": "Limited Time Offer — All website builds are currently discounted. Lock in your price today.",
+    "thenAddCare": "Then add a Care Plan from $29/mo →",
+    "domainNotIncluded": "⚠️ Domain & hosting not included",
+    "addCareToInclude": "Add a Care Plan to include hosting",
+    "buildNoteStrong1": "Domain & hosting are not included in the build price.",
+    "buildNoteText1": "They are purchased separately (~$10–15/year for domain, ~$5–20/month for hosting).",
+    "buildNoteStrong2": "✅ Add a Monthly Care Plan and hosting is included in your monthly price.",
+    "buildNoteText2": "Only extra cost: your domain name (~$12/year).",
+    "careBanner": "🏠 Web hosting included in all care plans",
+    "careNoteTitle": "⚠️ What's not included in Website Care Plans:",
+    "careNoteText": "Domain name, premium plugins, business email, advanced custom work, and extra update time are not included unless agreed separately. Content updates cover small changes only — new pages, redesigns, and advanced features are quoted separately. Minimum 6-month subscription. Hours do not roll over.",
+    "itBanner1": "First-level support only — passwords, software, printers, browser problems, and basic connectivity. Complex server or network issues are quoted separately.",
+    "itBanner2": "✅ Available as a standalone plan — no website needed.",
+    "designBanner1": "All designs are custom branded to your business. You provide your logo and brand colors on setup. Files delivered as high-resolution images ready to post or publish.",
+    "designBanner2": "✅ Available as a standalone plan — no website needed.",
+    "perMo": "/mo",
+    "build": {
+      "starter-site": { "name": "Starter Site", "badge": "Simple & Clean", "description": "A simple one-page website for freelancers, small businesses, and local service providers who need a clean online presence.", "features": ["1-page professional website", "Mobile responsive design", "Contact form", "Basic SEO setup", "Google Maps integration", "Social media links", "Hosting setup assistance", "1 revision round"] },
+      "business-site": { "name": "Business Site", "badge": "Most Popular", "description": "A complete small business website with the essential pages your company needs to look professional online.", "features": ["Up to 5 pages", "Home, About, Services, Gallery, Contact", "Mobile responsive design", "Contact form + Google Maps", "Basic SEO setup", "Speed optimization", "Social media links", "2 revision rounds"] },
+      "premium-site": { "name": "Premium Site", "badge": "More Pages", "description": "A more advanced website for businesses that need more pages, better structure, and stronger online presentation.", "features": ["Up to 8 pages", "Blog or news section", "Gallery or portfolio", "Advanced SEO setup", "Google Analytics setup", "Speed optimization", "Core Web Vitals improvement", "3 revision rounds"] },
+      "ecommerce-store": { "name": "E-commerce Store", "badge": "Online Store", "description": "A complete online store setup for businesses that want to sell products online.", "features": ["Shopify or WooCommerce setup", "Up to 20 products added", "Product pages + categories", "Cart and checkout setup", "Payment gateway connection assistance", "Basic store design", "Mobile responsive layout", "2 revision rounds"] }
+    },
+    "care": {
+      "basic-care": { "name": "Basic Care", "badge": "Essential", "description": "Simple website maintenance for businesses that want their site to stay online, secure, and updated.", "features": ["Web hosting included", "Monthly automated backups", "Security & plugin updates", "Uptime monitoring", "Performance checks", "Email support"], "details": [{ "label": "Monthly website updates", "value": "Not included" }, { "label": "First response", "value": "Within 2 business days" }] },
+      "content-care": { "name": "Content Care", "badge": "Most Popular", "description": "Website care plus small monthly content updates for businesses that need occasional changes.", "features": ["Web hosting included", "Everything in Basic Care", "30 min/month content updates", "Update text, images, prices, or hours", "Add or edit services", "Priority email support"], "details": [{ "label": "Monthly website updates", "value": "30 minutes included" }, { "label": "First response", "value": "Within 1 business day" }, { "label": "Small update delivery", "value": "Usually 1–3 business days" }] },
+      "growth-care": { "name": "Growth Care", "badge": "Updates + Design", "description": "More monthly website support for businesses that update their website regularly.", "features": ["Web hosting included", "Everything in Content Care", "1 hour/month website updates", "Add/edit services, photos, or new sections", "Minor layout improvements", "Priority support response"], "details": [{ "label": "Monthly website updates", "value": "1 hour included" }, { "label": "First response", "value": "Within 8 business hours" }, { "label": "Small update delivery", "value": "Usually 1–3 business days" }] },
+      "full-care": { "name": "Full Care", "badge": "Maximum Support", "description": "Our most complete website care plan for active business websites.", "features": ["Web hosting included", "Everything in Growth Care", "2 hours/month website updates", "Priority response time", "Monthly update summary report", "Minor design improvements"], "details": [{ "label": "Monthly website updates", "value": "2 hours included" }, { "label": "First response", "value": "Within 4 business hours" }, { "label": "Small update delivery", "value": "Usually 1–3 business days" }] }
+    },
+    "it": {
+      "basic": { "name": "L1 Basic Support", "badge": "Starter", "description": "First-level tech support for very small teams. Everyday computer problems handled so your team stays productive.", "goodFor": "Solo operators and 1–2 person teams that occasionally hit tech roadblocks.", "features": ["3 support tickets/month", "Up to 2 users covered", "Password reset assistance", "Browser & software help", "Printer & scanner troubleshooting", "Basic connectivity checks", "Email support", "Remote support (limited)"] },
+      "team": { "name": "L1 Team Support", "badge": "Most Popular", "description": "Full remote support for small teams. We connect directly to your team's computers and fix issues on the spot.", "goodFor": "Teams of 2–5 people dealing with regular tech issues — printers, email, slow computers.", "features": ["8 support tickets/month", "Up to 5 users covered", "Full remote desktop support", "Windows OS troubleshooting", "Email & Outlook issues", "Browser & software problems", "Printer & scanner help", "Escalation notes for complex issues"] },
+      "office": { "name": "L1 Office Support", "badge": "Full Coverage", "description": "Comprehensive support for small offices. Priority response and a monthly report so you always know what we handled.", "goodFor": "Small offices of 5–10 staff where tech issues happen regularly.", "features": ["15 support tickets/month", "Up to 10 users covered", "Full remote desktop support", "Priority response time", "Monthly IT issue summary report", "Basic device troubleshooting", "Windows & software support", "All L1 Team features included"] }
+    },
+    "design": {
+      "starter": { "name": "Social Starter", "badge": "Entry Level", "description": "Stay visible on social media every month without spending hours creating content yourself.", "goodFor": "Small businesses that want a social media presence without the time commitment.", "features": ["2 custom posts or stories/month", "Facebook & Instagram sizing", "Branded to your business colors", "Promotional or informational content", "High resolution files delivered", "Ready to post — no editing needed"] },
+      "business": { "name": "Social Business", "badge": "Most Popular", "description": "Regular branded content plus a website banner every month. Perfect for businesses running regular promotions.", "goodFor": "Businesses running regular promotions or events that want professional visuals every month.", "features": ["6 custom posts or stories/month", "1 website banner or graphic/month", "Facebook, Instagram & other platforms", "Promotions, events, announcements", "Seasonal and holiday content", "Consistent brand look and feel", "Files delivered ready to use"] },
+      "growth": { "name": "Social Growth", "badge": "Best Value", "description": "Full monthly design support. Something fresh to post every week, keeping your audience engaged.", "goodFor": "Brands that take social media seriously and need fresh professional content every week.", "features": ["12 custom posts or stories/month", "2 website banners or graphics/month", "All major social platforms", "Full monthly content design support", "Product showcases, promos, stories", "Consistent brand identity throughout", "Priority design turnaround", "Revisions included"] }
+    },
+    "custom": {
+      "eyebrow": "Flexible Pricing",
+      "title": "Need a Custom Mix?",
+      "fromPrice": "From $49",
+      "subtitle": "Not every business fits a standard package.",
+      "features": ["Website maintenance", "Monthly website updates", "Social media designs", "Website banners", "L1 IT support", "Priority support", "Custom platform maintenance", "Mix & match any services"],
+      "boxTitle": "We build it around you.",
+      "boxText": "Tell us what you need — how many pages to update, how many designs per month, what kind of support — and we'll give you an exact price. No fluff, no overpaying.",
+      "cta": "Request Custom Plan →",
+      "boxNote": "Tell us what your business needs and we will create a package that fits your workflow and budget."
+    }
+  }
+}

@@ -1,123 +1,22 @@
 'use client'
 import { useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 
-const services = [
-  {
-    id: 'website-dev',
-    icon: '🌐',
-    iconBg: '#eff6ff',
-    accent: '#2563eb',
-    badgeBg: '#dbeafe',
-    badgeText: '#1d4ed8',
-    badge: 'One-time',
-    title: 'Website Development',
-    subtitle: 'One-time website creation',
-    description: 'Professional WordPress, Shopify, and business websites built to attract customers and present your company online.',
-    cta: 'View website packages →',
-    href: '/pricing#website-build',
-  },
-  {
-    id: 'website-care',
-    icon: '🛡️',
-    iconBg: '#f0fdf4',
-    accent: '#16a34a',
-    badgeBg: '#dcfce7',
-    badgeText: '#166534',
-    badge: 'Monthly',
-    title: 'Website Care & Hosting',
-    subtitle: 'Monthly maintenance plans',
-    description: 'Hosting, backups, updates, security checks, content changes, and website support handled every month.',
-    cta: 'View care plans →',
-    href: '/order/website-care',
-  },
-  {
-    id: 'it-support',
-    icon: '💻',
-    iconBg: '#f1f5f9',
-    accent: '#334155',
-    badgeBg: '#e2e8f0',
-    badgeText: '#334155',
-    badge: 'Monthly',
-    title: 'L1 IT Support',
-    subtitle: 'Monthly team support',
-    description: 'First-level IT support for your staff — password resets, software help, printers, scanners, email, user access, and remote troubleshooting.',
-    cta: 'View IT support plans →',
-    href: '/order/it-support',
-  },
-  {
-    id: 'social-media',
-    icon: '🎨',
-    iconBg: '#fdf4ff',
-    accent: '#7c3aed',
-    badgeBg: '#ede9fe',
-    badgeText: '#5b21b6',
-    badge: 'Monthly',
-    title: 'Social Media & Design',
-    subtitle: 'Monthly content plans',
-    description: 'Branded posts, stories, banners, promotional graphics, and social media visuals designed for your business.',
-    cta: 'View design plans →',
-    href: '/order/social-media',
-  },
-  {
-    id: 'business-email',
-    icon: '📧',
-    iconBg: '#fff7ed',
-    accent: '#ea580c',
-    badgeBg: '#fed7aa',
-    badgeText: '#9a3412',
-    badge: 'Technical help',
-    title: 'Business Email',
-    subtitle: 'Email setup & management',
-    description: 'Microsoft 365, Google Workspace, mailbox setup, SPF/DKIM records, email forwarding, and basic email troubleshooting.',
-    cta: 'Request email setup →',
-    href: '/contact?service=business-email',
-  },
-  {
-    id: 'domain-dns',
-    icon: '🌍',
-    iconBg: '#f0fdf4',
-    accent: '#0f766e',
-    badgeBg: '#ccfbf1',
-    badgeText: '#0f766e',
-    badge: 'Technical help',
-    title: 'Domain, DNS & SSL',
-    subtitle: 'Technical website setup',
-    description: 'Domain connection, DNS records, SSL certificates, redirects, hosting setup, and basic domain troubleshooting.',
-    cta: 'Get technical help →',
-    href: '/contact?service=domain-dns',
-  },
-  {
-    id: 'graphic-design',
-    icon: '🖼️',
-    iconBg: '#fff1f2',
-    accent: '#9f1239',
-    badgeBg: '#fecdd3',
-    badgeText: '#9f1239',
-    badge: 'Custom quote',
-    title: 'One-Time Graphic Design',
-    subtitle: 'Design when you need it',
-    description: 'Logos, flyers, banners, business cards, website graphics, and promotional materials for your brand.',
-    cta: 'Request a design →',
-    href: '/contact?service=graphic-design',
-  },
-  {
-    id: 'custom-platforms',
-    icon: '⚡',
-    iconBg: '#fefce8',
-    accent: '#92400e',
-    badgeBg: '#fef08a',
-    badgeText: '#854d0e',
-    badge: 'Custom quote',
-    title: 'Custom Platforms',
-    subtitle: 'Web apps & business tools',
-    description: 'Client portals, booking systems, dashboards, internal tools, CRM-style systems, and custom web applications.',
-    cta: 'Discuss your project →',
-    href: '/contact?service=custom-platform',
-  },
-]
+// Visual/structural metadata only — all text comes from the message catalog.
+const serviceMeta = [
+  { id: 'website-dev',      icon: '🌐', iconBg: '#eff6ff', accent: '#2563eb', badgeBg: '#dbeafe', badgeText: '#1d4ed8', href: '/pricing#website-build' },
+  { id: 'website-care',     icon: '🛡️', iconBg: '#f0fdf4', accent: '#16a34a', badgeBg: '#dcfce7', badgeText: '#166534', href: '/order/website-care' },
+  { id: 'it-support',       icon: '💻', iconBg: '#f1f5f9', accent: '#334155', badgeBg: '#e2e8f0', badgeText: '#334155', href: '/order/it-support' },
+  { id: 'social-media',     icon: '🎨', iconBg: '#fdf4ff', accent: '#7c3aed', badgeBg: '#ede9fe', badgeText: '#5b21b6', href: '/order/social-media' },
+  { id: 'business-email',   icon: '📧', iconBg: '#fff7ed', accent: '#ea580c', badgeBg: '#fed7aa', badgeText: '#9a3412', href: '/contact?service=business-email' },
+  { id: 'domain-dns',       icon: '🌍', iconBg: '#f0fdf4', accent: '#0f766e', badgeBg: '#ccfbf1', badgeText: '#0f766e', href: '/contact?service=domain-dns' },
+  { id: 'graphic-design',   icon: '🖼️', iconBg: '#fff1f2', accent: '#9f1239', badgeBg: '#fecdd3', badgeText: '#9f1239', href: '/contact?service=graphic-design' },
+  { id: 'custom-platforms', icon: '⚡', iconBg: '#fefce8', accent: '#92400e', badgeBg: '#fef08a', badgeText: '#854d0e', href: '/contact?service=custom-platform' },
+] as const
 
 export function ServicesSection() {
+  const t = useTranslations('servicesSection')
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
   return (
@@ -160,22 +59,22 @@ export function ServicesSection() {
         {/* Header */}
         <div style={{ marginBottom: 48, maxWidth: 700 }}>
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.12em', color: '#2563eb', marginBottom: 12 }}>
-            WHAT WE DO
+            {t('eyebrow')}
           </div>
           <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 38px)', fontWeight: 800, color: '#0f1f3d', marginBottom: 14, fontFamily: 'var(--font-display, Outfit, sans-serif)', lineHeight: 1.15 }}>
-            One Partner for Your Website, IT Support &amp; Digital Growth
+            {t('title')}
           </h2>
           <p style={{ fontSize: 16, color: '#64748b', lineHeight: 1.8, maxWidth: 640, margin: '0 0 12px' }}>
-            From building your website to keeping it updated, supporting your team, managing business email, and creating branded content — AG Development helps your business stay professional online without hiring a full-time in-house team.
+            {t('p1')}
           </p>
           <p style={{ fontSize: 16, color: '#334155', lineHeight: 1.8, maxWidth: 640, margin: 0, fontWeight: 500 }}>
-            Need a mix of services? Build a custom monthly plan based on your business needs, team size, and budget.
+            {t('p2')}
           </p>
         </div>
 
         {/* Cards grid */}
         <div className="ss-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 20 }}>
-          {services.map(card => {
+          {serviceMeta.map(card => {
             const hov = hoveredCard === card.id
             return (
               <div
@@ -221,7 +120,7 @@ export function ServicesSection() {
                   background: card.badgeBg,
                   color: card.badgeText,
                 }}>
-                  {card.badge}
+                  {t(`services.${card.id}.badge`)}
                 </span>
 
                 {/* Icon */}
@@ -250,7 +149,7 @@ export function ServicesSection() {
                   color: '#94a3b8',
                   marginBottom: 6,
                 }}>
-                  {card.subtitle}
+                  {t(`services.${card.id}.subtitle`)}
                 </div>
 
                 {/* Title */}
@@ -261,7 +160,7 @@ export function ServicesSection() {
                   marginBottom: 8,
                   fontFamily: 'var(--font-display, Outfit, sans-serif)',
                 }}>
-                  {card.title}
+                  {t(`services.${card.id}.title`)}
                 </h3>
 
                 {/* Description */}
@@ -272,7 +171,7 @@ export function ServicesSection() {
                   flex: 1,
                   marginBottom: 16,
                 }}>
-                  {card.description}
+                  {t(`services.${card.id}.description`)}
                 </p>
 
                 {/* CTA link */}
@@ -290,7 +189,7 @@ export function ServicesSection() {
                     transition: 'gap 0.2s ease',
                   }}
                 >
-                  {card.cta}
+                  {t(`services.${card.id}.cta`)}
                 </Link>
               </div>
             )
@@ -307,16 +206,16 @@ export function ServicesSection() {
         }}>
           <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' as const }}>
             <h3 style={{ fontSize: 'clamp(24px, 3vw, 32px)', fontWeight: 800, color: 'white', marginBottom: 18, fontFamily: 'var(--font-display, Outfit, sans-serif)', lineHeight: 1.2 }}>
-              Need Support Without Hiring Full-Time Staff?
+              {t('customTitle')}
             </h3>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: 14 }}>
-              Many small businesses need reliable IT support, website help, email management, design, and digital services — but hiring full-time employees can be expensive.
+              {t('customP1')}
             </p>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', lineHeight: 1.8, marginBottom: 14 }}>
-              With AG Development, you can combine the services your business actually needs into one flexible monthly plan. We can help with daily IT issues, website updates, user management, email support, file access, social media content, and more.
+              {t('customP2')}
             </p>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.78)', lineHeight: 1.8, marginBottom: 28, fontWeight: 600 }}>
-              Build a custom support plan that fits your business, your team, and your budget.
+              {t('customP3')}
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: 14, justifyContent: 'center' }}>
               <Link
@@ -336,7 +235,7 @@ export function ServicesSection() {
                   textDecoration: 'none',
                 }}
               >
-                See all services &amp; pricing →
+                {t('ctaAll')}
               </Link>
               <Link
                 href="/order/custom-plan"
@@ -355,7 +254,7 @@ export function ServicesSection() {
                   boxShadow: '0 8px 24px rgba(37,99,235,0.35)',
                 }}
               >
-                Build a Custom Plan →
+                {t('ctaBuild')}
               </Link>
             </div>
           </div>

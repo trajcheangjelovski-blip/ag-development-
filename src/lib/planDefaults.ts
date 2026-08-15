@@ -1,4 +1,4 @@
-import { BUILD_PACKAGES, CARE_PLANS } from '@/app/order/_data'
+import { BUILD_PACKAGES, CARE_PLANS } from '@/app/[locale]/order/_data'
 
 // Built-in card content from the website, used to pre-fill the admin plan
 // editor so the admin sees exactly what's on the site and can edit it.

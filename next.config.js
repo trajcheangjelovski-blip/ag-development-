@@ -1,3 +1,8 @@
+const createNextIntlPlugin = require('next-intl/plugin')
+
+// Points next-intl at the request config that loads the per-locale messages.
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Required for Docker/self-hosted deployment
@@ -47,4 +52,4 @@ const nextConfig = {
   },
 }
 
-module.exports = nextConfig
+module.exports = withNextIntl(nextConfig)

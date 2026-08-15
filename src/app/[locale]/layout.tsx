@@ -1,9 +1,13 @@
 import type { Metadata } from 'next'
 import { Outfit, Inter } from 'next/font/google'
 import Script from 'next/script'
+import { notFound } from 'next/navigation'
+import { hasLocale, NextIntlClientProvider } from 'next-intl'
+import { getMessages, setRequestLocale } from 'next-intl/server'
 import { CartProvider } from '@/components/public/Cart'
 import { ChatWidget } from '@/components/public/ChatWidget'
-import './globals.css'
+import { routing } from '@/i18n/routing'
+import '../globals.css'
 
 const outfit = Outfit({
   subsets: ['latin'],
@@ -35,7 +39,7 @@ export const metadata: Metadata = {
     title: 'AG Development — Websites, IT Support & Design for Small Businesses',
     description: 'Reliable websites, IT support, email setup, social media design, and digital growth for small businesses — remote, transparent, and affordable.',
     images: [{
-      url: '/og.png',          // resolved against metadataBase → https://ag-development.dev/og.png
+      url: '/og.png',
       width: 1200,
       height: 630,
       alt: 'AG Development — Websites & reliable IT support for small businesses',
@@ -67,9 +71,29 @@ const orgSchema = {
   serviceArea: { '@type': 'AdministrativeArea', name: 'United States' },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// Pre-render both locales at build time.
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }))
+}
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+  if (!hasLocale(routing.locales, locale)) notFound()
+
+  // Enable static rendering for this locale.
+  setRequestLocale(locale)
+
+  // Messages for client components.
+  const messages = await getMessages()
+
   return (
-    <html lang="en" className={`${outfit.variable} ${inter.variable}`}>
+    <html lang={locale} className={`${outfit.variable} ${inter.variable}`}>
       <body className="font-sans antialiased">
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-Q0Q8676Q4Y" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">{`
@@ -93,7 +117,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <noscript><img height="1" width="1" style={{ display: 'none' }}
           src="https://www.facebook.com/tr?id=1530035378526716&ev=PageView&noscript=1"
           alt="" /></noscript>
-        <CartProvider>{children}<ChatWidget /></CartProvider>
+        <NextIntlClientProvider messages={messages}>
+          <CartProvider>{children}<ChatWidget /></CartProvider>
+        </NextIntlClientProvider>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
       </body>
     </html>
