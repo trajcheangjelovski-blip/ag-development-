@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { getPlans, effectivePrice } from '@/lib/plans'
+import { getPlans, effectivePrice, plansTable } from '@/lib/plans'
 import { getCardDefaults } from '@/lib/planDefaults'
 
 // Always render fresh so admin price changes show immediately (never cached).
@@ -12,7 +12,8 @@ export const revalidate = 0
 //      editor always shows what's actually displayed on the website.
 // PATCH: admin — update a plan (upserts so first edit works even pre-seed).
 export async function GET(request: NextRequest) {
-  const { plans } = await getPlans()
+  const region = new URL(request.url).searchParams.get('region') || 'us'
+  const { plans } = await getPlans(region)
 
   // Admins also see hidden plans (so they can re-enable them)
   let includeHidden = false
@@ -52,14 +53,14 @@ export async function PATCH(request: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json()
-  const { id, name, description, category, price, billing_interval, sale_price, sale_active, is_active, sort, badge, features, details, good_for, delivery, grant_type, grant_qty } = body
+  const { id, region = 'us', name, description, category, price, billing_interval, sale_price, sale_active, is_active, sort, badge, features, details, good_for, delivery, grant_type, grant_qty } = body
   if (!id || !name || !category || typeof price !== 'number' || price < 0) {
     return NextResponse.json({ error: 'id, name, category and a valid price are required' }, { status: 400 })
   }
 
   const admin = await createAdminClient()
   const { data, error } = await admin
-    .from('plans')
+    .from(plansTable(region))
     .upsert({
       id,
       name,
@@ -105,10 +106,11 @@ export async function DELETE(request: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const id = new URL(request.url).searchParams.get('id')
+  const region = new URL(request.url).searchParams.get('region') || 'us'
   if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 })
 
   const admin = await createAdminClient()
-  const { error } = await admin.from('plans').delete().eq('id', id)
+  const { error } = await admin.from(plansTable(region)).delete().eq('id', id)
 
   if (error) {
     if (error.code === '23503') {

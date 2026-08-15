@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { stripeRequest } from '@/lib/stripe'
 import { getPlans, effectivePrice, type Plan } from '@/lib/plans'
+import { chargeCurrencyForRegion, chargeMinorUnits, formatPrice } from '@/lib/money'
 import { rateLimit, clientIp } from '@/lib/rateLimit'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
@@ -54,8 +55,13 @@ export async function POST(request: NextRequest) {
     }
 
     // ── Cart checkout (public site) ──
+    // Region decides currency: US pays USD; MK shows denars but Stripe can't
+    // charge MKD, so we charge the EUR equivalent (see lib/money.ts). Prices in
+    // the DB are per-region (plans_mk holds MKD); we convert to charge minor units.
+    const region = body.region === 'mk' ? 'mk' : 'us'
+    const currency = chargeCurrencyForRegion(region)
     const ids: string[] = Array.isArray(body.items) ? body.items : []
-    const { plans } = await getPlans()
+    const { plans } = await getPlans(region)
     const items = ids
       .map(id => plans.find(p => p.id === id && p.is_active))
       .filter(Boolean) as Plan[]
@@ -65,7 +71,7 @@ export async function POST(request: NextRequest) {
 
     const hasRecurring = items.some(i => i.billing_interval === 'month')
     const summary = items
-      .map(i => `${i.name} ($${effectivePrice(i)}${i.billing_interval ? '/mo' : ''})`)
+      .map(i => `${i.name} (${formatPrice(effectivePrice(i), i.currency, region === 'mk' ? 'mk' : 'en')}${i.billing_interval ? '/mo' : ''})`)
       .join(', ')
 
     // Optional coupon: validate against our DB, then mirror it as a one-off
@@ -93,7 +99,7 @@ export async function POST(request: NextRequest) {
         duration: 'once',
         ...(coupon.percent_off
           ? { percent_off: coupon.percent_off }
-          : { amount_off: coupon.amount_off * 100, currency: 'usd' }),
+          : { amount_off: chargeMinorUnits(coupon.amount_off, region), currency }),
         name: coupon.code,
       })
       discounts = [{ coupon: stripeCoupon.id }]
@@ -108,8 +114,8 @@ export async function POST(request: NextRequest) {
       line_items: items.map(i => ({
         quantity: 1,
         price_data: {
-          currency: 'usd',
-          unit_amount: effectivePrice(i) * 100,
+          currency,
+          unit_amount: chargeMinorUnits(effectivePrice(i), region),
           product_data: { name: i.name, ...(i.description ? { description: i.description } : {}) },
           ...(i.billing_interval ? { recurring: { interval: i.billing_interval } } : {}),
         },

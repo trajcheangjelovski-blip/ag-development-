@@ -10,7 +10,10 @@
       "PowerShell(Get-Content *)",
       "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3001/login\" -UseBasicParsing -TimeoutSec 10 | Select-Object StatusCode)",
       "PowerShell(Invoke-WebRequest -Uri \"http://localhost:3001/\" -UseBasicParsing -TimeoutSec 10 | Select-Object StatusCode; Invoke-WebRequest -Uri \"http://localhost:3001/portal/dashboard\" -UseBasicParsing -TimeoutSec 10 | Select-Object StatusCode)",
-      "PowerShell(node -e \"require\\('playwright'\\)\" 2>&1; if \\($LASTEXITCODE -ne 0\\) { \"playwright not found\" } else { \"playwright available\" })"
+      "PowerShell(node -e \"require\\('playwright'\\)\" 2>&1; if \\($LASTEXITCODE -ne 0\\) { \"playwright not found\" } else { \"playwright available\" })",
+      "Bash(git ls-remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m '@ *)"
     ]
   }
 }

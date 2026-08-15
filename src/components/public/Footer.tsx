@@ -1,7 +1,14 @@
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { LogoMark } from '@/components/public/Logo'
 
+const COMPANY_HREFS = ['/portfolio', '/pricing', '/review', '/contact', '/login']
+
 export function PublicFooter() {
+  const t = useTranslations('footer')
+  const services = t.raw('services') as string[]
+  const company = t.raw('company') as string[]
+
   return (
     <footer style={{ background: '#0a1628' }} className="text-white/50 pt-16 pb-8">
       <div className="max-w-6xl mx-auto px-6">
@@ -11,37 +18,37 @@ export function PublicFooter() {
               <LogoMark size={32} />
               <span className="font-display font-bold text-white text-sm">AG Development</span>
             </div>
-            <p className="text-sm leading-relaxed max-w-xs">Websites & Remote IT Support for Small Businesses. No full-time hire. No surprise bills.</p>
+            <p className="text-sm leading-relaxed max-w-xs">{t('tagline')}</p>
           </div>
           <div>
-            <h4 className="text-white font-semibold text-sm mb-4">Services</h4>
+            <h4 className="text-white font-semibold text-sm mb-4">{t('servicesHeading')}</h4>
             <div className="space-y-2.5">
-              {['Website Development','WordPress Support','Shopify Support','Domain & DNS','Business Email','IT Support'].map(s => (
+              {services.map(s => (
                 <Link key={s} href="/services" className="block text-sm hover:text-white/80 transition-colors">{s}</Link>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="text-white font-semibold text-sm mb-4">Company</h4>
+            <h4 className="text-white font-semibold text-sm mb-4">{t('companyHeading')}</h4>
             <div className="space-y-2.5">
-              {[['Portfolio','/portfolio'],['Pricing','/pricing'],['Free Review','/review'],['Contact','/contact'],['Client Portal','/login']].map(([l,h]) => (
-                <Link key={l} href={h} className="block text-sm hover:text-white/80 transition-colors">{l}</Link>
+              {company.map((l, i) => (
+                <Link key={l} href={COMPANY_HREFS[i]} className="block text-sm hover:text-white/80 transition-colors">{l}</Link>
               ))}
             </div>
           </div>
           <div>
-            <h4 className="text-white font-semibold text-sm mb-4">Contact</h4>
+            <h4 className="text-white font-semibold text-sm mb-4">{t('contactHeading')}</h4>
             <div className="space-y-2.5 text-sm">
               <div>support@ag-development.dev</div>
-              <div>Response within 1 business day</div>
-              <div>Mon–Fri, 9am–6pm ET</div>
-              <div>Remote — Serving all US states</div>
+              <div>{t('contactResponse')}</div>
+              <div>{t('contactHours')}</div>
+              <div>{t('contactArea')}</div>
             </div>
           </div>
         </div>
         <div className="pt-8 flex flex-col md:flex-row justify-between gap-4 text-xs">
-          <span>© 2025 AG Development LLC. All rights reserved.</span>
-          <span>Websites & Remote IT Support for Small Businesses</span>
+          <span>{t('rights')}</span>
+          <span>{t('bottomTagline')}</span>
         </div>
       </div>
     </footer>

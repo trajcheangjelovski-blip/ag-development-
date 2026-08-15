@@ -2,10 +2,14 @@
 
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useLocale } from 'next-intl'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { BUILD_PACKAGES, CARE_PLANS, COMPARISON_ROWS } from './_data'
 import { useMergedCards } from '@/lib/usePlans'
+import { regionFromLocale } from '@/i18n/routing'
+import { formatPrice } from '@/lib/money'
+import { Price } from '@/components/public/Price'
 import { RadioDot, InfoBox, StepBar, SummaryCard } from './_components'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -198,6 +202,10 @@ function OrderContent() {
   const carePlan: CarePlan = carePlans.find(p => p.id === selectedCare) ?? carePlans[0]
   const oneTimeTotal = buildPkg?.price ?? 0
 
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+  const fmt = (n: number) => formatPrice(n, region === 'mk' ? 'MKD' : 'USD', locale)
+
   function goTo(n: number) {
     setStep(n)
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -225,10 +233,10 @@ function OrderContent() {
       parts.push(`Custom Package: ${customNote || 'See notes'}`)
     } else if (buildPkg) {
       if (skippedCare) {
-        parts.push(`Website Build Only: ${buildPkg.name} ($${buildPkg.price} one-time) — No care plan`)
+        parts.push(`Website Build Only: ${buildPkg.name} (${fmt(buildPkg.price)} one-time) — No care plan`)
       } else {
-        parts.push(`Website Build: ${buildPkg.name} ($${buildPkg.price})`)
-        if (carePlan.id !== 'none') parts.push(`Care Plan: ${carePlan.name} ($${carePlan.price}/mo)`)
+        parts.push(`Website Build: ${buildPkg.name} (${fmt(buildPkg.price)})`)
+        if (carePlan.id !== 'none') parts.push(`Care Plan: ${carePlan.name} (${fmt(carePlan.price)}/mo)`)
       }
     }
 
@@ -275,7 +283,7 @@ function OrderContent() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, coupon_code: coupon.trim() || undefined }),
+        body: JSON.stringify({ items, region, coupon_code: coupon.trim() || undefined }),
       })
       const data = await res.json().catch(() => ({})) as { url?: string; error?: string }
       if (res.ok && data.url) {
@@ -408,7 +416,7 @@ function OrderContent() {
                               {p.icon}
                             </div>
                             <span className="bg-red-600 text-white text-[10px] font-bold px-[9px] py-[3px] rounded-full uppercase tracking-[0.05em]">
-                              Save ${p.originalPrice - p.price}
+                              Save <Price amount={p.originalPrice - p.price} />
                             </span>
                           </div>
 
@@ -418,9 +426,9 @@ function OrderContent() {
 
                           <div className="flex items-baseline gap-2 mb-2.5">
                             <span className="text-[32px] font-extrabold text-[#0f1f3d] leading-none inline-block transition-transform duration-200 group-hover:scale-[1.03]">
-                              ${p.price}
+                              <Price amount={p.price} />
                             </span>
-                            <span className="text-[13px] text-slate-400 line-through">${p.originalPrice}</span>
+                            <span className="text-[13px] text-slate-400 line-through"><Price amount={p.originalPrice} /></span>
                             <span className="text-xs text-slate-400">one-time</span>
                           </div>
 
@@ -609,7 +617,7 @@ function OrderContent() {
                           'text-2xl font-extrabold text-blue-600 leading-none inline-block transition-transform duration-200',
                           sel && 'scale-[1.06]',
                         )}>
-                          ${p.price}
+                          <Price amount={p.price} />
                         </div>
                         <div className="text-[11px] text-slate-400 mt-0.5">per month</div>
                       </div>

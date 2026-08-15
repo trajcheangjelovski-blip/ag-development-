@@ -8,6 +8,8 @@ export type PlanDetail = { label: string; value: string }
 
 export type Plan = {
   id: string
+  region: string
+  currency: string
   name: string
   description: string
   category: string
@@ -32,9 +34,11 @@ export function effectivePrice(p: Plan): number {
   return p.sale_active && p.sale_price != null && p.sale_price > 0 ? p.sale_price : p.price
 }
 
-function staticPlans(): Plan[] {
+function staticPlans(region = 'us'): Plan[] {
   return CATALOG.map((c, i) => ({
     id: c.id,
+    region,
+    currency: region === 'mk' ? 'MKD' : 'USD',
     name: c.name,
     description: c.description,
     category: c.category,
@@ -54,14 +58,23 @@ function staticPlans(): Plan[] {
   }))
 }
 
-export async function getPlans(): Promise<{ plans: Plan[]; fromDb: boolean }> {
+// MK plans live in a separate `plans_mk` table so the original `plans` table
+// (and the deployed English site that reads it) is never affected.
+export function plansTable(region: string): 'plans' | 'plans_mk' {
+  return region === 'mk' ? 'plans_mk' : 'plans'
+}
+
+export async function getPlans(region = 'us'): Promise<{ plans: Plan[]; fromDb: boolean }> {
+  const currency = region === 'mk' ? 'MKD' : 'USD'
   try {
     const supabase = await createAdminClient()
-    const { data, error } = await supabase.from('plans').select('*').order('sort')
-    if (error || !data?.length) return { plans: staticPlans(), fromDb: false }
+    const { data, error } = await supabase.from(plansTable(region)).select('*').order('sort')
+    if (error || !data?.length) return { plans: staticPlans(region), fromDb: false }
     return {
       plans: data.map((d: any) => ({
         id: d.id,
+        region,
+        currency,
         name: d.name,
         description: d.description || '',
         category: d.category,
@@ -86,7 +99,7 @@ export async function getPlans(): Promise<{ plans: Plan[]; fromDb: boolean }> {
   }
 }
 
-export async function getPlan(id: string): Promise<Plan | undefined> {
-  const { plans } = await getPlans()
+export async function getPlan(id: string, region = 'us'): Promise<Plan | undefined> {
+  const { plans } = await getPlans(region)
   return plans.find(p => p.id === id)
 }

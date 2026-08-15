@@ -4,6 +4,7 @@ import React from 'react'
 import Link from 'next/link'
 import clsx from 'clsx'
 import { BUILD_PACKAGES, CARE_PLANS } from './_data'
+import { Price } from '@/components/public/Price'
 
 export type BuildPkg = (typeof BUILD_PACKAGES)[0] | undefined
 export type CarePlan = (typeof CARE_PLANS)[0]
@@ -132,10 +133,10 @@ export function SummaryCard({ build, care, isCustom }: {
           <>
             <div className="flex justify-between items-center">
               <span className="text-[13px] text-slate-600">{build.name}</span>
-              <span className="text-[15px] font-bold text-[#0f1f3d]">${build.price}</span>
+              <span className="text-[15px] font-bold text-[#0f1f3d]"><Price amount={build.price} /></span>
             </div>
             <div className="text-[11px] text-slate-400 mt-0.5">
-              was <span className="line-through">${build.originalPrice}</span> — Save ${build.originalPrice - build.price}
+              was <span className="line-through"><Price amount={build.originalPrice} /></span> — Save <Price amount={build.originalPrice - build.price} />
             </div>
           </>
         ) : (
@@ -151,7 +152,7 @@ export function SummaryCard({ build, care, isCustom }: {
           <>
             <div className="flex justify-between py-1">
               <span className="text-[13px] text-slate-600">{care.name}</span>
-              <span className="text-[13px] font-semibold text-[#0f1f3d]">${care.price}/mo</span>
+              <span className="text-[13px] font-semibold text-[#0f1f3d]"><Price amount={care.price} />/mo</span>
             </div>
             <div className="text-[11px] text-green-600 font-semibold">✓ Hosting included</div>
           </>
@@ -164,13 +165,13 @@ export function SummaryCard({ build, care, isCustom }: {
         {!isCustom && (
           <div className="flex justify-between py-1.5">
             <span className="text-sm font-semibold text-gray-700">One-time total</span>
-            <span className="text-[17px] font-bold text-[#0f1f3d]">${oneTime}</span>
+            <span className="text-[17px] font-bold text-[#0f1f3d]"><Price amount={oneTime} /></span>
           </div>
         )}
         {monthly > 0 && (
           <div className="flex justify-between py-1.5">
             <span className="text-sm font-semibold text-gray-700">Monthly total</span>
-            <span className="text-[17px] font-bold text-blue-600">${monthly}/mo</span>
+            <span className="text-[17px] font-bold text-blue-600"><Price amount={monthly} />/mo</span>
           </div>
         )}
         {care.id === 'none' && (

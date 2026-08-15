@@ -1,5 +1,7 @@
 'use client'
 import { useState, useEffect, useMemo } from 'react'
+import { useLocale } from 'next-intl'
+import { regionFromLocale } from '@/i18n/routing'
 
 // Client hook: fetch admin-managed plans and merge their values over the
 // static card data used by order/pricing pages. Any field the admin filled in
@@ -7,6 +9,7 @@ import { useState, useEffect, useMemo } from 'react'
 
 export type ApiPlan = {
   id: string
+  currency: string
   name: string
   description: string
   category: string
@@ -23,13 +26,15 @@ export type ApiPlan = {
 }
 
 export function usePlans() {
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
   const [apiPlans, setApiPlans] = useState<ApiPlan[]>([])
   useEffect(() => {
-    fetch('/api/plans', { cache: 'no-store' })
+    fetch(`/api/plans?region=${region}`, { cache: 'no-store' })
       .then(r => r.json())
       .then(d => { if (Array.isArray(d)) setApiPlans(d) })
       .catch(() => {})
-  }, [])
+  }, [region])
   return apiPlans
 }
 

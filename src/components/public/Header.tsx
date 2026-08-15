@@ -1,6 +1,6 @@
 'use client'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { Link, usePathname } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
 import { useState, useRef, useEffect } from 'react'
 import { LogoMark } from '@/components/public/Logo'
@@ -9,11 +9,14 @@ import { usePlans } from '@/lib/usePlans'
 
 // ── Services mega-menu data (prices filled live from the plans API) ──────────
 
-function buildServiceColumns(price: (id: string, fallback: number) => number) {
+function buildServiceColumns(
+  price: (id: string, fallback: number) => number,
+  t: (key: string) => string,
+) {
   return [
     {
       icon: '🌐',
-      heading: 'Website Services',
+      heading: t('colWebsite'),
       links: [
         { label: 'Website Creation',      href: '/order?package=business-site&step=1',   description: `Build a new website from $${price('starter-site', 150)}` },
         { label: 'Website Maintenance',   href: '/order/website-care',                   description: `Care plans from $${price('basic-care', 29)}/mo — hosting included` },
@@ -23,7 +26,7 @@ function buildServiceColumns(price: (id: string, fallback: number) => number) {
     },
     {
       icon: '🖥️',
-      heading: 'L1 IT Support',
+      heading: t('colIT'),
       links: [
         { label: `Basic Support — $${price('it-basic', 49)}/mo`,   href: '/order/it-support?plan=basic',  description: '3 tickets/mo, up to 2 users' },
         { label: `Team Support — $${price('it-team', 99)}/mo`,     href: '/order/it-support?plan=team',   description: '8 tickets/mo, up to 5 users' },
@@ -33,7 +36,7 @@ function buildServiceColumns(price: (id: string, fallback: number) => number) {
     },
     {
       icon: '🎨',
-      heading: 'Design & Social Media',
+      heading: t('colDesign'),
       links: [
         { label: `Social Starter — $${price('social-starter', 29)}/mo`,   href: '/order/social-media?plan=starter',  description: '2 posts/stories per month' },
         { label: `Social Business — $${price('social-business', 59)}/mo`, href: '/order/social-media?plan=business', description: '6 posts + 1 banner per month' },
@@ -45,15 +48,16 @@ function buildServiceColumns(price: (id: string, fallback: number) => number) {
 }
 
 const OTHER_NAV = [
-  { href: '/pricing',   label: 'Pricing' },
-  { href: '/portfolio', label: 'Portfolio' },
-  { href: '/about',     label: 'About' },
-  { href: '/contact',   label: 'Contact' },
-]
+  { href: '/pricing',   key: 'pricing' },
+  { href: '/portfolio', key: 'portfolio' },
+  { href: '/about',     key: 'about' },
+  { href: '/contact',   key: 'contact' },
+] as const
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function PublicHeader() {
+  const t = useTranslations('nav')
   const pathname = usePathname()
   const [mobileOpen,       setMobileOpen]       = useState(false)
   const [servicesOpen,     setServicesOpen]     = useState(false)
@@ -64,7 +68,7 @@ export function PublicHeader() {
   const apiPlans = usePlans()
   const price = (id: string, fallback: number) =>
     apiPlans.find(p => p.id === id)?.effective_price ?? fallback
-  const SERVICES_COLUMNS = buildServiceColumns(price)
+  const SERVICES_COLUMNS = buildServiceColumns(price, t)
 
   // Close on outside click
   useEffect(() => {
@@ -124,7 +128,7 @@ export function PublicHeader() {
                 whiteSpace: 'nowrap',
               }}
             >
-              Services
+              {t('services')}
               <span
                 style={{
                   fontSize: 9,
@@ -199,7 +203,7 @@ export function PublicHeader() {
 
                   {/* Links */}
                   {col.links.map(link => (
-                    <a
+                    <Link
                       key={link.label}
                       href={link.href}
                       onClick={closeAll}
@@ -221,7 +225,7 @@ export function PublicHeader() {
                       <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.4 }}>
                         {link.description}
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               ))}
@@ -238,8 +242,8 @@ export function PublicHeader() {
                   alignItems: 'center',
                 }}
               >
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>Not sure what you need?</span>
-                <a
+                <span style={{ fontSize: 13, color: '#94a3b8' }}>{t('notSure')}</span>
+                <Link
                   href="/review"
                   onClick={closeAll}
                   style={{
@@ -255,13 +259,13 @@ export function PublicHeader() {
                     textDecoration: 'none',
                   }}
                 >
-                  See a Demo of Your Website for Your Business →
-                </a>
+                  {t('demoCta')} →
+                </Link>
               </div>
             </div>
           </div>
 
-          {/* Pricing, Portfolio, Contact */}
+          {/* Pricing, Portfolio, About, Contact */}
           {OTHER_NAV.map(l => (
             <Link
               key={l.href}
@@ -273,7 +277,7 @@ export function PublicHeader() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
               )}
             >
-              {l.label}
+              {t(l.key)}
             </Link>
           ))}
         </nav>
@@ -282,14 +286,14 @@ export function PublicHeader() {
         <div className="hidden md:flex items-center gap-3">
           <CartButton />
           <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2">
-            Sign In
+            {t('signIn')}
           </Link>
           <Link href="/review" className="btn-secondary text-sm px-4 py-2.5">
-            See a Demo of Your Website for Your Business
+            {t('demoCta')}
           </Link>
         </div>
 
-        {/* Mobile: cart + hamburger */}
+        {/* Mobile: switcher + cart + hamburger */}
         <div className="md:hidden flex items-center gap-1">
         <CartButton />
         <button className="p-2" onClick={() => setMobileOpen(o => !o)}>
@@ -324,7 +328,7 @@ export function PublicHeader() {
               marginBottom: 2,
             }}
           >
-            <span>Services</span>
+            <span>{t('services')}</span>
             <span
               style={{
                 fontSize: 9,
@@ -367,7 +371,7 @@ export function PublicHeader() {
                     </span>
                   </div>
                   {col.links.map(link => (
-                    <a
+                    <Link
                       key={link.label}
                       href={link.href}
                       onClick={closeAll}
@@ -385,7 +389,7 @@ export function PublicHeader() {
                       <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>
                         {link.description}
                       </div>
-                    </a>
+                    </Link>
                   ))}
                 </div>
               ))}
@@ -401,17 +405,17 @@ export function PublicHeader() {
                 onClick={closeAll}
                 className="block px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 rounded-lg"
               >
-                {l.label}
+                {t(l.key)}
               </Link>
             ))}
           </div>
 
           <div className="pt-3 border-t border-slate-200 flex flex-col gap-2 mt-2">
             <Link href="/login" className="block text-center px-4 py-2.5 text-sm font-medium border border-slate-300 rounded-lg">
-              Sign In
+              {t('signIn')}
             </Link>
             <Link href="/review" className="block text-center btn-secondary py-2.5" onClick={closeAll}>
-              See a Demo of Your Website for Your Business
+              {t('demoCta')}
             </Link>
           </div>
         </div>

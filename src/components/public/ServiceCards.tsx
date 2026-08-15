@@ -1,142 +1,58 @@
 'use client'
 import { useState } from 'react'
-import Link from 'next/link'
+import { useTranslations } from 'next-intl'
+import { Link } from '@/i18n/navigation'
 import { usePlans } from '@/lib/usePlans'
 
-const cards = [
-  {
-    id: 'website',
-    accent: '#2563eb',
-    iconBg: '#eff6ff',
-    badgeBg: '#dbeafe',
-    badgeText: '#1d4ed8',
-    noteBg: '#eff6ff',
-    noteText: '#1d4ed8',
-    badge: 'New Website',
-    icon: '🌐',
-    title: 'Build a New Website',
-    description: 'We design and build your website from scratch. You own it completely. Choose a care plan after to include hosting and maintenance.',
-    items: [
-      'Starter from $150 · Business from $250',
-      'Premium from $350 · E-commerce from $600',
-      'Delivered in 5–14 business days',
-      'You own the website 100%',
-    ],
-    note: '💡 Add a Website Care Plan after to include hosting',
-    button: 'Build My Website →',
-    href: '/order?package=business-site&step=1',
-    tag: 'One-time project fee',
-  },
-  {
-    id: 'care',
-    accent: '#16a34a',
-    iconBg: '#f0fdf4',
-    badgeBg: '#dcfce7',
-    badgeText: '#166534',
-    noteBg: '#f0fdf4',
-    noteText: '#166534',
-    badge: 'Already Have a Website?',
-    icon: '🛡️',
-    title: 'Maintain Your Website',
-    description: 'Already have a website? We keep it secure, updated, and running smoothly every month. Hosting is included in all care plans.',
-    items: [
-      'Basic Care $29/mo — backups & security',
-      'Content Care $49/mo — + 30min updates',
-      'Growth Care $100/mo — + 1hr updates',
-      'Full Care $150/mo — + 2hrs updates',
-      '🏠 Hosting included in all plans',
-    ],
-    note: '✅ No website build needed — works with your existing site',
-    button: 'View Care Plans →',
-    href: '/order/website-care',
-    tag: 'Monthly subscription',
-  },
-  {
-    id: 'it',
-    accent: '#0f1f3d',
-    iconBg: '#f1f5f9',
-    badgeBg: '#f1f5f9',
-    badgeText: '#475569',
-    noteBg: '#f0fdf4',
-    noteText: '#166534',
-    badge: 'For Teams',
-    icon: '🖥️',
-    title: 'IT Support for Your Team',
-    description: 'First-level tech support for your business team. Passwords, software, printers, browser issues, and basic connectivity — all handled remotely.',
-    items: [
-      'Basic Support $49/mo — 3 tickets, 2 users',
-      'Team Support $99/mo — 8 tickets, 5 users',
-      'Office Support $179/mo — 15 tickets, 10 users',
-      'Remote support included',
-      'No website needed',
-    ],
-    note: '✅ Standalone plan — completely independent from website services',
-    button: 'Get IT Support →',
-    href: '/order/it-support',
-    tag: 'Monthly subscription',
-  },
-  {
-    id: 'social',
-    accent: '#7c3aed',
-    iconBg: '#f5f3ff',
-    badgeBg: '#ede9fe',
-    badgeText: '#5b21b6',
-    noteBg: '#f0fdf4',
-    noteText: '#166534',
-    badge: 'For Brands',
-    icon: '🎨',
-    title: 'Social Media & Graphic Design',
-    description: 'Monthly branded content for your social media. Posts, stories, banners, and graphics designed for your brand — you just post them.',
-    items: [
-      'Social Starter $29/mo — 2 posts/stories',
-      'Social Business $59/mo — 6 posts + 1 banner',
-      'Social Growth $99/mo — 12 posts + 2 banners',
-      'Custom branded graphics',
-      'No website needed',
-    ],
-    note: '✅ Standalone plan — completely independent from website services',
-    button: 'View Design Plans →',
-    href: '/order/social-media',
-    tag: 'Monthly subscription',
-  },
-]
+// Visual/structural metadata only — all text comes from the message catalog.
+const cardMeta = [
+  { id: 'website', accent: '#2563eb', iconBg: '#eff6ff', badgeBg: '#dbeafe', badgeText: '#1d4ed8', noteBg: '#eff6ff', noteText: '#1d4ed8', icon: '🌐', href: '/order?package=business-site&step=1' },
+  { id: 'care',    accent: '#16a34a', iconBg: '#f0fdf4', badgeBg: '#dcfce7', badgeText: '#166534', noteBg: '#f0fdf4', noteText: '#166534', icon: '🛡️', href: '/order/website-care' },
+  { id: 'it',      accent: '#0f1f3d', iconBg: '#f1f5f9', badgeBg: '#f1f5f9', badgeText: '#475569', noteBg: '#f0fdf4', noteText: '#166534', icon: '🖥️', href: '/order/it-support' },
+  { id: 'social',  accent: '#7c3aed', iconBg: '#f5f3ff', badgeBg: '#ede9fe', badgeText: '#5b21b6', noteBg: '#f0fdf4', noteText: '#166534', icon: '🎨', href: '/order/social-media' },
+] as const
 
 export function ServiceCards() {
+  const t = useTranslations('serviceCards')
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
   // Live prices from the admin-managed plans (fall back to the static text)
   const apiPlans = usePlans()
   const price = (id: string, fallback: number) =>
     apiPlans.find(p => p.id === id)?.effective_price ?? fallback
+  const money = (id: string, fb: number) => `$${price(id, fb)}`
 
-  const liveItems: Record<string, string[]> = {
-    website: [
-      `Starter from $${price('starter-site', 150)} · Business from $${price('business-site', 250)}`,
-      `Premium from $${price('premium-site', 350)} · E-commerce from $${price('ecommerce-store', 600)}`,
-      'Delivered in 5–14 business days',
-      'You own the website 100%',
-    ],
-    care: [
-      `Basic Care $${price('basic-care', 29)}/mo — backups & security`,
-      `Content Care $${price('content-care', 49)}/mo — + 30min updates`,
-      `Growth Care $${price('growth-care', 100)}/mo — + 1hr updates`,
-      `Full Care $${price('full-care', 150)}/mo — + 2hrs updates`,
-      '🏠 Hosting included in all plans',
-    ],
-    it: [
-      `Basic Support $${price('it-basic', 49)}/mo — 3 tickets, 2 users`,
-      `Team Support $${price('it-team', 99)}/mo — 8 tickets, 5 users`,
-      `Office Support $${price('it-office', 179)}/mo — 15 tickets, 10 users`,
-      'Remote support included',
-      'No website needed',
-    ],
-    social: [
-      `Social Starter $${price('social-starter', 29)}/mo — 2 posts/stories`,
-      `Social Business $${price('social-business', 59)}/mo — 6 posts + 1 banner`,
-      `Social Growth $${price('social-growth', 99)}/mo — 12 posts + 2 banners`,
-      'Custom branded graphics',
-      'No website needed',
-    ],
+  function itemsFor(id: string): string[] {
+    switch (id) {
+      case 'website': return [
+        t('cards.website.items.i1', { starter: money('starter-site', 150), business: money('business-site', 250) }),
+        t('cards.website.items.i2', { premium: money('premium-site', 350), ecommerce: money('ecommerce-store', 600) }),
+        t('cards.website.items.i3'),
+        t('cards.website.items.i4'),
+      ]
+      case 'care': return [
+        t('cards.care.items.i1', { basic: money('basic-care', 29) }),
+        t('cards.care.items.i2', { content: money('content-care', 49) }),
+        t('cards.care.items.i3', { growth: money('growth-care', 100) }),
+        t('cards.care.items.i4', { full: money('full-care', 150) }),
+        t('cards.care.items.i5'),
+      ]
+      case 'it': return [
+        t('cards.it.items.i1', { basic: money('it-basic', 49) }),
+        t('cards.it.items.i2', { team: money('it-team', 99) }),
+        t('cards.it.items.i3', { office: money('it-office', 179) }),
+        t('cards.it.items.i4'),
+        t('cards.it.items.i5'),
+      ]
+      case 'social': return [
+        t('cards.social.items.i1', { starter: money('social-starter', 29) }),
+        t('cards.social.items.i2', { business: money('social-business', 59) }),
+        t('cards.social.items.i3', { growth: money('social-growth', 99) }),
+        t('cards.social.items.i4'),
+        t('cards.social.items.i5'),
+      ]
+      default: return []
+    }
   }
 
   return (
@@ -165,22 +81,22 @@ export function ServiceCards() {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase' as const, letterSpacing: '0.12em', color: '#2563eb', marginBottom: 12 }}>
-            OUR SERVICES
+            {t('eyebrow')}
           </div>
           <h2 style={{ fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 800, color: '#0f1f3d', marginBottom: 14, fontFamily: 'var(--font-outfit, Outfit, sans-serif)', lineHeight: 1.15 }}>
-            What Does Your Business Need?
+            {t('title')}
           </h2>
           <p style={{ fontSize: 17, color: '#64748b', lineHeight: 1.7, maxWidth: 580, margin: '0 auto 32px' }}>
-            Choose the service that fits your situation. Each path is completely independent — you don&apos;t need a website to get IT support or social media design.
+            {t('subtitle')}
           </p>
 
           {/* Category pills */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap' as const, marginBottom: 0 }}>
             {[
-              { label: '🌐 New Website',         color: '#dbeafe', text: '#1d4ed8' },
-              { label: '🛡️ Website Maintenance', color: '#dcfce7', text: '#166534' },
-              { label: '🖥️ IT Support',           color: '#f1f5f9', text: '#475569' },
-              { label: '🎨 Design & Social',      color: '#ede9fe', text: '#5b21b6' },
+              { label: t('pills.newWebsite'),  color: '#dbeafe', text: '#1d4ed8' },
+              { label: t('pills.maintenance'), color: '#dcfce7', text: '#166534' },
+              { label: t('pills.it'),          color: '#f1f5f9', text: '#475569' },
+              { label: t('pills.design'),      color: '#ede9fe', text: '#5b21b6' },
             ].map(tag => (
               <span key={tag.label} style={{ background: tag.color, color: tag.text, fontSize: 12, fontWeight: 600, padding: '5px 14px', borderRadius: 100 }}>
                 {tag.label}
@@ -191,7 +107,7 @@ export function ServiceCards() {
 
         {/* 2×2 Cards grid */}
         <div className="sc-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24, marginBottom: 32 }}>
-          {cards.map(card => {
+          {cardMeta.map(card => {
             const hov = hoveredCard === card.id
             return (
               <div
@@ -217,7 +133,7 @@ export function ServiceCards() {
 
                 {/* Badge */}
                 <span style={{ position: 'absolute', top: 16, right: 16, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 100, textTransform: 'uppercase' as const, letterSpacing: '0.06em', background: card.badgeBg, color: card.badgeText }}>
-                  {card.badge}
+                  {t(`cards.${card.id}.badge`)}
                 </span>
 
                 {/* Icon circle */}
@@ -227,17 +143,17 @@ export function ServiceCards() {
 
                 {/* Title */}
                 <h3 style={{ fontSize: 22, fontWeight: 700, color: '#0f1f3d', marginBottom: 10, fontFamily: 'var(--font-outfit, Outfit, sans-serif)', lineHeight: 1.2 }}>
-                  {card.title}
+                  {t(`cards.${card.id}.title`)}
                 </h3>
 
                 {/* Description */}
                 <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7, marginBottom: 18 }}>
-                  {card.description}
+                  {t(`cards.${card.id}.description`)}
                 </p>
 
                 {/* Preview list */}
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px', flex: 1 }}>
-                  {(liveItems[card.id] || card.items).map((item, i) => (
+                  {itemsFor(card.id).map((item, i) => (
                     <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 7, fontSize: 13, color: '#374151' }}>
                       <span style={{ width: 6, height: 6, borderRadius: '50%', background: card.accent, flexShrink: 0, marginTop: 5 }} />
                       {item}
@@ -247,7 +163,7 @@ export function ServiceCards() {
 
                 {/* Note box */}
                 <div style={{ marginTop: 'auto', marginBottom: 14, padding: '9px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500, background: card.noteBg, color: card.noteText }}>
-                  {card.note}
+                  {t(`cards.${card.id}.note`)}
                 </div>
 
                 {/* Button */}
@@ -256,12 +172,12 @@ export function ServiceCards() {
                   className="sc-btn"
                   style={{ display: 'block', padding: '13px 20px', borderRadius: 10, fontSize: 14, fontWeight: 600, textAlign: 'center' as const, textDecoration: 'none', color: 'white', background: card.accent, boxSizing: 'border-box' as const }}
                 >
-                  {card.button}
+                  {t(`cards.${card.id}.button`)}
                 </Link>
 
                 {/* Bottom tag */}
                 <div style={{ textAlign: 'center', marginTop: 12, fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>
-                  {card.tag}
+                  {t(`cards.${card.id}.tag`)}
                 </div>
               </div>
             )
@@ -271,14 +187,14 @@ export function ServiceCards() {
         {/* "Not sure?" note */}
         <div style={{ textAlign: 'center', padding: '20px 24px', background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', maxWidth: 600, margin: '0 auto' }}>
           <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7 }}>
-            <strong style={{ color: '#0f1f3d' }}>Not sure what you need?</strong>
-            {' '}See a free demo for your business and we&apos;ll recommend the right service.
+            <strong style={{ color: '#0f1f3d' }}>{t('notSureTitle')}</strong>
+            {' '}{t('notSureText')}
           </div>
           <Link
             href="/review"
             style={{ display: 'inline-block', marginTop: 12, padding: '10px 22px', background: '#0f1f3d', color: 'white', borderRadius: 8, fontSize: 13, fontWeight: 600, textDecoration: 'none' }}
           >
-            See a Demo of Your Website for Your Business →
+            {t('notSureCta')}
           </Link>
         </div>
 
