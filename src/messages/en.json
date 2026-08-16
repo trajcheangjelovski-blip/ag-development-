@@ -74,11 +74,11 @@
     "companyHeading": "Company",
     "contactHeading": "Contact",
     "services": ["Website Development", "WordPress Support", "Shopify Support", "Domain & DNS", "Business Email", "IT Support"],
-    "company": ["Portfolio", "Pricing", "Free Demo", "Contact", "Client Portal"],
+    "company": ["About", "Portfolio", "Pricing", "Free Demo", "Contact", "Client Portal"],
     "contactResponse": "Response within 1 business day",
     "contactHours": "Mon–Fri, 9am–6pm",
     "contactArea": "Remote — serving businesses everywhere",
-    "rights": "© 2025 AG Development. All rights reserved.",
+    "rights": "© 2026 AG Development. All rights reserved.",
     "bottomTagline": "Websites & Remote IT Support for Small Businesses"
   },
   "serviceCards": {

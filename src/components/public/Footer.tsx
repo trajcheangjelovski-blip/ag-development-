@@ -2,7 +2,7 @@ import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { LogoMark } from '@/components/public/Logo'
 
-const COMPANY_HREFS = ['/portfolio', '/pricing', '/review', '/contact', '/login']
+const COMPANY_HREFS = ['/about', '/portfolio', '/pricing', '/review', '/contact', '/login']
 
 export function PublicFooter() {
   const t = useTranslations('footer')
@@ -39,7 +39,7 @@ export function PublicFooter() {
           <div>
             <h4 className="text-white font-semibold text-sm mb-4">{t('contactHeading')}</h4>
             <div className="space-y-2.5 text-sm">
-              <div>support@ag-development.dev</div>
+              <div><a href="mailto:support@ag-development.dev" className="hover:text-white/80 transition-colors">support@ag-development.dev</a></div>
               <div>{t('contactResponse')}</div>
               <div>{t('contactHours')}</div>
               <div>{t('contactArea')}</div>
