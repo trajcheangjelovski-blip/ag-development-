@@ -421,7 +421,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/review" className="btn-shimmer btn-glow inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white">
-              {t('ctaDemo')}
+              {t('ctaConsult')}
             </Link>
             <Link href="/contact" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white border border-white/20 hover:border-white/40 hover:bg-white/5 transition-all">
               {t('ctaAsk')}
