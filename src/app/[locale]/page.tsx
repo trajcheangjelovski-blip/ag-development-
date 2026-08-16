@@ -97,7 +97,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const t = await getTranslations('home')
   const whyText = t.raw('why') as { title: string; desc: string }[]
   const stepsText = t.raw('steps') as { title: string; desc: string }[]
-  const testimonialsText = t.raw('testimonials') as string[]
+  const testimonialsText = t.raw('testimonials') as { quote: string; name: string; biz: string; initials: string }[]
   return (
     <>
       <PublicHeader />
@@ -377,22 +377,23 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           <div className="text-center mb-16">
             <div className="section-label">{t('testimonialsLabel')}</div>
             <h2 className="section-title">{t('testimonialsTitle')}</h2>
+            <p className="text-slate-500 text-lg max-w-xl mx-auto">{t('testimonialsSubtitle')}</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
             {testimonials.map((tm, i) => (
               <div key={i} className="card-hover flex flex-col bg-white border border-slate-100 rounded-2xl p-6 cursor-default shadow-sm">
                 <Stars />
-                <p className="text-sm text-slate-600 leading-relaxed mb-5 flex-1">&ldquo;{testimonialsText[i]}&rdquo;</p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-5 flex-1">&ldquo;{testimonialsText[i].quote}&rdquo;</p>
                 <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
                   <div
                     className="w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-xs text-white flex-shrink-0"
                     style={{ background: tm.avatar }}
                   >
-                    {tm.initials}
+                    {testimonialsText[i].initials}
                   </div>
                   <div>
-                    <div className="font-semibold text-sm text-slate-800">{tm.name}</div>
-                    <div className="text-xs text-slate-400">{tm.biz}</div>
+                    <div className="font-semibold text-sm text-slate-800">{testimonialsText[i].name}</div>
+                    <div className="text-xs text-slate-400">{testimonialsText[i].biz}</div>
                   </div>
                 </div>
               </div>

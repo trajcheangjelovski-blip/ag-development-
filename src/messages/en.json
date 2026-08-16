@@ -54,11 +54,12 @@
     "whyChooseSubtitle": "No agency fluff. No enterprise overhead. Just reliable help that fits your budget.",
     "testimonialsLabel": "Testimonials",
     "testimonialsTitle": "What Our Clients Say",
+    "testimonialsSubtitle": "See what businesses that trust us with their website, IT support and digital services have to say.",
     "testimonials": [
-      "AG Development fixed our email issue in less than a day. We were losing leads and they saved us.",
-      "Our online store checkout had problems for weeks. They diagnosed it in hours and documented everything.",
-      "Affordable, professional, and they explain what they fixed. Finally a tech company that speaks plain language.",
-      "We don't have IT staff. AG Development is essentially our outsourced IT team."
+      { "quote": "AG Development fixed our email issue in less than a day. We were losing leads and they saved us.", "name": "Sarah M.", "biz": "Bloom Florist", "initials": "SM" },
+      { "quote": "Our online store checkout had problems for weeks. They diagnosed it in hours and documented everything.", "name": "Mike T.", "biz": "Precision Auto", "initials": "MT" },
+      { "quote": "Affordable, professional, and they explain what they fixed. Finally a tech company that speaks plain language.", "name": "Jennifer L.", "biz": "Lake Tahoe Rentals", "initials": "JL" },
+      { "quote": "We don't have IT staff. AG Development is essentially our outsourced IT team.", "name": "David K.", "biz": "Coastal Realty Group", "initials": "DK" }
     ],
     "ctaLabel": "Ready to Get Started?",
     "ctaTitle1": "Real IT Support for",
