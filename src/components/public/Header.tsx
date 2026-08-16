@@ -1,47 +1,50 @@
 'use client'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link, usePathname } from '@/i18n/navigation'
 import { cn } from '@/lib/utils'
 import { useState, useRef, useEffect } from 'react'
 import { LogoMark } from '@/components/public/Logo'
 import { CartButton } from '@/components/public/Cart'
 import { usePlans } from '@/lib/usePlans'
+import { formatPrice } from '@/lib/money'
 
-// ── Services mega-menu data (prices filled live from the plans API) ──────────
+// ── Services mega-menu data (labels/descriptions from the 'menu' catalog,
+//    prices filled live from the plans API and formatted per region) ──────────
 
 function buildServiceColumns(
-  price: (id: string, fallback: number) => number,
-  t: (key: string) => string,
+  p: (id: string, fallback: number) => string,
+  tNav: (key: string) => string,
+  tm: (key: string, values?: Record<string, string>) => string,
 ) {
   return [
     {
       icon: '🌐',
-      heading: t('colWebsite'),
+      heading: tNav('colWebsite'),
       links: [
-        { label: 'Website Creation',      href: '/order?package=business-site&step=1',   description: `Build a new website from $${price('starter-site', 150)}` },
-        { label: 'Website Maintenance',   href: '/order/website-care',                   description: `Care plans from $${price('basic-care', 29)}/mo — hosting included` },
-        { label: 'E-commerce Store',      href: '/order?package=ecommerce-store&step=1', description: 'Shopify & WooCommerce stores' },
-        { label: 'See a Demo of Your Website for Your Business', href: '/review',                          description: 'Get a free demo built for your business' },
+        { label: tm('website.creation.label'),    href: '/order?package=business-site&step=1',   description: tm('website.creation.desc', { price: p('starter-site', 150) }) },
+        { label: tm('website.maintenance.label'),  href: '/order/website-care',                   description: tm('website.maintenance.desc', { price: p('basic-care', 29) }) },
+        { label: tm('website.ecommerce.label'),    href: '/order?package=ecommerce-store&step=1', description: tm('website.ecommerce.desc') },
+        { label: tm('website.demo.label'),         href: '/review',                               description: tm('website.demo.desc') },
       ],
     },
     {
-      icon: '🖥️',
-      heading: t('colIT'),
+      icon: '💻',
+      heading: tNav('colIT'),
       links: [
-        { label: `Basic Support — $${price('it-basic', 49)}/mo`,   href: '/order/it-support?plan=basic',  description: '3 tickets/mo, up to 2 users' },
-        { label: `Team Support — $${price('it-team', 99)}/mo`,     href: '/order/it-support?plan=team',   description: '8 tickets/mo, up to 5 users' },
-        { label: `Office Support — $${price('it-office', 179)}/mo`, href: '/order/it-support?plan=office', description: '15 tickets/mo, up to 10 users' },
-        { label: 'View All IT Plans',        href: '/pricing#it-support',           description: 'Compare all support plans' },
+        { label: tm('it.basic.label',  { price: p('it-basic', 49) }),   href: '/order/it-support?plan=basic',  description: tm('it.basic.desc') },
+        { label: tm('it.team.label',   { price: p('it-team', 99) }),    href: '/order/it-support?plan=team',   description: tm('it.team.desc') },
+        { label: tm('it.office.label', { price: p('it-office', 179) }), href: '/order/it-support?plan=office', description: tm('it.office.desc') },
+        { label: tm('it.all.label'),   href: '/pricing#it-support',     description: tm('it.all.desc') },
       ],
     },
     {
       icon: '🎨',
-      heading: t('colDesign'),
+      heading: tNav('colDesign'),
       links: [
-        { label: `Social Starter — $${price('social-starter', 29)}/mo`,   href: '/order/social-media?plan=starter',  description: '2 posts/stories per month' },
-        { label: `Social Business — $${price('social-business', 59)}/mo`, href: '/order/social-media?plan=business', description: '6 posts + 1 banner per month' },
-        { label: `Social Growth — $${price('social-growth', 99)}/mo`,     href: '/order/social-media?plan=growth',   description: '12 posts + 2 banners per month' },
-        { label: 'View All Design Plans',  href: '/pricing#social-media',            description: 'Compare all design packages' },
+        { label: tm('design.starter.label',  { price: p('social-starter', 29) }),  href: '/order/social-media?plan=starter',  description: tm('design.starter.desc') },
+        { label: tm('design.business.label', { price: p('social-business', 59) }), href: '/order/social-media?plan=business', description: tm('design.business.desc') },
+        { label: tm('design.growth.label',   { price: p('social-growth', 99) }),   href: '/order/social-media?plan=growth',   description: tm('design.growth.desc') },
+        { label: tm('design.all.label'),     href: '/pricing#social-media',        description: tm('design.all.desc') },
       ],
     },
   ]
@@ -58,6 +61,8 @@ const OTHER_NAV = [
 
 export function PublicHeader() {
   const t = useTranslations('nav')
+  const tm = useTranslations('menu')
+  const locale = useLocale()
   const pathname = usePathname()
   const [mobileOpen,       setMobileOpen]       = useState(false)
   const [servicesOpen,     setServicesOpen]     = useState(false)
@@ -68,7 +73,8 @@ export function PublicHeader() {
   const apiPlans = usePlans()
   const price = (id: string, fallback: number) =>
     apiPlans.find(p => p.id === id)?.effective_price ?? fallback
-  const SERVICES_COLUMNS = buildServiceColumns(price, t)
+  const p = (id: string, fallback: number) => formatPrice(price(id, fallback), locale === 'mk' ? 'MKD' : 'USD', locale)
+  const SERVICES_COLUMNS = buildServiceColumns(p, t, tm)
 
   // Close on outside click
   useEffect(() => {
@@ -242,7 +248,7 @@ export function PublicHeader() {
                   alignItems: 'center',
                 }}
               >
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>{t('notSure')}</span>
+                <span style={{ fontSize: 13, color: '#94a3b8' }}>{tm('notSure')}</span>
                 <Link
                   href="/review"
                   onClick={closeAll}
@@ -259,7 +265,7 @@ export function PublicHeader() {
                     textDecoration: 'none',
                   }}
                 >
-                  {t('demoCta')} →
+                  {tm('demoCta')} →
                 </Link>
               </div>
             </div>

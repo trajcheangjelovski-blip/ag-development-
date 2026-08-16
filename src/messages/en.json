@@ -14,6 +14,28 @@
     "colIT": "L1 IT Support",
     "colDesign": "Design & Social Media"
   },
+  "menu": {
+    "notSure": "Not sure what you need?",
+    "demoCta": "See a demo of your website for your business",
+    "website": {
+      "creation": { "label": "Website Creation", "desc": "Build a new website from {price}" },
+      "maintenance": { "label": "Website Maintenance", "desc": "Care plans from {price}/mo — hosting included" },
+      "ecommerce": { "label": "E-commerce Store", "desc": "Shopify & WooCommerce stores" },
+      "demo": { "label": "See a Demo of Your Website", "desc": "Get a free demo built for your business" }
+    },
+    "it": {
+      "basic": { "label": "Basic Support — {price}/mo", "desc": "3 tickets/mo, up to 2 users" },
+      "team": { "label": "Team Support — {price}/mo", "desc": "8 tickets/mo, up to 5 users" },
+      "office": { "label": "Office Support — {price}/mo", "desc": "15 tickets/mo, up to 10 users" },
+      "all": { "label": "View All IT Plans", "desc": "Compare all support plans" }
+    },
+    "design": {
+      "starter": { "label": "Social Starter — {price}/mo", "desc": "2 posts/stories per month" },
+      "business": { "label": "Social Business — {price}/mo", "desc": "6 posts + 1 banner per month" },
+      "growth": { "label": "Social Growth — {price}/mo", "desc": "12 posts + 2 banners per month" },
+      "all": { "label": "View All Design Plans", "desc": "Compare all design packages" }
+    }
+  },
   "common": {
     "languageName": "English",
     "switchTo": "MK"
