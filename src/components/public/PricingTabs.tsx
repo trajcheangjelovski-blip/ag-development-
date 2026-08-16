@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { AddToCartButton } from '@/components/public/Cart'
+import { usePlans } from '@/lib/usePlans'
+import { formatPrice } from '@/lib/money'
 
 type TabId = 'build' | 'care' | 'it' | 'design' | 'custom'
 
@@ -42,6 +44,11 @@ function Check() { return <span className="text-emerald-500 font-bold flex-shrin
 
 function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
   const t = useTranslations('pricing')
+  const locale = useLocale()
+  const isMk = locale === 'mk'
+  const apiPlans = usePlans()
+  const fmt = (n: number) => formatPrice(n, isMk ? 'MKD' : 'USD', locale)
+  const planFor = (id: string) => apiPlans.find(x => x.id === id)
   const [hoveredBuildCard, setHoveredBuildCard] = useState<string | null>(null)
 
   return (
@@ -56,6 +63,10 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
         {buildMeta.map(p => {
           const hov = hoveredBuildCard === p.id
           const features = t.raw(`build.${p.id}.features`) as string[]
+          const plan = planFor(p.id)
+          const salePrice = isMk ? (plan?.effective_price ?? p.salePrice) : p.salePrice
+          const origPrice = isMk ? (plan?.price ?? p.originalPrice) : p.originalPrice
+          const showSale = origPrice > salePrice
           return (
             <div
               key={p.id}
@@ -78,20 +89,20 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
 
               {hov ? (
                 <div style={{ position: 'absolute', top: 10, right: 10, background: '#0f1f3d', color: 'white', fontSize: 10, padding: '3px 8px', borderRadius: 4, fontWeight: 700, animation: 'fadeIn 0.2s ease both', zIndex: 10, whiteSpace: 'nowrap' }}>{t('clickToOrder')}</div>
-              ) : (
+              ) : showSale ? (
                 <div className="absolute top-4 right-4">
-                  <span className="discount-badge">{t('save', { amount: `$${p.discountAmount}` })}</span>
+                  <span className="discount-badge">{t('save', { amount: fmt(origPrice - salePrice) })}</span>
                 </div>
-              )}
+              ) : null}
 
               <div style={{ fontSize: 30, marginBottom: 12, display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.2)' : 'scale(1)', transformOrigin: 'left center' }}>{p.icon}</div>
 
               <div className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 w-fit ${p.badgeColor}`}>{t(`build.${p.id}.badge`)}</div>
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`build.${p.id}.name`)}</div>
-              <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>${p.originalPrice}</span>
+              {showSale && <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>{fmt(origPrice)}</span>}
 
               <div style={{ fontSize: 42, fontWeight: 800, color: '#0f1f3d', lineHeight: 1, margin: '6px 0 4px', display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                ${p.salePrice} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('oneTime')}</span>
+                {fmt(salePrice)} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('oneTime')}</span>
               </div>
 
               <div className="mt-2 mb-4 space-y-0.5">
@@ -138,6 +149,11 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
 
 function CareTab() {
   const t = useTranslations('pricing')
+  const locale = useLocale()
+  const isMk = locale === 'mk'
+  const apiPlans = usePlans()
+  const fmt = (n: number) => formatPrice(n, isMk ? 'MKD' : 'USD', locale)
+  const planFor = (id: string) => apiPlans.find(x => x.id === id)
   const [hoveredCareCard, setHoveredCareCard] = useState<string | null>(null)
 
   return (
@@ -150,6 +166,7 @@ function CareTab() {
           const hov = hoveredCareCard === p.id
           const features = t.raw(`care.${p.id}.features`) as string[]
           const details = t.raw(`care.${p.id}.details`) as { label: string; value: string }[]
+          const amount = isMk ? (planFor(p.id)?.effective_price ?? p.price) : p.price
           return (
             <div
               key={p.id}
@@ -180,7 +197,7 @@ function CareTab() {
               <div className="font-display font-bold text-slate-800 text-lg mb-1">{t(`care.${p.id}.name`)}</div>
 
               <div style={{ display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                <div className="font-display text-3xl font-extrabold text-slate-800 mb-1">${p.price}</div>
+                <div className="font-display text-3xl font-extrabold text-slate-800 mb-1">{fmt(amount)}</div>
               </div>
               <div className="text-xs text-slate-400 mb-5">{t('perMonth')}</div>
 
@@ -217,6 +234,11 @@ function CareTab() {
 
 function ITSupportTab() {
   const t = useTranslations('pricing')
+  const locale = useLocale()
+  const isMk = locale === 'mk'
+  const apiPlans = usePlans()
+  const fmt = (n: number) => formatPrice(n, isMk ? 'MKD' : 'USD', locale)
+  const planFor = (id: string) => apiPlans.find(x => x.id === id)
   const [hoveredITCard, setHoveredITCard] = useState<string | null>(null)
 
   return (
@@ -233,6 +255,7 @@ function ITSupportTab() {
         {itMeta.map(p => {
           const hov = hoveredITCard === p.id
           const features = t.raw(`it.${p.id}.features`) as string[]
+          const amount = isMk ? (planFor(`it-${p.id}`)?.effective_price ?? p.price) : p.price
           const btnBg = p.buttonColor ? (hov ? (p.buttonColor === '#2563eb' ? '#1d4ed8' : p.buttonColor) : p.buttonColor) : (hov || p.popular) ? '#2563eb' : '#f8fafc'
           const btnColor = (p.buttonColor || hov || p.popular) ? 'white' : '#475569'
           const btnBorder = (p.buttonColor || hov || p.popular) ? `2px solid ${p.buttonColor || '#2563eb'}` : '2px solid #e2e8f0'
@@ -267,7 +290,7 @@ function ITSupportTab() {
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`it.${p.id}.name`)}</div>
 
               <div style={{ fontSize: 42, fontWeight: 800, color: '#0f1f3d', lineHeight: 1, margin: '6px 0 4px', display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                ${p.price} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
+                {fmt(amount)} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
               </div>
 
               <ul className="space-y-1.5 mt-4 mb-5 flex-1">
@@ -307,6 +330,11 @@ function ITSupportTab() {
 
 function DesignSocialTab() {
   const t = useTranslations('pricing')
+  const locale = useLocale()
+  const isMk = locale === 'mk'
+  const apiPlans = usePlans()
+  const fmt = (n: number) => formatPrice(n, isMk ? 'MKD' : 'USD', locale)
+  const planFor = (id: string) => apiPlans.find(x => x.id === id)
   const [hoveredDesignCard, setHoveredDesignCard] = useState<string | null>(null)
 
   return (
@@ -323,6 +351,7 @@ function DesignSocialTab() {
         {designMeta.map(p => {
           const hov = hoveredDesignCard === p.id
           const features = t.raw(`design.${p.id}.features`) as string[]
+          const amount = isMk ? (planFor(`social-${p.id}`)?.effective_price ?? p.price) : p.price
           const btnBg = p.buttonColor ? (hov ? (p.buttonColor === '#7c3aed' ? '#6d28d9' : p.buttonColor) : p.buttonColor) : (hov || p.popular) ? '#2563eb' : '#f8fafc'
           const btnColor = (p.buttonColor || hov || p.popular) ? 'white' : '#475569'
           const btnBorder = (p.buttonColor || hov || p.popular) ? `2px solid ${p.buttonColor || '#2563eb'}` : '2px solid #e2e8f0'
@@ -357,7 +386,7 @@ function DesignSocialTab() {
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`design.${p.id}.name`)}</div>
 
               <div style={{ fontSize: 42, fontWeight: 800, color: '#0f1f3d', lineHeight: 1, margin: '6px 0 4px', display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                ${p.price} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
+                {fmt(amount)} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
               </div>
 
               <ul className="space-y-1.5 mt-4 mb-5 flex-1">

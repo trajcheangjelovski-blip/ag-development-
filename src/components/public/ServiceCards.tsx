@@ -1,8 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { usePlans } from '@/lib/usePlans'
+import { formatPrice } from '@/lib/money'
 
 // Visual/structural metadata only — all text comes from the message catalog.
 const cardMeta = [
@@ -14,13 +15,15 @@ const cardMeta = [
 
 export function ServiceCards() {
   const t = useTranslations('serviceCards')
+  const locale = useLocale()
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
 
-  // Live prices from the admin-managed plans (fall back to the static text)
+  // Live prices from the admin-managed plans (fall back to the static text).
+  // Region-aware currency: MK shows denars, everyone else USD.
   const apiPlans = usePlans()
   const price = (id: string, fallback: number) =>
     apiPlans.find(p => p.id === id)?.effective_price ?? fallback
-  const money = (id: string, fb: number) => `$${price(id, fb)}`
+  const money = (id: string, fb: number) => formatPrice(price(id, fb), locale === 'mk' ? 'MKD' : 'USD', locale)
 
   function itemsFor(id: string): string[] {
     switch (id) {
