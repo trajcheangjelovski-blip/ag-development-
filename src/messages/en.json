@@ -40,6 +40,76 @@
     "languageName": "English",
     "switchTo": "MK"
   },
+  "about": {
+    "heroEyebrow": "About AG Development",
+    "heroTitle": "Modern websites and reliable IT support — from a real, registered company.",
+    "heroP1": "AG Development LLC helps small businesses build a professional digital presence and maintain the technology they rely on every day.",
+    "heroP2": "We build business websites, WordPress solutions and Shopify stores, offer maintenance, and provide remote and on-site IT support.",
+    "heroTagline": "Real company. Real person. Real accountability.",
+    "ctaDemo": "See a demo of a website for your business →",
+    "ctaStart": "Start your project →",
+    "verifiedBadge": "Registered company in Wyoming, USA — Filing #2023-001366068",
+    "buildEyebrow": "What we build",
+    "buildTitle": "Websites that work for your business",
+    "buildP1": "We help small businesses look professional online with modern, fast, mobile-optimized websites.",
+    "buildP2": "Whether you need a simple business website, a WordPress solution or a full online store, the goal is the same — visitors easily understand what you offer and more easily become your customers.",
+    "buildCta": "Request a free review of your existing website →",
+    "services": [
+      { "icon": "💼", "title": "Business Websites", "sub": "Present your business professionally", "text": "Modern websites for small companies, service businesses, restaurants, shops and local companies." },
+      { "icon": "🌐", "title": "WordPress Websites", "sub": "Flexible solutions that are easy to grow", "text": "Builds, redesigns, updates, security, backups and regular maintenance." },
+      { "icon": "🛒", "title": "Shopify Stores", "sub": "Start selling online", "text": "Shopify store builds, product pages, basic setup, payments and support." },
+      { "icon": "🛠️", "title": "Website Maintenance", "sub": "We handle the technical side", "text": "Regular updates, fixes, backups, security and small improvements to your website." }
+    ],
+    "founderEyebrow": "Meet the founder",
+    "founderName": "Trajche Angjelovski",
+    "founderRole": "Founder & Lead Engineer · Web Developer · System Administrator",
+    "founderP1": "I founded AG Development with a simple idea — small businesses should be able to get professional web and IT support without hiring a big agency or a full-time IT person.",
+    "founderP2": "My approach is practical: first understand what the business really needs, then build a solution that is clear, functional and easy to use.",
+    "founderP3": "I have hands-on experience with building and maintaining websites, systems administration, Microsoft 365, networks, computer hardware and day-to-day IT support.",
+    "founderP4": "When you work with AG Development, you know who you're talking to and who stands behind the service.",
+    "regEyebrow": "Registered company",
+    "regTitle": "A real business you can trust",
+    "regP1": "AG Development is not an anonymous website or a temporary project. The company is officially registered in the United States.",
+    "regDetails": [
+      { "k": "Legal name", "v": "AG Development LLC" },
+      { "k": "Entity type", "v": "Limited Liability Company (LLC)" },
+      { "k": "Jurisdiction", "v": "State of Wyoming, USA" },
+      { "k": "Formed", "v": "November 27, 2023" },
+      { "k": "State Filing ID", "v": "2023-001366068" },
+      { "k": "Status", "v": "Active — Certificate of Organization issued" }
+    ],
+    "regCta": "Verify the registration with the Wyoming Secretary of State →",
+    "skillsEyebrow": "What we do",
+    "skillsTitle": "Knowledge and hands-on experience",
+    "skillsP1": "Our services don't end with building a website. AG Development combines web development, IT support and systems administration to give small businesses a single point of technical support.",
+    "skills": [
+      { "icon": "💻", "title": "Web design & development", "items": ["Business websites", "WordPress websites", "Shopify stores", "Landing pages", "Responsive design for mobile devices", "Ongoing care, backups & updates"] },
+      { "icon": "🎧", "title": "IT support", "items": ["L1 IT support", "Remote troubleshooting", "Password resets & user access", "Software install & licensing", "Email & account configuration", "Printer & peripheral setup", "Antivirus & malware protection", "Ticket intake, handling & resolution"] },
+      { "icon": "🖥️", "title": "Systems & endpoints", "items": ["Windows install & administration", "Active Directory", "Microsoft Entra & Configuration Manager", "Security settings for users & devices"] },
+      { "icon": "🌐", "title": "Networking & hardware", "items": ["PC hardware diagnostics & repair", "Network setup, FTP cabling & troubleshooting", "CCTV & video surveillance — on-site install & service"] },
+      { "icon": "🗄️", "title": "Data & Cloud", "items": ["SQL Server Express administration, backup, clean-up & shrink", "QNAP NAS setup, maintenance & backups", "Amazon Web Services management"] },
+      { "icon": "🎨", "title": "Social media & design", "items": ["Social media posts & stories", "Banners & ad graphics", "Brand visuals & logos", "Monthly content packages", "Design optimized for mobile & every platform"] }
+    ],
+    "expEyebrow": "Experience",
+    "expTitle": "Where I've worked and what I've done",
+    "experience": [
+      { "role": "Founder — AG Development LLC", "period": "November 2023 — present", "note": "Websites, IT support and digital services for small businesses." },
+      { "role": "Shopify & WordPress Developer — Freelance / Upwork", "period": "", "note": "Built and customized Shopify stores and WordPress websites for clients from various countries." },
+      { "role": "System Administrator / IT — MCASH", "period": "Current", "note": "Systems administration and day-to-day IT operations." },
+      { "role": "System Administrator — Elena Luka Home", "period": "1.5 years", "note": "Systems maintenance, network infrastructure and on-site IT support." },
+      { "role": "IT Support — Zhito Marketi, Veles", "period": "2 years", "note": "IT support for users, POS systems, printers and IT equipment in retail stores." }
+    ],
+    "eduEyebrow": "Education",
+    "eduTitle": "Training & education",
+    "education": [
+      { "school": "AUE — Faculty of Informatics", "detail": "Software Engineering" },
+      { "school": "Brainster", "detail": "Full-Stack Developer Academy" }
+    ],
+    "finalEyebrow": "Ready to start?",
+    "finalTitle": "Let's build something that helps your business",
+    "finalP1": "Whether you need a new website, a redesign, maintenance or IT support, start with a no-obligation conversation.",
+    "finalP2": "Tell us what you need and we'll propose a solution that fits your business and budget."
+  },
   "home": {
     "badge": "Trusted by Small Businesses Across the US",
     "headlineLine1": "Websites, IT Support &",
