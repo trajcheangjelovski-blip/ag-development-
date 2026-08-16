@@ -257,7 +257,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </h1>
 
           {/* Subheading */}
-          <p className="animate-fade-up-2 text-lg lg:text-xl text-white/60 max-w-2xl mb-12 leading-relaxed">
+          <p className="animate-fade-up-2 text-lg lg:text-xl text-white/60 max-w-2xl mb-12 leading-relaxed whitespace-pre-line">
             {t('subheading')}
           </p>
 
@@ -279,7 +279,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
 
           {/* Stats */}
           <div className="animate-fade-up-4 grid grid-cols-2 md:grid-cols-4 gap-8 pt-10 border-t border-white/10">
-            {[['6+', 'clients'], ['99%', 'satisfaction'], ['3hr', 'response'], ['5★', 'rating']].map(([n, k]) => (
+            {[['6+', 'clients'], ['99%', 'satisfaction'], [t('stats.responseValue'), 'response'], ['5★', 'rating']].map(([n, k]) => (
               <div key={k} className="text-center md:text-left">
                 <div className="font-display text-4xl font-extrabold gradient-text mb-1">{n}</div>
                 <div className="text-sm text-white/45 font-medium">{t(`stats.${k}`)}</div>

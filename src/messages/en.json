@@ -30,6 +30,7 @@
       "clients": "Happy Clients",
       "satisfaction": "Satisfaction",
       "response": "Response Time",
+      "responseValue": "3hr",
       "rating": "Average Rating"
     },
     "why": [
