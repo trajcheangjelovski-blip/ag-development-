@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { Spinner, Alert } from '@/components/ui'
 
 export default function ForgotPasswordPage() {

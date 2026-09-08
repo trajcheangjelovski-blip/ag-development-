@@ -1,11 +1,11 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
+import { useRouter, Link } from '@/i18n/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge, ProgressBar, Spinner, Alert } from '@/components/ui'
 import { formatDate, formatMinutes, currentBillingMonth } from '@/lib/utils'
 import { ResetClientPasswordButton } from '@/components/portal/ResetClientPasswordButton'
-import Link from 'next/link'
 
 export default function AdminClientDetail() {
   const { id } = useParams()

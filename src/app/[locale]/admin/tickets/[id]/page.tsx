@@ -1,16 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, notFound } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import TicketDetailClient from '@/components/portal/TicketDetailClient'
 
 export default async function AdminTicketDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (profile?.role !== 'admin') redirect('/portal/dashboard')
+  if (profile?.role !== 'admin') redirect(`/${locale}/portal/dashboard`)
 
   const { data: ticket } = await supabase
     .from('tickets')

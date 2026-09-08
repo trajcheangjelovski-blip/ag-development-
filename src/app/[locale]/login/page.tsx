@@ -1,7 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useRouter, Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Alert, Spinner } from '@/components/ui'
 

@@ -1,9 +1,8 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, Link } from '@/i18n/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { Alert, Spinner } from '@/components/ui'
-import Link from 'next/link'
 
 export default function AdminNewClient() {
   const router = useRouter()

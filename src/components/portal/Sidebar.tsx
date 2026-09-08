@@ -1,7 +1,6 @@
 'use client'
-import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { can, clientCan, type ClientCapability } from '@/lib/permissions'

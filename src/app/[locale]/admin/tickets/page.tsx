@@ -1,10 +1,9 @@
 'use client'
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, Link } from '@/i18n/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatusBadge, PriorityBadge, EmptyState } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
-import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 
 export default function AdminTickets() {

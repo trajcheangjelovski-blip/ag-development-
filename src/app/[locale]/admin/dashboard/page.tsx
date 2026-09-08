@@ -1,17 +1,19 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge } from '@/components/ui'
 import { formatDate, formatDateTime, formatMinutes } from '@/lib/utils'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 export default async function AdminDashboard() {
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (profile?.role !== 'admin') redirect('/portal/dashboard')
+  if (profile?.role !== 'admin') redirect(`/${locale}/portal/dashboard`)
 
   const [
     { data: clients },

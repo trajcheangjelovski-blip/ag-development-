@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatusBadge, EmptyState } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 type LeadTypeName = 'Order' | 'Review' | 'Message' | 'Request'
 
@@ -29,11 +30,12 @@ const TYPE_FILTERS: { key: string; label: string }[] = [
 ]
 
 export default async function AdminLeads({ searchParams }: { searchParams: Promise<{ status?: string; type?: string }> }) {
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (profile?.role !== 'admin') redirect('/portal/dashboard')
+  if (profile?.role !== 'admin') redirect(`/${locale}/portal/dashboard`)
 
   const sp = await searchParams
   const activeStatus = sp.status || 'All'

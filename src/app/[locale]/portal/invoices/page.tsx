@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatusBadge, EmptyState } from '@/components/ui'
 import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
@@ -7,13 +8,14 @@ import { formatDate } from '@/lib/utils'
 import { clientCan } from '@/lib/permissions'
 
 export default async function ClientInvoices() {
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (!profile?.client_id) redirect('/login')
+  if (!profile?.client_id) redirect(`/${locale}/login`)
   // Members without billing access can't view invoices
-  if (!clientCan(profile as any, 'billing')) redirect('/portal/dashboard')
+  if (!clientCan(profile as any, 'billing')) redirect(`/${locale}/portal/dashboard`)
 
   const { data: invoices } = await supabase
     .from('invoices')

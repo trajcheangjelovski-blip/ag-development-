@@ -1,8 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, Link } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
-import Link from 'next/link'
 import { Spinner, Alert } from '@/components/ui'
 
 export default function ResetPasswordPage() {

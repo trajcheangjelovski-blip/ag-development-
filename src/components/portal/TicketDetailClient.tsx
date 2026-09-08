@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { StatusBadge, PriorityBadge, SectionCard, Spinner, Alert } from '@/components/ui'
 import { formatDate, formatDateTime, formatRelativeTime, formatMinutes, TICKET_STATUSES } from '@/lib/utils'
 import type { Ticket, TicketComment, TimeEntry, ProofUpload, ActivityLog, Profile } from '@/types'

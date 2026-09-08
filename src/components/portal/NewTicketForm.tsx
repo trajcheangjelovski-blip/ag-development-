@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter } from '@/i18n/navigation'
 import { Alert, Spinner } from '@/components/ui'
 import { TICKET_CATEGORIES, TICKET_PRIORITIES } from '@/lib/utils'
 

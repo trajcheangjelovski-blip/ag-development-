@@ -1,16 +1,18 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { NewTicketForm } from '@/components/portal/NewTicketForm'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 export default async function NewClientTicket() {
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (!profile?.client_id) redirect('/login')
+  if (!profile?.client_id) redirect(`/${locale}/login`)
 
   return (
     <PortalLayout>

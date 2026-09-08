@@ -1,20 +1,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatusBadge, PriorityBadge, EmptyState } from '@/components/ui'
 import { formatDate } from '@/lib/utils'
 import { clientCan } from '@/lib/permissions'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { ReopenTicketButton } from '@/components/portal/ReopenTicketButton'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ClientTickets({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (!profile?.client_id) redirect('/login')
+  if (!profile?.client_id) redirect(`/${locale}/login`)
 
   const activeStatus = (await searchParams).status || 'All'
   let query = supabase.from('tickets').select('*').eq('client_id', profile.client_id).neq('category', 'Message').order('created_at', { ascending: false })

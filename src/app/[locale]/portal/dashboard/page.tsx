@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { getLocale } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge, ProgressBar, EmptyState } from '@/components/ui'
 import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
@@ -7,15 +8,16 @@ import { BuyExtraHourButton } from '@/components/portal/BuyExtraHourButton'
 import { getClientPlanState } from '@/lib/planUsage'
 import { formatDate, formatDateTime, formatMinutes, currentBillingMonth } from '@/lib/utils'
 import { clientCan } from '@/lib/permissions'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 export default async function ClientDashboard() {
+  const locale = await getLocale()
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(`/${locale}/login`)
 
   const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single()
-  if (!profile?.client_id) redirect('/login')
+  if (!profile?.client_id) redirect(`/${locale}/login`)
 
   const clientId = profile.client_id
   const month = currentBillingMonth()
