@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, useMemo } from 'react'
 import { useLocale } from 'next-intl'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { usePlanPriceMap } from '@/lib/usePlans'
 import type { CSSProperties } from 'react'
 import { regionFromLocale } from '@/i18n/routing'

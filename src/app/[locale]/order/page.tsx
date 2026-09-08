@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useLocale } from 'next-intl'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import clsx from 'clsx'
 import { BUILD_PACKAGES, CARE_PLANS, COMPARISON_ROWS } from './_data'
 import { useMergedCards } from '@/lib/usePlans'

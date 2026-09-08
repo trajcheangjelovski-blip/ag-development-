@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { DemoBanner } from '@/components/demos/DemoBanner'
 import { StoreNav, StoreFooter } from '@/components/demos/store/StoreChrome'
 import { products, IMG } from '@/components/demos/store/data'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 const PROD = '/demos/store/product'
 const SHOP = '/demos/store/shop'

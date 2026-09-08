@@ -1,6 +1,6 @@
 // Shared header (announcement + nav + mobile menu) and footer for the
 // Urban Threads multi-page store demo.
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 const BASE = '/demos/store'
 const links: [string, string][] = [

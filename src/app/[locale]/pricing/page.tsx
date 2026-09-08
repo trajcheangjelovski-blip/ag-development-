@@ -3,7 +3,7 @@ import { PublicFooter } from '@/components/public/Footer'
 import { PricingAddOns } from '@/components/public/PricingAddOns'
 import { AddToCartButton } from '@/components/public/Cart'
 import { getPlans, effectivePrice, type Plan } from '@/lib/plans'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'

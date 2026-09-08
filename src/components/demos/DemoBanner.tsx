@@ -1,7 +1,7 @@
 // components/demos/DemoBanner.tsx
 // Slim sticky ribbon shown on every demo site so visitors know it's a
 // sample built by AG Development — and can request one of their own.
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 
 export function DemoBanner() {
   return (

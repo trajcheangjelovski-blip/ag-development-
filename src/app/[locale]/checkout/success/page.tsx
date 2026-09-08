@@ -1,6 +1,6 @@
 'use client'
 import { useEffect } from 'react'
-import Link from 'next/link'
+import { Link } from '@/i18n/navigation'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { useCart } from '@/components/public/Cart'
