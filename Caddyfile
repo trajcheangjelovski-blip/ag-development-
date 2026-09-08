@@ -1,20 +1,10 @@
 # Caddy auto-provisions and renews free Let's Encrypt TLS certificates.
 # DNS: point A records for both domains at your server IP before deploying.
 
-# ── English site (ag-development.dev) ────────────────────────────────────────
 ag-development.dev {
-	reverse_proxy app:3000
+        reverse_proxy agdev_app:3000
 }
 
 www.ag-development.dev {
-	redir https://ag-development.dev{uri} permanent
-}
-
-# ── Macedonian site (ag-development.mk) ──────────────────────────────────────
-ag-development.mk {
-	reverse_proxy mk_app:3000
-}
-
-www.ag-development.mk {
-	redir https://ag-development.mk{uri} permanent
+        redir https://ag-development.dev{uri} permanent
 }

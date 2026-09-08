@@ -6,22 +6,9 @@ services:
     container_name: agdev_app
     restart: unless-stopped
     expose:
-      - "3000"          # internal only — Caddy is the public entry point
+      - "3000"
     env_file:
       - .env.production
-    environment:
-      - NODE_ENV=production
-
-  mk_app:
-    build:
-      context: ../agdev-mk
-      dockerfile: Dockerfile
-    container_name: agdev_mk_app
-    restart: unless-stopped
-    expose:
-      - "3000"          # internal only — Caddy routes ag-development.mk here
-    env_file:
-      - ../agdev-mk/.env.production
     environment:
       - NODE_ENV=production
 
@@ -29,16 +16,15 @@ services:
     image: caddy:2-alpine
     container_name: agdev_caddy
     restart: unless-stopped
+    depends_on:
+      - app
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on:
-      - app
-      - mk_app
 
 volumes:
   caddy_data:
