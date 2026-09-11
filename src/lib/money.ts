@@ -6,6 +6,12 @@ export function currencyForLocale(locale: string): string {
 }
 
 export function formatPrice(amount: number, currency = 'USD', locale = 'en'): string {
+  // MK denar: show the amount first with the "мкд" suffix after it (e.g. "6.000 мкд").
+  // Group thousands with a dot (Macedonian convention) regardless of runtime ICU data.
+  if (currency === 'MKD') {
+    const n = Math.round(amount).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    return `${n} мкд`
+  }
   const intlLocale = locale === 'mk' ? 'mk-MK' : 'en-US'
   try {
     return new Intl.NumberFormat(intlLocale, {

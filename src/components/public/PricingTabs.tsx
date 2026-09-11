@@ -101,8 +101,9 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`build.${p.id}.name`)}</div>
               {showSale && <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>{fmt(origPrice)}</span>}
 
-              <div style={{ fontSize: 42, fontWeight: 800, color: '#0f1f3d', lineHeight: 1, margin: '6px 0 4px', display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                {fmt(salePrice)} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('oneTime')}</span>
+              <div style={{ margin: '6px 0 4px', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
+                <div style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.05 }}>{fmt(salePrice)}</div>
+                <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('oneTime')}</span>
               </div>
 
               <div className="mt-2 mb-4 space-y-0.5">
@@ -289,8 +290,9 @@ function ITSupportTab() {
               <div className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 w-fit ${p.badgeColor}`}>{t(`it.${p.id}.badge`)}</div>
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`it.${p.id}.name`)}</div>
 
-              <div style={{ fontSize: 42, fontWeight: 800, color: '#0f1f3d', lineHeight: 1, margin: '6px 0 4px', display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                {fmt(amount)} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
+              <div style={{ margin: '6px 0 4px', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
+                <div style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.05 }}>{fmt(amount)}</div>
+                <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
               </div>
 
               <ul className="space-y-1.5 mt-4 mb-5 flex-1">
@@ -385,8 +387,9 @@ function DesignSocialTab() {
               <div className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3 w-fit ${p.badgeColor}`}>{t(`design.${p.id}.badge`)}</div>
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`design.${p.id}.name`)}</div>
 
-              <div style={{ fontSize: 42, fontWeight: 800, color: '#0f1f3d', lineHeight: 1, margin: '6px 0 4px', display: 'inline-block', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                {fmt(amount)} <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
+              <div style={{ margin: '6px 0 4px', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
+                <div style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.05 }}>{fmt(amount)}</div>
+                <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
               </div>
 
               <ul className="space-y-1.5 mt-4 mb-5 flex-1">
