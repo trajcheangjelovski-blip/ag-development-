@@ -38,7 +38,6 @@ export function ServiceCards() {
         t('cards.care.items.i2', { content: money('content-care', 49) }),
         t('cards.care.items.i3', { growth: money('growth-care', 100) }),
         t('cards.care.items.i4', { full: money('full-care', 150) }),
-        t('cards.care.items.i5'),
       ]
       case 'it': return [
         t('cards.it.items.i1', { basic: money('it-basic', 49) }),
@@ -170,6 +169,11 @@ export function ServiceCards() {
                     <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#94a3b8', lineHeight: 1.6 }}>
                       {t('cards.website.details.d1')}<br />
                       {t('cards.website.details.d2')}
+                    </p>
+                  )}
+                  {card.id === 'care' && (
+                    <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#94a3b8', lineHeight: 1.6 }}>
+                      {t('cards.care.details.d1')}
                     </p>
                   )}
                 </div>

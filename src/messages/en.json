@@ -244,8 +244,10 @@
           "i1": "Basic Care {basic}/mo — backups & security",
           "i2": "Content Care {content}/mo — + 30min updates",
           "i3": "Growth Care {growth}/mo — + 1hr updates",
-          "i4": "Full Care {full}/mo — + 2hrs updates",
-          "i5": "🏠 Hosting included in all plans"
+          "i4": "Full Care {full}/mo — + 2hrs updates"
+        },
+        "details": {
+          "d1": "🏠 Hosting included in all plans"
         }
       },
       "it": {
