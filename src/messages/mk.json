@@ -223,10 +223,14 @@
         "button": "Сакам нова веб страна →",
         "tag": "Еднократен надомест",
         "items": {
-          "i1": "Starter од {starter} · Business од {business}",
-          "i2": "Premium од {premium} · Онлајн продавница од {ecommerce}",
-          "i3": "Испорака за 5–14 работни дена",
-          "i4": "Веб страната е 100% ваша"
+          "i1": "Starter од {starter}",
+          "i2": "Business од {business}",
+          "i3": "Premium од {premium}",
+          "i4": "Онлајн продавница од {ecommerce}"
+        },
+        "details": {
+          "d1": "Испорака за 5–14 работни дена",
+          "d2": "Веб страната е 100% ваша"
         }
       },
       "care": {

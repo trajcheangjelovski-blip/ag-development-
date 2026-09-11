@@ -28,10 +28,10 @@ export function ServiceCards() {
   function itemsFor(id: string): string[] {
     switch (id) {
       case 'website': return [
-        t('cards.website.items.i1', { starter: money('starter-site', 150), business: money('business-site', 250) }),
-        t('cards.website.items.i2', { premium: money('premium-site', 350), ecommerce: money('ecommerce-store', 600) }),
-        t('cards.website.items.i3'),
-        t('cards.website.items.i4'),
+        t('cards.website.items.i1', { starter: money('starter-site', 150) }),
+        t('cards.website.items.i2', { business: money('business-site', 250) }),
+        t('cards.website.items.i3', { premium: money('premium-site', 350) }),
+        t('cards.website.items.i4', { ecommerce: money('ecommerce-store', 600) }),
       ]
       case 'care': return [
         t('cards.care.items.i1', { basic: money('basic-care', 29) }),
@@ -155,14 +155,24 @@ export function ServiceCards() {
                 </p>
 
                 {/* Preview list */}
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px', flex: 1 }}>
-                  {itemsFor(card.id).map((item, i) => (
-                    <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 7, fontSize: 13, color: '#374151' }}>
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: card.accent, flexShrink: 0, marginTop: 5 }} />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                <div style={{ flex: 1 }}>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 8px' }}>
+                    {itemsFor(card.id).map((item, i) => (
+                      <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 7, fontSize: 13, color: '#374151' }}>
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: card.accent, flexShrink: 0, marginTop: 5 }} />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+
+                  {/* Extra details shown as description text, not bullets */}
+                  {card.id === 'website' && (
+                    <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#94a3b8', lineHeight: 1.6 }}>
+                      {t('cards.website.details.d1')}<br />
+                      {t('cards.website.details.d2')}
+                    </p>
+                  )}
+                </div>
 
                 {/* Note box */}
                 <div style={{ marginTop: 'auto', marginBottom: 14, padding: '9px 12px', borderRadius: 8, fontSize: 12, fontWeight: 500, background: card.noteBg, color: card.noteText }}>

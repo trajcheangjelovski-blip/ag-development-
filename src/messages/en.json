@@ -223,10 +223,14 @@
         "button": "Build My Website →",
         "tag": "One-time project fee",
         "items": {
-          "i1": "Starter from {starter} · Business from {business}",
-          "i2": "Premium from {premium} · E-commerce from {ecommerce}",
-          "i3": "Delivered in 5–14 business days",
-          "i4": "You own the website 100%"
+          "i1": "Starter from {starter}",
+          "i2": "Business from {business}",
+          "i3": "Premium from {premium}",
+          "i4": "E-commerce from {ecommerce}"
+        },
+        "details": {
+          "d1": "Delivered in 5–14 business days",
+          "d2": "You own the website 100%"
         }
       },
       "care": {
