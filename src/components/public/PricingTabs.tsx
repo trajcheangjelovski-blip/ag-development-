@@ -102,7 +102,7 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
               {showSale && <span style={{ textDecoration: 'line-through', color: '#94a3b8', fontSize: '14px' }}>{fmt(origPrice)}</span>}
 
               <div style={{ margin: '6px 0 4px', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                <div style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.05 }}>{fmt(salePrice)}</div>
+                <div style={{ fontSize: 'clamp(22px, 2.2vw, 32px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.1, whiteSpace: 'nowrap' }}>{fmt(salePrice)}</div>
                 <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('oneTime')}</span>
               </div>
 
@@ -291,7 +291,7 @@ function ITSupportTab() {
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`it.${p.id}.name`)}</div>
 
               <div style={{ margin: '6px 0 4px', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                <div style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.05 }}>{fmt(amount)}</div>
+                <div style={{ fontSize: 'clamp(22px, 2.2vw, 32px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.1, whiteSpace: 'nowrap' }}>{fmt(amount)}</div>
                 <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
               </div>
 
@@ -388,7 +388,7 @@ function DesignSocialTab() {
               <div className="font-display font-bold text-slate-800 text-lg mb-2">{t(`design.${p.id}.name`)}</div>
 
               <div style={{ margin: '6px 0 4px', transition: 'transform 0.2s ease', transform: hov ? 'scale(1.05)' : 'scale(1)', transformOrigin: 'left center' }}>
-                <div style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.05 }}>{fmt(amount)}</div>
+                <div style={{ fontSize: 'clamp(22px, 2.2vw, 32px)', fontWeight: 800, color: '#0f1f3d', lineHeight: 1.1, whiteSpace: 'nowrap' }}>{fmt(amount)}</div>
                 <span style={{ fontSize: '14px', fontWeight: 400, color: '#64748b' }}>{t('perMonth')}</span>
               </div>
 
