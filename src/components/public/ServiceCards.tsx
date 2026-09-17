@@ -43,15 +43,11 @@ export function ServiceCards() {
         t('cards.it.items.i1', { basic: money('it-basic', 49) }),
         t('cards.it.items.i2', { team: money('it-team', 99) }),
         t('cards.it.items.i3', { office: money('it-office', 179) }),
-        t('cards.it.items.i4'),
-        t('cards.it.items.i5'),
       ]
       case 'social': return [
         t('cards.social.items.i1', { starter: money('social-starter', 29) }),
         t('cards.social.items.i2', { business: money('social-business', 59) }),
         t('cards.social.items.i3', { growth: money('social-growth', 99) }),
-        t('cards.social.items.i4'),
-        t('cards.social.items.i5'),
       ]
       default: return []
     }
@@ -174,6 +170,18 @@ export function ServiceCards() {
                   {card.id === 'care' && (
                     <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#94a3b8', lineHeight: 1.6 }}>
                       {t('cards.care.details.d1')}
+                    </p>
+                  )}
+                  {card.id === 'it' && (
+                    <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#94a3b8', lineHeight: 1.6 }}>
+                      {t('cards.it.items.i4')}<br />
+                      {t('cards.it.items.i5')}
+                    </p>
+                  )}
+                  {card.id === 'social' && (
+                    <p style={{ margin: '2px 0 0', fontSize: 12.5, color: '#94a3b8', lineHeight: 1.6 }}>
+                      {t('cards.social.items.i4')}<br />
+                      {t('cards.social.items.i5')}
                     </p>
                   )}
                 </div>
