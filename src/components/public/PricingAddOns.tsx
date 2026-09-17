@@ -1,182 +1,61 @@
 'use client'
 import { useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import type { CSSProperties } from 'react'
+import { usePlans } from '@/lib/usePlans'
+import { formatPrice } from '@/lib/money'
 import { AddToCartButton } from '@/components/public/Cart'
 
-// ── Data ──────────────────────────────────────────────────────────────────────
+// ── Visual/numeric metadata only — all copy comes from the message catalog ─────
 
-type Plan = {
+type PlanMeta = {
   id: string
   icon: string
-  name: string
-  price: number
-  badge: string
+  price: number      // USD fallback if no live plan
+  tone: 'slate' | 'blue' | 'emerald' | 'violet'
   popular: boolean
-  description: string
-  features: string[]
-  goodFor: string
   href: string
 }
 
-const itPlans: Plan[] = [
-  {
-    id: 'basic',
-    icon: '🖥️',
-    name: 'L1 Basic Support',
-    price: 49,
-    badge: 'Starter',
-    popular: false,
-    description: 'First-level tech support for very small teams. Everyday computer problems handled so your team stays productive.',
-    features: [
-      '3 support tickets per month',
-      'Up to 2 team members covered',
-      'Password reset assistance',
-      'Browser & software troubleshooting',
-      'Printer & scanner help',
-      'Basic connectivity checks',
-      'Email support channel',
-      'Remote support (limited)',
-    ],
-    goodFor: 'Solo operators and 1–2 person teams that occasionally hit tech roadblocks.',
-    href: '/order/it-support?plan=basic',
-  },
-  {
-    id: 'team',
-    icon: '👥',
-    name: 'L1 Team Support',
-    price: 99,
-    badge: 'Most Popular',
-    popular: true,
-    description: "Full remote support for small teams. We connect directly to your team's computers and fix issues on the spot. No need to bring devices anywhere.",
-    features: [
-      '8 support tickets per month',
-      'Up to 5 team members covered',
-      'Full remote desktop support',
-      'Windows OS troubleshooting',
-      'Email & Outlook issues resolved',
-      'Browser & software problems fixed',
-      'Printer, scanner & peripheral help',
-      'Escalation notes for complex issues',
-    ],
-    goodFor: 'Teams of 2–5 people dealing with regular tech issues — printers, email, slow computers.',
-    href: '/order/it-support?plan=team',
-  },
-  {
-    id: 'office',
-    icon: '🏢',
-    name: 'L1 Office Support',
-    price: 179,
-    badge: 'Full Coverage',
-    popular: false,
-    description: 'Comprehensive support for small offices. Priority response and a monthly report so you always know what we handled.',
-    features: [
-      '15 support tickets per month',
-      'Up to 10 team members covered',
-      'Full remote desktop support',
-      'Priority response time',
-      'Monthly IT issue summary report',
-      'Basic device troubleshooting',
-      'Windows & software support',
-      'All L1 Team features included',
-    ],
-    goodFor: 'Small offices of 5–10 staff where tech issues happen regularly and downtime costs money.',
-    href: '/order/it-support?plan=office',
-  },
+const itPlans: PlanMeta[] = [
+  { id: 'basic',  icon: '🖥️', price: 49,  tone: 'slate',   popular: false, href: '/order/it-support?plan=basic' },
+  { id: 'team',   icon: '👥', price: 99,  tone: 'blue',    popular: true,  href: '/order/it-support?plan=team' },
+  { id: 'office', icon: '🏢', price: 179, tone: 'emerald', popular: false, href: '/order/it-support?plan=office' },
 ]
 
-const socialPlans: Plan[] = [
-  {
-    id: 'starter',
-    icon: '📱',
-    name: 'Social Starter',
-    price: 29,
-    badge: 'Entry Level',
-    popular: false,
-    description: 'Stay visible on social media every month without spending hours creating content. We design the graphics, you just post them.',
-    features: [
-      '2 custom posts or stories per month',
-      'Facebook & Instagram sizing',
-      'Branded to your business colors',
-      'Promotional or informational content',
-      'High resolution files delivered',
-      'Ready to post — no editing needed',
-    ],
-    goodFor: 'Small businesses that want a social media presence without the time commitment.',
-    href: '/order/social-media?plan=starter',
-  },
-  {
-    id: 'business',
-    icon: '📊',
-    name: 'Social Business',
-    price: 59,
-    badge: 'Most Popular',
-    popular: true,
-    description: 'Regular branded content plus a website banner every month. Perfect for businesses running promotions, events, or seasonal offers.',
-    features: [
-      '6 custom posts or stories per month',
-      '1 website banner or graphic per month',
-      'Facebook, Instagram & other platforms',
-      'Promotions, events, announcements',
-      'Seasonal and holiday content',
-      'Consistent brand look and feel',
-      'Files delivered ready to use',
-    ],
-    goodFor: 'Businesses running regular promotions or events that want professional visuals every month.',
-    href: '/order/social-media?plan=business',
-  },
-  {
-    id: 'growth',
-    icon: '📈',
-    name: 'Social Growth',
-    price: 99,
-    badge: 'Best Value',
-    popular: false,
-    description: '12 pieces of content plus 2 banners means something fresh to post every week. Keeps your audience engaged and brand looking professional.',
-    features: [
-      '12 custom posts or stories per month',
-      '2 website banners or graphics per month',
-      'All major social platforms',
-      'Full monthly content design support',
-      'Product showcases, promos, stories',
-      'Consistent brand identity throughout',
-      'Priority design turnaround',
-      'Revisions included',
-    ],
-    goodFor: 'Brands that take social media seriously and need fresh professional content every week.',
-    href: '/order/social-media?plan=growth',
-  },
-]
-
-const designServices: [string, string][] = [
-  ['Basic Logo Design', '$10–$30'],
-  ['Flyer or Event Poster', '$5–$15'],
-  ['Website Banner', '$5–$10'],
-  ['Social Media Banner Pack (5)', '$30'],
-  ['Business Card Design', '$5–$15'],
-  ['Brand Starter Kit (logo + colors + fonts)', 'from $100'],
+const socialPlans: PlanMeta[] = [
+  { id: 'starter',  icon: '📱', price: 29, tone: 'slate',  popular: false, href: '/order/social-media?plan=starter' },
+  { id: 'business', icon: '📊', price: 59, tone: 'blue',   popular: true,  href: '/order/social-media?plan=business' },
+  { id: 'growth',   icon: '📈', price: 99, tone: 'violet', popular: false, href: '/order/social-media?plan=growth' },
 ]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function getBadgeStyle(badge: string): CSSProperties {
-  if (badge === 'Most Popular') return { background: '#dbeafe', color: '#1d4ed8' }
-  if (badge === 'Full Coverage') return { background: '#d1fae5', color: '#065f46' }
-  if (badge === 'Best Value')    return { background: '#ede9fe', color: '#7c3aed' }
+function toneStyle(tone: PlanMeta['tone']): CSSProperties {
+  if (tone === 'blue')    return { background: '#dbeafe', color: '#1d4ed8' }
+  if (tone === 'emerald') return { background: '#d1fae5', color: '#065f46' }
+  if (tone === 'violet')  return { background: '#ede9fe', color: '#7c3aed' }
   return { background: '#f1f5f9', color: '#475569' }
 }
 
 // ── PlanCard (vertical, fits a 3-column grid) ──────────────────────────────────
 
 interface PlanCardProps {
-  plan: Plan
+  plan: PlanMeta
   section: 'it' | 'social'
+  displayPrice: string
   isHovered: boolean
   onMouseEnter: () => void
   onMouseLeave: () => void
 }
 
-function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: PlanCardProps) {
+function PlanCard({ plan, section, displayPrice, isHovered, onMouseEnter, onMouseLeave }: PlanCardProps) {
+  // 'it' cards read from the 'pricing.it' catalog, 'social' from 'pricing.design'.
+  const tCard = useTranslations(section === 'it' ? 'pricing.it' : 'pricing.design')
+  const tp = useTranslations('pricing')
+  const t = useTranslations('pricingPage.addons')
+
   const accent = section === 'it' ? '#2563eb' : '#7c3aed'
   const topGradient = section === 'it'
     ? 'linear-gradient(90deg, #2563eb, #7c3aed)'
@@ -192,6 +71,8 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
   } else {
     btnBg = '#0f1f3d'; btnActiveBg = '#1e3a5f'; btnShadow = 'none'
   }
+
+  const features = tCard.raw(`${plan.id}.features`) as string[]
 
   return (
     <div
@@ -242,7 +123,7 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
           borderRadius: 100,
           whiteSpace: 'nowrap' as const,
           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-        }}>★ Most Popular</div>
+        }}>{tp('mostPopular')}</div>
       )}
 
       <div style={{
@@ -255,12 +136,12 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
       }}>{plan.icon}</div>
 
       <div style={{ fontSize: 18, fontWeight: 700, color: '#0f1f3d', marginBottom: 8, lineHeight: 1.3 }}>
-        {plan.name}
+        {tCard(`${plan.id}.name`)}
       </div>
 
       <div style={{ marginBottom: 10 }}>
         <span style={{
-          ...getBadgeStyle(plan.badge),
+          ...toneStyle(plan.tone),
           fontSize: 10,
           fontWeight: 700,
           padding: '3px 10px',
@@ -269,7 +150,7 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
           letterSpacing: '0.05em',
           display: 'inline-block',
         }}>
-          {plan.badge}
+          {tCard(`${plan.id}.badge`)}
         </span>
       </div>
 
@@ -284,11 +165,11 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
         transform: isHovered ? 'scale(1.05)' : 'scale(1)',
         transformOrigin: 'left center',
       }}>
-        +${plan.price}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>/mo</span>
+        +{displayPrice}<span style={{ fontSize: 14, fontWeight: 400, color: '#64748b' }}>{tp('perMo')}</span>
       </div>
 
       <div style={{ fontSize: 12.5, color: '#64748b', lineHeight: 1.6, marginBottom: 16 }}>
-        {plan.description}
+        {tCard(`${plan.id}.description`)}
       </div>
 
       <div style={{
@@ -299,11 +180,11 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
         color: '#94a3b8',
         marginBottom: 12,
       }}>
-        {"What's included"}
+        {t('whatsIncluded')}
       </div>
 
       <div style={{ flex: 1, marginBottom: 16 }}>
-        {plan.features.map((feature, i) => (
+        {features.map((feature, i) => (
           <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 7, alignItems: 'flex-start' }}>
             <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, fontSize: 13 }}>✓</span>
             <span style={{ fontSize: 13, color: '#374151', lineHeight: 1.5 }}>{feature}</span>
@@ -319,8 +200,8 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
         paddingTop: 14,
         borderTop: '1px solid #f1f5f9',
       }}>
-        <strong style={{ color: '#64748b', fontStyle: 'normal' }}>Good for:</strong>{' '}
-        {plan.goodFor}
+        <strong style={{ color: '#64748b', fontStyle: 'normal' }}>{t('goodFor')}</strong>{' '}
+        {tCard(`${plan.id}.goodFor`)}
       </div>
 
       <a
@@ -339,7 +220,7 @@ function PlanCard({ plan, section, isHovered, onMouseEnter, onMouseLeave }: Plan
           boxShadow: isHovered ? btnShadow : 'none',
         }}
       >
-        Get Started →
+        {t('getStarted')}
       </a>
       <div style={{ marginTop: 8 }}>
         <AddToCartButton id={section === 'it' ? `it-${plan.id}` : `social-${plan.id}`} />
@@ -400,7 +281,18 @@ const gridStyle: CSSProperties = {
 // ── Main export ───────────────────────────────────────────────────────────────
 
 export function PricingAddOns() {
+  const t = useTranslations('pricingPage.addons')
+  const tp = useTranslations('pricing')
+  const locale = useLocale()
+  const isMk = locale === 'mk'
   const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+
+  const apiPlans = usePlans()
+  const price = (id: string, fallback: number) =>
+    apiPlans.find(p => p.id === id)?.effective_price ?? fallback
+  const money = (id: string, fb: number) => formatPrice(price(id, fb), isMk ? 'MKD' : 'USD', locale)
+
+  const designRows = t.raw('design.rows') as { service: string; price: string }[]
 
   return (
     <>
@@ -408,11 +300,11 @@ export function PricingAddOns() {
       <section id="it-support" style={{ padding: '80px 24px', background: 'white' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
-            label="Optional Add-On"
+            label={t('label')}
             labelColor="#2563eb"
-            title="L1 IT Support"
-            subtitle="First-level tech support for your team — passwords, software, printers, email and connectivity. Available as a standalone plan."
-            noteText="✓ Available as standalone plan — no website needed"
+            title={t('itTitle')}
+            subtitle={t('itSubtitle')}
+            noteText={tp('standalone')}
             noteStyle={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534' }}
           />
 
@@ -422,6 +314,7 @@ export function PricingAddOns() {
                 key={plan.id}
                 plan={plan}
                 section="it"
+                displayPrice={money(`it-${plan.id}`, plan.price)}
                 isHovered={hoveredCard === `it-${plan.id}`}
                 onMouseEnter={() => setHoveredCard(`it-${plan.id}`)}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -435,11 +328,11 @@ export function PricingAddOns() {
       <section id="social-media" style={{ padding: '80px 24px', background: '#f8fafc' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <SectionHeader
-            label="Optional Add-On"
+            label={t('label')}
             labelColor="#7c3aed"
-            title="Social Media & Design"
-            subtitle="Regular branded graphic design for your brand — posts, stories, and website banners every month. Available as a standalone plan."
-            noteText="✓ Available as standalone plan — no website needed"
+            title={t('socialTitle')}
+            subtitle={t('socialSubtitle')}
+            noteText={tp('standalone')}
             noteStyle={{ background: '#fdf4ff', border: '1px solid #e9d5ff', color: '#7c3aed' }}
           />
 
@@ -449,6 +342,7 @@ export function PricingAddOns() {
                 key={plan.id}
                 plan={plan}
                 section="social"
+                displayPrice={money(`social-${plan.id}`, plan.price)}
                 isHovered={hoveredCard === `social-${plan.id}`}
                 onMouseEnter={() => setHoveredCard(`social-${plan.id}`)}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -482,10 +376,10 @@ export function PricingAddOns() {
                 }}>🎨</div>
                 <div>
                   <div style={{ fontSize: 20, fontWeight: 700, color: '#0f1f3d' }}>
-                    One-Time Graphic Design Services
+                    {t('design.title')}
                   </div>
                   <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>
-                    Billed once per project — not part of any monthly plan
+                    {t('design.subtitle')}
                   </div>
                 </div>
               </div>
@@ -500,32 +394,32 @@ export function PricingAddOns() {
                   whiteSpace: 'nowrap' as const,
                 }}
               >
-                Request a Quote →
+                {t('design.cta')}
               </Link>
             </div>
 
-            {designServices.map(([service, price], i) => (
+            {designRows.map((row, i) => (
               <div
-                key={service}
+                key={row.service}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '15px 32px',
-                  borderBottom: i < designServices.length - 1 ? '1px solid #f1f5f9' : 'none',
+                  borderBottom: i < designRows.length - 1 ? '1px solid #f1f5f9' : 'none',
                   background: i % 2 === 0 ? 'white' : '#fafafa',
                 }}
               >
-                <span style={{ fontSize: 14, color: '#374151' }}>{service}</span>
+                <span style={{ fontSize: 14, color: '#374151' }}>{row.service}</span>
                 <span style={{ fontSize: 13, fontWeight: 600, color: '#0f1f3d', whiteSpace: 'nowrap' as const }}>
-                  {price}
+                  {row.price}
                 </span>
               </div>
             ))}
 
             <div style={{ padding: '14px 32px', background: '#f8fafc', borderTop: '1px solid #f1f5f9' }}>
               <span style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>
-                Custom quote available for larger or more complex projects.
+                {t('design.footnote')}
               </span>
             </div>
           </div>

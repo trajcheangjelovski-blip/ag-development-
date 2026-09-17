@@ -367,5 +367,145 @@
       "cta": "Request Custom Plan →",
       "boxNote": "Tell us what your business needs and we will create a package that fits your workflow and budget."
     }
+  },
+  "pricingPage": {
+    "hero": {
+      "eyebrow": "How Pricing Works",
+      "titleLead": "Simple, Honest",
+      "titleAccent": "Pricing",
+      "subtitle": "Build your website once. Maintain it monthly. Add exactly what your business needs — and nothing it doesn't.",
+      "step1Label": "Step 1", "step1": "Pick a website build",
+      "step2Label": "Step 2", "step2": "Add a monthly care plan",
+      "optionalLabel": "Optional", "optional": "Add IT, social or design"
+    },
+    "build": {
+      "banner": "Limited-time offer — every website build is discounted right now. Lock in your price today.",
+      "stepBadge": "Step 1 — One Time",
+      "title": "Build Your Website",
+      "subtitle": "Choose the package that fits your business. Pay once. Own it forever.",
+      "oneTime": "one-time",
+      "getStarted": "Get Started →",
+      "deliveryLabel": "Delivery",
+      "delivery": {
+        "starter-site": "5–7 business days",
+        "business-site": "7–10 business days",
+        "premium-site": "10–14 business days",
+        "ecommerce-store": "14–21 business days"
+      },
+      "footnote": "💡 Domain and hosting aren't part of the one-time build price. Add a monthly Website Care Plan to fold in hosting, maintenance, backups, updates and support. You provide the logo, text and images — delivery starts the moment we receive your content."
+    },
+    "connect": {
+      "title": "Step 1 done — your website is built.",
+      "text": "Now keep it protected, updated and growing.",
+      "nextLabel": "Next",
+      "nextPill": "Pick a Monthly Care Plan →"
+    },
+    "care": {
+      "stepBadge": "Step 2 — Hosting Included",
+      "title": "Choose Your Care Plan",
+      "hostingPill": "🏠 Hosting Included",
+      "subtitle": "Keep your site secure, up to date and running smoothly — automatically, every month.",
+      "subtitleStrong": "Web hosting is included in every care plan.",
+      "perMonth": "/month",
+      "choosePlan": "Choose Plan →",
+      "saveSuffix": "/mo",
+      "notIncludedValue": "Not included",
+      "noteStrong": "⚠️ What's not included in Website Care Plans:",
+      "noteText": "Domain name, premium plugins, business email, advanced custom work and extra update time aren't included unless agreed separately. Content updates cover small changes only — new pages, redesigns and advanced features are quoted separately. Minimum 6-month subscription, and unused hours don't roll over."
+    },
+    "custom": { "from": "From" },
+    "extra": {
+      "label": "À La Carte",
+      "title": "Extra Services",
+      "subtitle": "Need something specific? Each of these is billed once, as a standalone item.",
+      "colService": "Service",
+      "colPrice": "Price",
+      "colBilling": "Billing",
+      "footnote": "Prices are starting rates — complex requirements may be quoted higher. Every quote is confirmed before work begins.",
+      "rows": [
+        { "service": "Domain registration & setup", "price": "$20–$25/yr", "billing": "One-time setup" },
+        { "service": "Business email setup (Google / M365)", "price": "$20", "billing": "One-time setup" },
+        { "service": "Speed optimization audit", "price": "$50", "billing": "One-time" },
+        { "service": "SEO on-page optimization (per page)", "price": "$20", "billing": "Per page" },
+        { "service": "Google Analytics setup", "price": "$50", "billing": "One-time" },
+        { "service": "Landing page (ads / promo / event)", "price": "$100–$150", "billing": "One-time" },
+        { "service": "Additional website page", "price": "$15–$20", "billing": "Per page" },
+        { "service": "New section on an existing page", "price": "$15–$20", "billing": "Per section" },
+        { "service": "SSL setup / renewal help", "price": "$29", "billing": "One-time" },
+        { "service": "Website migration", "price": "$99–$199", "billing": "One-time" },
+        { "service": "WordPress to Shopify transfer", "price": "$150", "billing": "One-time" }
+      ]
+    },
+    "notIncluded": {
+      "title": "What's NOT Included",
+      "items": [
+        "Domain and hosting fees",
+        "Premium plugins, themes or stock-photo licenses",
+        "New full pages beyond the initial build (quoted separately)",
+        "Complete redesigns (treated as a new project)",
+        "E-commerce product entry beyond 20 items",
+        "Paid ad management (Google Ads, Meta Ads)",
+        "SEO content writing"
+      ]
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "items": [
+        "Every build starts once we receive your logo, content and images.",
+        "Delivery times are in business days and begin after content handoff.",
+        "Revision rounds cover the same page or section — not new features.",
+        "Care-plan hours reset each month; unused time doesn't carry over.",
+        "Monthly plans require a minimum 6-month commitment.",
+        "Extra hours are billed at $10/hr for care-plan clients.",
+        "Quotes are valid for 30 days."
+      ]
+    },
+    "faq": {
+      "label": "FAQ",
+      "title": "Common Questions",
+      "q1": "Are domain and hosting included?",
+      "q1p1": "The website build price does not include domain or hosting — these are paid separately.",
+      "q1p2": "But once you add a Monthly Care Plan, web hosting is included in your monthly price. You'll only pay separately for your domain name (typically $10–15/year).",
+      "q1summary": "Summary",
+      "q1s1a": "Build only", "q1s1b": " — you pay for hosting separately (~$5–20/month)",
+      "q1s2a": "Build + Care Plan", "q1s2b": " — hosting included in your monthly fee",
+      "q1s3a": "Domain name", "q1s3b": " — always purchased separately (~$10–15/year)",
+      "q2": "Can I cancel the care plan anytime?",
+      "q2a": "Care plans require a minimum 6-month commitment. After that, you can cancel anytime with 30 days' notice. There are no long-term contracts beyond that.",
+      "q3": "Do I need to provide content for my website?",
+      "q3a": "Yes — you provide your logo, text (business description, services, contact details) and any photos. Build delivery begins once we receive your content, and we'll guide you on what to prepare.",
+      "q4": "What if I need changes outside my care-plan hours?",
+      "q4a": "Extra work beyond your monthly hours is billed at $10/hr. New pages, full redesigns or new features are quoted as separate projects, and we always confirm the cost before starting."
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "Start with a free demo built for your business — we'll recommend the right package, too.",
+      "demo": "See a Demo of Your Website →",
+      "ask": "Ask a Question"
+    },
+    "addons": {
+      "label": "Optional Add-On",
+      "itTitle": "L1 IT Support",
+      "itSubtitle": "First-level tech support for your team — passwords, software, printers, email and connectivity. Available as a standalone plan.",
+      "socialTitle": "Social Media & Design",
+      "socialSubtitle": "Regular branded graphic design for your brand — posts, stories and website banners every month. Available as a standalone plan.",
+      "whatsIncluded": "What's included",
+      "getStarted": "Get Started →",
+      "goodFor": "Good for:",
+      "design": {
+        "title": "One-Time Graphic Design Services",
+        "subtitle": "Billed once per project — not part of any monthly plan",
+        "cta": "Request a Quote →",
+        "footnote": "Custom quote available for larger or more complex projects.",
+        "rows": [
+          { "service": "Basic Logo Design", "price": "$10–$30" },
+          { "service": "Flyer or Event Poster", "price": "$5–$15" },
+          { "service": "Website Banner", "price": "$5–$10" },
+          { "service": "Social Media Banner Pack (5)", "price": "$30" },
+          { "service": "Business Card Design", "price": "$5–$15" },
+          { "service": "Brand Starter Kit (logo + colors + fonts)", "price": "from $100" }
+        ]
+      }
+    }
   }
 }
