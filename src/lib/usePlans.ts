@@ -25,15 +25,39 @@ export type ApiPlan = {
   delivery: string | null
 }
 
+// Module-level cache so switching tabs (which remounts each tab component)
+// reuses already-loaded prices instead of refetching from an empty array —
+// which otherwise flashes the static USD fallback before the real price loads.
+const plansCache: Record<string, ApiPlan[]> = {}
+const plansInFlight: Record<string, Promise<ApiPlan[]>> = {}
+
+function loadPlans(region: string): Promise<ApiPlan[]> {
+  if (plansCache[region]) return Promise.resolve(plansCache[region])
+  if (!plansInFlight[region]) {
+    plansInFlight[region] = fetch(`/api/plans?region=${region}`, { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => {
+        const arr = Array.isArray(d) ? (d as ApiPlan[]) : []
+        if (arr.length) plansCache[region] = arr
+        return arr
+      })
+      .catch(() => [] as ApiPlan[])
+      .finally(() => { delete plansInFlight[region] })
+  }
+  return plansInFlight[region]
+}
+
 export function usePlans() {
   const locale = useLocale()
   const region = regionFromLocale(locale)
-  const [apiPlans, setApiPlans] = useState<ApiPlan[]>([])
+  // Seed from cache on first render so a remounted tab shows the correct price
+  // immediately (no empty -> USD-fallback -> real-price flicker).
+  const [apiPlans, setApiPlans] = useState<ApiPlan[]>(() => plansCache[region] ?? [])
   useEffect(() => {
-    fetch(`/api/plans?region=${region}`, { cache: 'no-store' })
-      .then(r => r.json())
-      .then(d => { if (Array.isArray(d)) setApiPlans(d) })
-      .catch(() => {})
+    if (plansCache[region]) { setApiPlans(plansCache[region]); return }
+    let active = true
+    loadPlans(region).then(arr => { if (active) setApiPlans(arr) })
+    return () => { active = false }
   }, [region])
   return apiPlans
 }
