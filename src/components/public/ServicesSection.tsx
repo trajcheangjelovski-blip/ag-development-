@@ -95,16 +95,6 @@ export function ServicesSection() {
                   cursor: 'pointer',
                 }}
               >
-                {/* Top color bar */}
-                <div style={{
-                  position: 'absolute',
-                  top: -1, left: -1, right: -1,
-                  height: hov ? 4 : 2,
-                  borderRadius: '16px 16px 0 0',
-                  background: card.accent,
-                  transition: 'height 0.2s ease',
-                  zIndex: 1,
-                }} />
 
                 {/* Badge */}
                 <span style={{

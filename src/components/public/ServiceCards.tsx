@@ -126,9 +126,6 @@ export function ServiceCards() {
                   boxShadow: hov ? '0 20px 60px rgba(0,0,0,0.10)' : '0 1px 4px rgba(0,0,0,0.05)',
                 }}
               >
-                {/* Top color bar */}
-                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: card.accent, borderRadius: '20px 20px 0 0' }} />
-
                 {/* Badge */}
                 <span style={{ position: 'absolute', top: 16, right: 16, fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 100, textTransform: 'uppercase' as const, letterSpacing: '0.06em', background: card.badgeBg, color: card.badgeText }}>
                   {t(`cards.${card.id}.badge`)}
