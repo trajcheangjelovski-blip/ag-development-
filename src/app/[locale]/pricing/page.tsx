@@ -179,9 +179,9 @@ export default async function PricingPage() {
               <div className="text-white/70 text-sm">{t('connect.text')}</div>
             </div>
           </div>
-          <div className="flex items-center gap-3 text-white/80 font-bold text-sm">
-            <span>{t('connect.nextLabel')}:</span>
-            <div className="bg-white/20 rounded-full px-4 py-1.5 text-white">{t('connect.nextPill')}</div>
+          <div className="flex items-center gap-3 text-white/80 font-bold text-sm shrink-0">
+            <span className="whitespace-nowrap">{t('connect.nextLabel')}:</span>
+            <div className="bg-white/20 rounded-full px-4 py-1.5 text-white whitespace-nowrap">{t('connect.nextPill')}</div>
           </div>
         </div>
       </div>
