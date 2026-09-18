@@ -81,7 +81,6 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
                 transition: 'all 0.25s ease', cursor: 'pointer',
               }}
             >
-              <div style={{ position: 'absolute', top: -2, left: -2, right: -2, height: hov ? 5 : 3, background: p.topGradient, transition: 'height 0.2s ease', borderRadius: '16px 16px 0 0', zIndex: 1 }} />
 
               {p.popular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-20 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap shadow-md">{t('mostPopular')}</div>
@@ -182,7 +181,6 @@ function CareTab() {
                 transition: 'all 0.25s ease', cursor: 'pointer',
               }}
             >
-              <div style={{ position: 'absolute', top: -2, left: -2, right: -2, height: hov ? 5 : 3, background: p.topGradient, transition: 'height 0.2s ease', borderRadius: '16px 16px 0 0', zIndex: 1 }} />
 
               {hov && (
                 <div style={{ position: 'absolute', top: 10, right: 10, background: '#0f1f3d', color: 'white', fontSize: 10, padding: '3px 8px', borderRadius: 4, fontWeight: 700, animation: 'fadeIn 0.2s ease both', zIndex: 10, whiteSpace: 'nowrap' }}>{t('clickToOrder')}</div>
@@ -275,7 +273,6 @@ function ITSupportTab() {
                 transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer',
               }}
             >
-              <div style={{ position: 'absolute', top: -2, left: -2, right: -2, height: hov ? 5 : 3, background: p.topGradient, transition: 'height 0.2s ease', borderRadius: '16px 16px 0 0', zIndex: 1 }} />
 
               {hov && (
                 <div style={{ position: 'absolute', top: 10, right: 10, background: '#0f1f3d', color: 'white', fontSize: 10, padding: '3px 8px', borderRadius: 4, fontWeight: 700, animation: 'fadeIn 0.2s ease both', zIndex: 10, whiteSpace: 'nowrap' }}>{t('clickToOrder')}</div>
@@ -372,7 +369,6 @@ function DesignSocialTab() {
                 transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)', cursor: 'pointer',
               }}
             >
-              <div style={{ position: 'absolute', top: -2, left: -2, right: -2, height: hov ? 5 : 3, background: p.topGradient, transition: 'height 0.2s ease', borderRadius: '16px 16px 0 0', zIndex: 1 }} />
 
               {hov && (
                 <div style={{ position: 'absolute', top: 10, right: 10, background: '#0f1f3d', color: 'white', fontSize: 10, padding: '3px 8px', borderRadius: 4, fontWeight: 700, animation: 'fadeIn 0.2s ease both', zIndex: 10, whiteSpace: 'nowrap' }}>{t('clickToOrder')}</div>
