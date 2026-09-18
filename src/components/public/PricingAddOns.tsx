@@ -57,9 +57,6 @@ function PlanCard({ plan, section, displayPrice, isHovered, onMouseEnter, onMous
   const t = useTranslations('pricingPage.addons')
 
   const accent = section === 'it' ? '#2563eb' : '#7c3aed'
-  const topGradient = section === 'it'
-    ? 'linear-gradient(90deg, #2563eb, #7c3aed)'
-    : 'linear-gradient(90deg, #7c3aed, #ec4899)'
   const hoverBorder = section === 'it' ? '#93c5fd' : '#d8b4fe'
   const popularShadow = section === 'it' ? 'rgba(37,99,235,0.12)' : 'rgba(124,58,237,0.12)'
 
@@ -94,18 +91,6 @@ function PlanCard({ plan, section, displayPrice, isHovered, onMouseEnter, onMous
           : plan.popular ? `0 8px 30px ${popularShadow}` : '0 1px 4px rgba(0,0,0,0.06)',
       }}
     >
-      {/* Top accent bar */}
-      <div style={{
-        position: 'absolute',
-        top: -2, left: -2, right: -2,
-        height: 4,
-        borderRadius: '16px 16px 0 0',
-        background: topGradient,
-        zIndex: 1,
-        opacity: plan.popular || isHovered ? 1 : 0,
-        transition: 'opacity 0.3s ease',
-      }} />
-
       {/* Most Popular ribbon */}
       {plan.popular && (
         <div style={{
