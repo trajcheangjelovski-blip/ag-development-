@@ -2,10 +2,10 @@
 
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import clsx from 'clsx'
-import { BUILD_PACKAGES, CARE_PLANS, COMPARISON_ROWS } from './_data'
+import { BUILD_PACKAGES, CARE_PLANS } from './_data'
 import { useMergedCards } from '@/lib/usePlans'
 import { regionFromLocale } from '@/i18n/routing'
 import { formatPrice } from '@/lib/money'
@@ -16,6 +16,16 @@ import { RadioDot, InfoBox, StepBar, SummaryCard } from './_components'
 
 type BuildPkg = (typeof BUILD_PACKAGES)[0] | undefined
 type CarePlan = (typeof CARE_PLANS)[0]
+
+type DetailRow = { label: string; value: string }
+type ComparisonRow = {
+  feature: string
+  basic: string
+  content: string
+  growth: string
+  full: string
+  type: string
+}
 
 type FormState = {
   businessName: string
@@ -29,26 +39,25 @@ type FormState = {
 // ── Success screen ────────────────────────────────────────────────────────────
 
 function SuccessScreen({ name }: { name: string }) {
-  const nextSteps = [
-    'We review your order and reach out to confirm',
-    'You provide your logo, content, and domain info',
-    'We set up hosting and begin building',
-    'Your website goes live in 5–14 business days',
-  ]
+  const t = useTranslations('orderPage')
+  const nextSteps = t.raw('success.steps') as string[]
 
   return (
     <div className="min-h-[80vh] bg-slate-50 flex items-center justify-center px-6 py-10">
       <div className="bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.06)] px-6 py-10 md:px-12 md:py-[60px] text-center max-w-[580px] w-full">
         <div className="text-[64px] leading-none mb-5">🎉</div>
-        <h1 className="text-[28px] font-extrabold text-[#0f1f3d] m-0 mb-2.5">Order Received!</h1>
+        <h1 className="text-[28px] font-extrabold text-[#0f1f3d] m-0 mb-2.5">{t('success.title')}</h1>
         <p className="text-base text-slate-500 m-0 mb-8">
-          Thank you, {name}! We&apos;ll review your order and contact you within{' '}
-          <strong className="text-[#0f1f3d]">1 business day</strong>.
+          {t.rich('success.thanks', {
+            name,
+            days: t('success.oneBusinessDay'),
+            strong: (chunks) => <strong className="text-[#0f1f3d]">{chunks}</strong>,
+          })}
         </p>
 
         <div className="text-left bg-slate-50 rounded-xl p-6 mb-7">
           <p className="text-[10px] font-bold uppercase tracking-[0.08em] text-slate-400 m-0 mb-4">
-            What happens next
+            {t('success.whatNext')}
           </p>
           {nextSteps.map((s, i) => (
             <div key={i} className={clsx('flex items-start gap-3', i < nextSteps.length - 1 && 'mb-3')}>
@@ -62,24 +71,24 @@ function SuccessScreen({ name }: { name: string }) {
 
         <div className="mb-7 p-[18px] px-[22px] bg-slate-50 border border-slate-200 rounded-xl text-left">
           <div className="text-[13px] font-bold text-[#0f1f3d] mb-2.5">
-            Also available from AG Development:
+            {t('success.alsoTitle')}
           </div>
           <div className="flex gap-2.5 flex-wrap">
             <a href="/order/it-support" className="px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-[#0f1f3d] no-underline">
-              🖥️ L1 IT Support from $49/mo →
+              {t('success.itLink')}
             </a>
             <a href="/order/social-media" className="px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-[#0f1f3d] no-underline">
-              🎨 Social Media Design from $29/mo →
+              {t('success.socialLink')}
             </a>
           </div>
         </div>
 
         <div className="flex gap-3 justify-center flex-wrap">
           <Link href="/" className="inline-block bg-[#0f1f3d] text-white px-7 py-3 rounded-[10px] no-underline text-sm font-semibold">
-            ← Back to Home
+            {t('success.backHome')}
           </Link>
           <Link href="/contact" className="inline-block bg-slate-100 text-gray-700 px-7 py-3 rounded-[10px] no-underline text-sm font-semibold">
-            Contact Us
+            {t('success.contact')}
           </Link>
         </div>
       </div>
@@ -90,31 +99,32 @@ function SuccessScreen({ name }: { name: string }) {
 // ── Landing choice ────────────────────────────────────────────────────────────
 
 function LandingChoice({ onSelectWebsite }: { onSelectWebsite: () => void }) {
+  const t = useTranslations('orderPage')
   const choices = [
     {
       id: 'website',
       icon: '🌐',
-      title: 'Website Package',
-      desc: 'Build your business website with an optional monthly care plan that includes hosting and maintenance.',
-      cta: 'From $150 one-time',
+      title: t('landing.websiteTitle'),
+      desc: t('landing.websiteDesc'),
+      cta: t('landing.websiteCta'),
       ctaClass: 'text-blue-600',
       isButton: true,
     },
     {
       id: 'it',
       icon: '🛡️',
-      title: 'IT Support Only',
-      desc: 'First-level tech support for your team — passwords, software, printers, connectivity. No website required.',
-      cta: 'From $49/month',
+      title: t('landing.itTitle'),
+      desc: t('landing.itDesc'),
+      cta: t('landing.itCta'),
       ctaClass: 'text-blue-600',
       href: '/order/it-support',
     },
     {
       id: 'social',
       icon: '📱',
-      title: 'Social Media & Design',
-      desc: 'Monthly graphic design for your brand — posts, stories, and banners. No website required.',
-      cta: 'From $29/month',
+      title: t('landing.socialTitle'),
+      desc: t('landing.socialDesc'),
+      cta: t('landing.socialCta'),
       ctaClass: 'text-violet-600',
       href: '/order/social-media',
     },
@@ -133,12 +143,12 @@ function LandingChoice({ onSelectWebsite }: { onSelectWebsite: () => void }) {
     <div className="min-h-[80vh] bg-slate-50">
       <div className="max-w-[780px] mx-auto px-4 md:px-6 py-10 md:py-16">
         <div className="text-center mb-12">
-          <p className="section-label">Get Started</p>
+          <p className="section-label">{t('landing.eyebrow')}</p>
           <h1 className="text-[26px] md:text-[34px] font-extrabold text-[#0f1f3d] m-0 mb-3">
-            What would you like to order?
+            {t('landing.title')}
           </h1>
           <p className="text-base text-slate-500 m-0">
-            No website required for IT Support or Social Media plans.
+            {t('landing.subtitle')}
           </p>
         </div>
 
@@ -161,9 +171,9 @@ function LandingChoice({ onSelectWebsite }: { onSelectWebsite: () => void }) {
         </div>
 
         <p className="text-center text-[13px] text-slate-400 mt-8">
-          Not sure?{' '}
+          {t('landing.notSure')}{' '}
           <Link href="/pricing" className="text-blue-600 font-semibold no-underline">
-            View all pricing →
+            {t('landing.viewAll')}
           </Link>
         </p>
       </div>
@@ -174,6 +184,7 @@ function LandingChoice({ onSelectWebsite }: { onSelectWebsite: () => void }) {
 // ── Order flow ────────────────────────────────────────────────────────────────
 
 function OrderContent() {
+  const t = useTranslations('orderPage')
   const searchParams = useSearchParams()
   const packageParam = searchParams.get('package')
 
@@ -205,6 +216,11 @@ function OrderContent() {
   const locale = useLocale()
   const region = regionFromLocale(locale)
   const fmt = (n: number) => formatPrice(n, region === 'mk' ? 'MKD' : 'USD', locale)
+  const priceOf = (id: string) => carePlans.find(p => p.id === id)?.price ?? 0
+
+  // Card copy comes from the message catalog (package names stay English).
+  const buildName = (id: string) => t(`build.${id}.name`)
+  const careName = (id: string) => t(`care.${id}.name`)
 
   function goTo(n: number) {
     setStep(n)
@@ -213,10 +229,10 @@ function OrderContent() {
 
   function validate() {
     const e: Record<string, string> = {}
-    if (!form.businessName.trim()) e.businessName = 'Required'
-    if (!form.fullName.trim()) e.fullName = 'Required'
-    if (!form.email.trim()) e.email = 'Required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email'
+    if (!form.businessName.trim()) e.businessName = t('step3.required')
+    if (!form.fullName.trim()) e.fullName = t('step3.required')
+    if (!form.email.trim()) e.email = t('step3.required')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t('step3.invalidEmail')
     return e
   }
 
@@ -228,6 +244,7 @@ function OrderContent() {
     setLoading(true)
     setApiError('')
 
+    // Admin-facing lead summary — kept in English for the internal dashboard.
     const parts: string[] = []
     if (isCustom) {
       parts.push(`Custom Package: ${customNote || 'See notes'}`)
@@ -302,11 +319,13 @@ function OrderContent() {
   if (showLanding) return <LandingChoice onSelectWebsite={() => setShowLanding(false)} />
 
   const CARE_COLS = [
-    { id: 'basic-care',   label: 'Basic $29' },
-    { id: 'content-care', label: 'Content $49' },
-    { id: 'growth-care',  label: 'Growth $100' },
-    { id: 'full-care',    label: 'Full $150' },
+    { id: 'basic-care',   label: `${t('step2.cols.basic')} ${fmt(priceOf('basic-care'))}` },
+    { id: 'content-care', label: `${t('step2.cols.content')} ${fmt(priceOf('content-care'))}` },
+    { id: 'growth-care',  label: `${t('step2.cols.growth')} ${fmt(priceOf('growth-care'))}` },
+    { id: 'full-care',    label: `${t('step2.cols.full')} ${fmt(priceOf('full-care'))}` },
   ]
+
+  const comparisonRows = t.raw('step2.comparison') as ComparisonRow[]
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -314,12 +333,12 @@ function OrderContent() {
 
         <div className="flex justify-center gap-3 md:gap-7 mb-4 flex-wrap">
           <Link href="/order/it-support" className="text-xs text-slate-400 no-underline whitespace-nowrap">
-            IT support only?{' '}
-            <span className="text-blue-600 font-semibold">View IT plans →</span>
+            {t('cross.itQ')}{' '}
+            <span className="text-blue-600 font-semibold">{t('cross.itLink')}</span>
           </Link>
           <Link href="/order/social-media" className="text-xs text-slate-400 no-underline whitespace-nowrap">
-            Social media only?{' '}
-            <span className="text-violet-600 font-semibold">View Design plans →</span>
+            {t('cross.socialQ')}{' '}
+            <span className="text-violet-600 font-semibold">{t('cross.socialLink')}</span>
           </Link>
         </div>
 
@@ -331,45 +350,45 @@ function OrderContent() {
             {isCustom ? (
               <>
                 <div className="text-center mb-8">
-                  <p className="section-label">Step 1 of 3</p>
+                  <p className="section-label">{t('step1.eyebrow')}</p>
                   <h1 className="text-[24px] md:text-[28px] font-extrabold text-[#0f1f3d] m-0 mb-2.5">
-                    Tell Us What You Need
+                    {t('step1.customTitle')}
                   </h1>
                   <p className="text-[15px] text-slate-500 m-0">
-                    Describe your project and we&apos;ll build a custom quote for you.
+                    {t('step1.customSubtitle')}
                   </p>
                 </div>
                 <div className="bg-white rounded-2xl border border-slate-200 p-8 max-w-[600px] mx-auto mb-6">
                   <textarea
                     className="w-full px-4 py-3 border-[1.5px] border-slate-200 rounded-lg text-sm text-[#0f1f3d] outline-none font-[inherit] resize-y min-h-[150px] box-border"
-                    placeholder="Describe what you need — type of business, pages needed, functionality, timeline, budget, any special requirements..."
+                    placeholder={t('step1.customPlaceholder')}
                     value={customNote}
                     onChange={e => setCustomNote(e.target.value)}
                   />
                   <p className="text-xs text-slate-400 mt-2 mb-0">
-                    We&apos;ll review this and send you a detailed quote within 1 business day.
+                    {t('step1.customHint')}
                   </p>
                 </div>
                 <button onClick={() => goTo(2)} className="block w-full bg-[#0f1f3d] text-white border-0 rounded-[10px] px-7 py-3.5 text-[15px] font-semibold cursor-pointer font-[inherit] text-center mt-6">
-                  Continue → Choose Care Plan
+                  {t('step1.customContinue')}
                 </button>
               </>
             ) : (
               <>
                 <div className="text-center mb-7">
-                  <p className="section-label">Step 1 of 3</p>
+                  <p className="section-label">{t('step1.eyebrow')}</p>
                   <h1 className="text-[24px] md:text-[28px] font-extrabold text-[#0f1f3d] m-0 mb-2.5">
-                    Choose Your Website Package
+                    {t('step1.title')}
                   </h1>
                   <p className="text-[15px] text-slate-500 m-0">
-                    Select the build that fits your business.
+                    {t('step1.subtitle')}
                   </p>
                 </div>
 
                 <div className="bg-gradient-to-r from-blue-700 via-blue-600 to-blue-700 rounded-xl px-5 py-3.5 mb-6 flex items-center justify-center gap-2.5 flex-wrap">
                   <span className="text-base">🎉</span>
                   <span className="text-[13px] font-semibold text-white text-center">
-                    Limited Time Offer — All website builds are currently discounted. Lock in your price today.
+                    {t('step1.banner')}
                   </span>
                   <span className="text-base">🎉</span>
                 </div>
@@ -377,11 +396,14 @@ function OrderContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[860px] mx-auto mb-5 pt-2">
                   {buildPackages.map(p => {
                     const sel = selectedBuild === p.id
+                    const features = t.raw(`build.${p.id}.features`) as string[]
+                    const details = t.raw(`build.${p.id}.details`) as DetailRow[]
+                    const onSale = p.originalPrice > p.price
                     return (
                       <div key={p.id} className={clsx('relative', p.popular && 'pt-4')}>
                         {p.popular && (
                           <div className="absolute top-0 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[11px] font-bold px-5 py-[5px] rounded-full whitespace-nowrap shadow-[0_4px_12px_rgba(37,99,235,0.35)] z-10 tracking-[0.03em]">
-                            ★ Most Popular
+                            {t('step1.mostPopular')}
                           </div>
                         )}
 
@@ -415,21 +437,23 @@ function OrderContent() {
                             >
                               {p.icon}
                             </div>
-                            <span className="bg-red-600 text-white text-[10px] font-bold px-[9px] py-[3px] rounded-full uppercase tracking-[0.05em]">
-                              Save <Price amount={p.originalPrice - p.price} />
-                            </span>
+                            {onSale && (
+                              <span className="bg-red-600 text-white text-[10px] font-bold px-[9px] py-[3px] rounded-full uppercase tracking-[0.05em]">
+                                {t('step1.save')} <Price amount={p.originalPrice - p.price} />
+                              </span>
+                            )}
                           </div>
 
                           <div className="text-lg font-bold text-[#0f1f3d] mb-1.5 leading-tight">
-                            {p.name}
+                            {buildName(p.id)}
                           </div>
 
                           <div className="flex items-baseline gap-2 mb-2.5">
                             <span className="text-[32px] font-extrabold text-[#0f1f3d] leading-none inline-block transition-transform duration-200 group-hover:scale-[1.03]">
                               <Price amount={p.price} />
                             </span>
-                            <span className="text-[13px] text-slate-400 line-through"><Price amount={p.originalPrice} /></span>
-                            <span className="text-xs text-slate-400">one-time</span>
+                            {onSale && <span className="text-[13px] text-slate-400 line-through"><Price amount={p.originalPrice} /></span>}
+                            <span className="text-xs text-slate-400">{t('step1.oneTime')}</span>
                           </div>
 
                           <div className="flex flex-wrap gap-1.5 mb-3">
@@ -437,25 +461,25 @@ function OrderContent() {
                               'text-[10px] font-bold px-[10px] py-[3px] rounded-full uppercase tracking-[0.05em]',
                               p.popular ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600',
                             )}>
-                              {p.badge}
+                              {t(`build.${p.id}.badge`)}
                             </span>
                             <span className="bg-amber-50 border border-amber-200 text-amber-800 text-[10px] font-semibold px-2 py-[3px] rounded-full">
-                              ⚠️ Domain &amp; hosting not included
+                              {t('step1.domainBadge')}
                             </span>
                           </div>
 
                           <div className="text-[13px] text-slate-500 leading-[1.65] mb-3.5">
-                            {p.description}
+                            {t(`build.${p.id}.description`)}
                           </div>
 
                           <div className="h-px bg-slate-100 mb-3" />
 
                           <div className="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400 mb-2.5">
-                            What&apos;s included
+                            {t('step1.whatsIncluded')}
                           </div>
 
                           <div className="mb-3.5">
-                            {p.features.map(f => (
+                            {features.map(f => (
                               <div key={f} className="flex gap-[7px] mb-1.5 items-start">
                                 <span className="text-green-600 font-bold flex-shrink-0 text-xs mt-[1px]">✓</span>
                                 <span className="text-xs text-gray-700 leading-[1.5]">{f}</span>
@@ -464,14 +488,14 @@ function OrderContent() {
                           </div>
 
                           <div className="grid grid-cols-2 gap-1.5 bg-slate-50 rounded-[10px] p-3 mb-3">
-                            {p.details.map(d => (
+                            {details.map(d => (
                               <div key={d.label} className="flex flex-col gap-0.5">
                                 <span className="text-[10px] text-slate-400 font-semibold uppercase tracking-[0.05em]">
                                   {d.label}
                                 </span>
                                 <span className={clsx(
                                   'text-xs font-bold',
-                                  d.value === 'Not included' ? 'text-slate-400' : 'text-[#0f1f3d]',
+                                  d.value === t('notIncluded') ? 'text-slate-400' : 'text-[#0f1f3d]',
                                 )}>
                                   {d.value}
                                 </span>
@@ -481,15 +505,15 @@ function OrderContent() {
 
                           <div className="mb-3">
                             <div className="text-[9px] font-bold uppercase tracking-[0.08em] text-slate-400 mb-1">
-                              Best for
+                              {t('step1.bestFor')}
                             </div>
                             <div className="text-[11px] text-slate-500 italic leading-[1.55]">
-                              {p.goodFor}
+                              {t(`build.${p.id}.goodFor`)}
                             </div>
                           </div>
 
                           <div className="mt-auto px-3 py-[9px] bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800 leading-[1.5]">
-                            💡 Add a Monthly Care Plan in the next step to include hosting
+                            {t('step1.addCareHint')}
                           </div>
                         </div>
                       </div>
@@ -512,9 +536,9 @@ function OrderContent() {
                         : 'text-slate-400 border-slate-200 cursor-not-allowed',
                     )}
                   >
-                    Order Website Only →
+                    {t('step1.orderWebsiteOnly')}
                   </button>
-                  <div className="flex-shrink-0 text-xs font-semibold text-slate-400 px-1">OR</div>
+                  <div className="flex-shrink-0 text-xs font-semibold text-slate-400 px-1">{t('step1.or')}</div>
                   <button
                     onClick={() => { setSkippedCare(false); goTo(2) }}
                     disabled={!selectedBuild}
@@ -525,15 +549,15 @@ function OrderContent() {
                         : 'bg-slate-200 text-slate-400 cursor-not-allowed',
                     )}
                   >
-                    Continue → Add Monthly Care Plan
+                    {t('step1.continueCare')}
                   </button>
                 </div>
                 <div className="flex justify-between w-full pt-2">
                   <div className="flex-1 text-[11px] text-slate-400 text-center pr-10">
-                    ⚠️ Hosting not included. You&apos;ll manage it yourself.
+                    {t('step1.noHostingNote')}
                   </div>
                   <div className="flex-1 text-[11px] text-green-600 text-center pl-10">
-                    ✅ Includes hosting + monthly maintenance
+                    {t('step1.hostingNote')}
                   </div>
                 </div>
               </div>
@@ -545,12 +569,12 @@ function OrderContent() {
         {step === 2 && (
           <div>
             <div className="text-center mb-7">
-              <p className="section-label">Step 2 of 3</p>
+              <p className="section-label">{t('step2.eyebrow')}</p>
               <h1 className="text-[22px] md:text-[28px] font-extrabold text-[#0f1f3d] m-0 mb-2.5">
-                Would you like us to maintain your website?
+                {t('step2.title')}
               </h1>
               <p className="text-[15px] text-slate-500 m-0 max-w-[500px] mx-auto">
-                Care plans include web hosting. Skip if you&apos;ll handle hosting yourself.
+                {t('step2.subtitle')}
               </p>
             </div>
 
@@ -558,10 +582,10 @@ function OrderContent() {
               <span className="text-2xl flex-shrink-0">✅</span>
               <div>
                 <div className="font-bold text-sm text-green-800 mb-1">
-                  All Website Care Plans include web hosting
+                  {t('step2.hostingTitle')}
                 </div>
                 <div className="text-[13px] text-green-800 leading-[1.7]">
-                  No separate hosting bill. Only extra cost: your domain name, usually around $12/year.
+                  {t('step2.hostingText')}
                 </div>
               </div>
             </div>
@@ -575,9 +599,9 @@ function OrderContent() {
             >
               <RadioDot on={selectedCare === 'none'} />
               <div>
-                <span className="text-sm font-semibold text-slate-500">Skip for now — I&apos;ll manage hosting myself</span>
+                <span className="text-sm font-semibold text-slate-500">{t('step2.skipTitle')}</span>
                 <span className="text-xs text-slate-400 block mt-[1px]">
-                  You&apos;ll need to buy hosting separately (~$5–20/month)
+                  {t('step2.skipSub')}
                 </span>
               </div>
             </div>
@@ -585,6 +609,8 @@ function OrderContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-7">
               {carePlans.filter(p => p.id !== 'none').map(p => {
                 const sel = selectedCare === p.id
+                const features = t.raw(`care.${p.id}.features`) as string[]
+                const details = t.raw(`care.${p.id}.details`) as DetailRow[]
                 return (
                   <div
                     key={p.id}
@@ -600,7 +626,7 @@ function OrderContent() {
                   >
                     {p.recommended && (
                       <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[10px] font-bold px-3 py-[3px] rounded-full whitespace-nowrap">
-                        ★ Recommended
+                        {t('step2.recommended')}
                       </span>
                     )}
                     {sel && (
@@ -610,7 +636,7 @@ function OrderContent() {
                     <div className="flex items-start justify-between mb-2.5">
                       <div className="flex items-center gap-2.5">
                         <span className="text-[32px] leading-none">{p.icon}</span>
-                        <span className="text-lg font-bold text-[#0f1f3d]">{p.name}</span>
+                        <span className="text-lg font-bold text-[#0f1f3d]">{careName(p.id)}</span>
                       </div>
                       <div className="text-right flex-shrink-0 ml-3">
                         <div className={clsx(
@@ -619,7 +645,7 @@ function OrderContent() {
                         )}>
                           <Price amount={p.price} />
                         </div>
-                        <div className="text-[11px] text-slate-400 mt-0.5">per month</div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">{t('step2.perMonth')}</div>
                       </div>
                     </div>
 
@@ -628,14 +654,14 @@ function OrderContent() {
                         'inline-flex items-center gap-[5px] bg-green-50 border border-green-200 rounded-full px-3.5 py-[5px] text-xs font-semibold text-green-800 transition-all duration-200',
                         sel && 'shadow-[0_2px_8px_rgba(22,163,74,0.2)]',
                       )}>
-                        🏠 Web hosting included
+                        {t('step2.hostingIncluded')}
                       </span>
                     </div>
 
-                    <p className="text-[13px] text-slate-500 leading-[1.7] m-0 mb-3.5">{p.description}</p>
+                    <p className="text-[13px] text-slate-500 leading-[1.7] m-0 mb-3.5">{t(`care.${p.id}.description`)}</p>
 
                     <ul className="list-none p-0 m-0 mb-3.5 flex-1">
-                      {p.features.map(f => (
+                      {features.map(f => (
                         <li key={f} className="text-[13px] text-gray-700 leading-[1.9] flex items-start gap-[7px]">
                           <span className="text-green-600 font-bold flex-shrink-0 mt-[1px]">✓</span>
                           <span>{f}</span>
@@ -643,20 +669,20 @@ function OrderContent() {
                       ))}
                     </ul>
 
-                    {p.details.length > 0 && (
+                    {details.length > 0 && (
                       <div className="my-3.5 px-3.5 py-3 bg-slate-50 rounded-[10px] border border-slate-100">
-                        {p.details.map((d, i) => (
+                        {details.map((d, i) => (
                           <div
                             key={i}
                             className={clsx(
                               'flex justify-between items-center py-[5px] text-xs',
-                              i < p.details.length - 1 && 'border-b border-slate-200',
+                              i < details.length - 1 && 'border-b border-slate-200',
                             )}
                           >
                             <span className="text-slate-500">{d.label}</span>
                             <span className={clsx(
                               'font-semibold',
-                              d.value === 'Not included' ? 'text-slate-400' : 'text-[#0f1f3d]',
+                              d.value === t('notIncluded') ? 'text-slate-400' : 'text-[#0f1f3d]',
                             )}>
                               {d.value}
                             </span>
@@ -667,13 +693,13 @@ function OrderContent() {
 
                     <div className="border-t border-slate-100 pt-2.5 mt-auto">
                       <span className="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400 block mb-[3px]">
-                        Good for
+                        {t('step2.goodFor')}
                       </span>
                       <span className={clsx(
                         'text-xs italic leading-[1.5] transition-colors duration-200',
                         sel ? 'text-slate-500' : 'text-slate-400',
                       )}>
-                        {p.goodFor}
+                        {t(`care.${p.id}.goodFor`)}
                       </span>
                     </div>
                   </div>
@@ -683,13 +709,13 @@ function OrderContent() {
 
             {/* Comparison table */}
             <div className="mb-7">
-              <div className="text-sm font-bold text-[#0f1f3d] mb-3">📊 Full Plan Comparison</div>
+              <div className="text-sm font-bold text-[#0f1f3d] mb-3">{t('step2.comparisonTitle')}</div>
               <div className="overflow-x-auto">
                 <table className="w-full text-xs rounded-[10px] overflow-hidden border border-slate-200" style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
                   <thead>
                     <tr className="bg-slate-50">
                       <th className="px-3.5 py-2.5 text-left font-bold text-gray-700 border-b border-slate-200 text-[11px] min-w-[160px]">
-                        Feature
+                        {t('step2.featureCol')}
                       </th>
                       {CARE_COLS.map(col => {
                         const sel = selectedCare === col.id
@@ -703,15 +729,18 @@ function OrderContent() {
                             )}
                           >
                             {col.label}
-                            {sel && <span className="block text-[9px] font-semibold text-blue-600 mt-0.5">▲ Selected</span>}
+                            {sel && <span className="block text-[9px] font-semibold text-blue-600 mt-0.5">{t('step2.selected')}</span>}
                           </th>
                         )
                       })}
                     </tr>
                   </thead>
                   <tbody>
-                    {COMPARISON_ROWS.map((row, ri) => {
+                    {comparisonRows.map((row, ri) => {
                       const isPrice = row.type === 'price'
+                      const values = isPrice
+                        ? CARE_COLS.map(c => `${fmt(priceOf(c.id))}${t('summary.perMo')}`)
+                        : [row.basic, row.content, row.growth, row.full]
                       return (
                         <tr
                           key={row.feature}
@@ -723,7 +752,7 @@ function OrderContent() {
                           )}>
                             {row.feature}
                           </td>
-                          {[row.basic, row.content, row.growth, row.full].map((val, ci) => {
+                          {values.map((val, ci) => {
                             const colId = CARE_COLS[ci].id
                             const isSel = selectedCare === colId
                             return (
@@ -746,13 +775,13 @@ function OrderContent() {
                 </table>
               </div>
               <div className="text-[11px] text-slate-400 mt-2 text-center">
-                Click a column header to select that plan
+                {t('step2.clickHint')}
               </div>
             </div>
 
             <div className="mb-5 px-[18px] py-3.5 bg-amber-50 border border-amber-200 rounded-[10px] text-xs text-amber-800 leading-[1.7]">
-              <strong>⚠️ What&apos;s not included in Website Care Plans:</strong>{' '}
-              Domain name, premium plugins, business email, advanced custom work, and extra update time are not included unless agreed separately. Content updates cover small changes only — new pages, redesigns, and advanced features are quoted separately. Minimum 6-month subscription. Hours do not roll over.
+              <strong>{t('step2.noteStrong')}</strong>{' '}
+              {t('step2.noteText')}
             </div>
 
             <div className="flex gap-3">
@@ -760,13 +789,13 @@ function OrderContent() {
                 onClick={() => goTo(1)}
                 className="bg-transparent border border-slate-200 rounded-[10px] px-5 py-2.5 text-sm text-slate-500 cursor-pointer font-[inherit] flex-shrink-0 whitespace-nowrap"
               >
-                ← Back
+                {t('step2.back')}
               </button>
               <button
                 onClick={() => goTo(3)}
                 className="flex-1 block bg-[#0f1f3d] text-white border-0 rounded-[10px] px-7 py-3.5 text-[15px] font-semibold cursor-pointer font-[inherit] text-center"
               >
-                Continue → Your Details
+                {t('step2.continueDetails')}
               </button>
             </div>
           </div>
@@ -776,12 +805,12 @@ function OrderContent() {
         {step === 3 && (
           <form onSubmit={handleSubmit}>
             <div className="text-center mb-8">
-              <p className="section-label">Step 3 of 3</p>
+              <p className="section-label">{t('step3.eyebrow')}</p>
               <h1 className="text-[24px] md:text-[28px] font-extrabold text-[#0f1f3d] m-0 mb-2.5">
-                Your Details
+                {t('step3.title')}
               </h1>
               <p className="text-[15px] text-slate-500 m-0">
-                Almost done — just a few details so we can confirm your order.
+                {t('step3.subtitle')}
               </p>
             </div>
 
@@ -793,20 +822,20 @@ function OrderContent() {
               <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="form-label">Business Name <span className="text-red-400">*</span></label>
+                    <label className="form-label">{t('step3.businessName')} <span className="text-red-400">*</span></label>
                     <input
                       className={clsx('form-input', errors.businessName && 'form-input-error')}
-                      placeholder="e.g. Bloom Florist"
+                      placeholder={t('step3.businessNamePlaceholder')}
                       value={form.businessName}
                       onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))}
                     />
                     {errors.businessName && <p className="form-error">{errors.businessName}</p>}
                   </div>
                   <div>
-                    <label className="form-label">Your Full Name <span className="text-red-400">*</span></label>
+                    <label className="form-label">{t('step3.fullName')} <span className="text-red-400">*</span></label>
                     <input
                       className={clsx('form-input', errors.fullName && 'form-input-error')}
-                      placeholder="e.g. Sarah Miller"
+                      placeholder={t('step3.fullNamePlaceholder')}
                       value={form.fullName}
                       onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
                     />
@@ -816,22 +845,22 @@ function OrderContent() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
-                    <label className="form-label">Email Address <span className="text-red-400">*</span></label>
+                    <label className="form-label">{t('step3.email')} <span className="text-red-400">*</span></label>
                     <input
                       type="email"
                       className={clsx('form-input', errors.email && 'form-input-error')}
-                      placeholder="you@company.com"
+                      placeholder={t('step3.emailPlaceholder')}
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                     />
                     {errors.email && <p className="form-error">{errors.email}</p>}
                   </div>
                   <div>
-                    <label className="form-label">Phone Number</label>
+                    <label className="form-label">{t('step3.phone')}</label>
                     <input
                       type="tel"
                       className="form-input"
-                      placeholder="(555) 123-4567"
+                      placeholder={t('step3.phonePlaceholder')}
                       value={form.phone}
                       onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                     />
@@ -839,21 +868,21 @@ function OrderContent() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label">Existing Website (optional)</label>
+                  <label className="form-label">{t('step3.website')}</label>
                   <input
                     className="form-input"
-                    placeholder="https://yoursite.com"
+                    placeholder={t('step3.websitePlaceholder')}
                     value={form.website}
                     onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
                   />
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label">Message / Notes</label>
+                  <label className="form-label">{t('step3.message')}</label>
                   <textarea
                     rows={4}
                     className="form-input resize-y min-h-[100px]"
-                    placeholder="Tell us about your business, timeline, or any specific requirements."
+                    placeholder={t('step3.messagePlaceholder')}
                     value={form.message}
                     onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                   />
@@ -861,10 +890,10 @@ function OrderContent() {
 
                 {!isCustom && (
                   <div className={apiError ? 'mb-4' : ''}>
-                    <label className="form-label">Discount code (optional)</label>
+                    <label className="form-label">{t('step3.coupon')}</label>
                     <input
                       className="form-input uppercase"
-                      placeholder="Enter coupon code"
+                      placeholder={t('step3.couponPlaceholder')}
                       value={coupon}
                       onChange={e => setCoupon(e.target.value.toUpperCase())}
                     />
@@ -885,7 +914,7 @@ function OrderContent() {
                 onClick={() => goTo(skippedCare ? 1 : 2)}
                 className="bg-transparent border border-slate-200 rounded-[10px] px-5 py-2.5 text-sm text-slate-500 cursor-pointer font-[inherit] flex-shrink-0 whitespace-nowrap"
               >
-                ← Back
+                {t('step3.back')}
               </button>
               <button
                 type="submit"
@@ -895,13 +924,13 @@ function OrderContent() {
                   loading ? 'opacity-65 cursor-not-allowed' : 'cursor-pointer',
                 )}
               >
-                {loading ? (isCustom ? 'Submitting…' : 'Redirecting to payment…') : (isCustom ? 'Submit My Order →' : 'Continue to Secure Payment →')}
+                {loading
+                  ? (isCustom ? t('step3.submittingCustom') : t('step3.submittingPay'))
+                  : (isCustom ? t('step3.submitCustom') : t('step3.submitPay'))}
               </button>
             </div>
             <p className="text-xs text-slate-400 text-center mt-3">
-              {isCustom
-                ? '🔒 No payment today. We’ll review your request and send a custom quote within 1 business day.'
-                : '🔒 Secure checkout powered by Stripe. One-time builds are billed once; care plans bill monthly.'}
+              {isCustom ? t('step3.footnoteCustom') : t('step3.footnotePay')}
             </p>
           </form>
         )}
@@ -912,22 +941,29 @@ function OrderContent() {
 
 // ── Page export ───────────────────────────────────────────────────────────────
 
+function OrderHeader() {
+  const t = useTranslations('orderPage')
+  return (
+    <header className="bg-white border-b border-slate-200 h-[60px] flex items-center px-6 sticky top-0 z-[100]">
+      <div className="max-w-[900px] mx-auto w-full flex items-center justify-between">
+        <Link href="/" className="no-underline">
+          <span className="text-base font-extrabold text-[#0f1f3d] tracking-tight">AG Development</span>
+        </Link>
+        <div className="flex items-center gap-1">
+          <span className="text-[13px] text-slate-400">{t('header.needHelp')}</span>
+          <Link href="/contact" className="text-[13px] text-blue-600 font-semibold no-underline">
+            {t('header.contact')}
+          </Link>
+        </div>
+      </div>
+    </header>
+  )
+}
+
 export default function OrderPage() {
   return (
     <>
-      <header className="bg-white border-b border-slate-200 h-[60px] flex items-center px-6 sticky top-0 z-[100]">
-        <div className="max-w-[900px] mx-auto w-full flex items-center justify-between">
-          <Link href="/" className="no-underline">
-            <span className="text-base font-extrabold text-[#0f1f3d] tracking-tight">AG Development</span>
-          </Link>
-          <div className="flex items-center gap-1">
-            <span className="text-[13px] text-slate-400">Need help?</span>
-            <Link href="/contact" className="text-[13px] text-blue-600 font-semibold no-underline">
-              Contact us
-            </Link>
-          </div>
-        </div>
-      </header>
+      <OrderHeader />
 
       <Suspense fallback={
         <div className="min-h-[80vh] bg-slate-50 flex items-center justify-center">

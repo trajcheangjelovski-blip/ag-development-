@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import clsx from 'clsx'
 import { BUILD_PACKAGES, CARE_PLANS } from './_data'
@@ -43,10 +44,11 @@ export function InfoBox({ type, children }: {
 // ── StepBar ───────────────────────────────────────────────────────────────────
 
 export function StepBar({ step, skipped }: { step: number; skipped?: boolean }) {
+  const t = useTranslations('orderPage')
   if (skipped && step === 3) {
     return (
       <div className="flex items-start justify-center mb-10">
-        {(['Website Package', 'Your Details'] as const).map((label, i) => (
+        {[t('steps.website'), t('steps.details')].map((label, i) => (
           <div key={label} className="flex items-start">
             <div className="flex flex-col items-center gap-2 min-w-9 md:min-w-[100px]">
               <div className={clsx(
@@ -71,7 +73,7 @@ export function StepBar({ step, skipped }: { step: number; skipped?: boolean }) 
     )
   }
 
-  const labels = ['Website Package', 'Care Plan', 'Your Details']
+  const labels = [t('steps.website'), t('steps.care'), t('steps.details')]
   return (
     <div className="flex items-start justify-center mb-10">
       {labels.map((label, i) => {
@@ -114,90 +116,96 @@ export function SummaryCard({ build, care, isCustom }: {
   care: CarePlan
   isCustom: boolean
 }) {
+  const t = useTranslations('orderPage')
   const oneTime = build?.price ?? 0
   const monthly = care.price
+  // Package names stay English — sourced from the message catalog by id.
+  const buildName = build ? t(`build.${build.id}.name`) : ''
+  const careName = care.id !== 'none' ? t(`care.${care.id}.name`) : ''
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-6">
       <h3 className="text-[15px] font-bold text-[#0f1f3d] m-0 mb-4 pb-3 border-b border-slate-100">
-        Order Summary
+        {t('summary.title')}
       </h3>
 
       <div className="mb-3.5 pb-3.5 border-b border-slate-100">
         <p className="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400 m-0 mb-2">
-          Website Build — One-time
+          {t('summary.buildLabel')}
         </p>
         {isCustom ? (
-          <div className="text-sm font-semibold text-[#0f1f3d]">Custom Quote (after review)</div>
+          <div className="text-sm font-semibold text-[#0f1f3d]">{t('summary.customQuote')}</div>
         ) : build ? (
           <>
             <div className="flex justify-between items-center">
-              <span className="text-[13px] text-slate-600">{build.name}</span>
+              <span className="text-[13px] text-slate-600">{buildName}</span>
               <span className="text-[15px] font-bold text-[#0f1f3d]"><Price amount={build.price} /></span>
             </div>
-            <div className="text-[11px] text-slate-400 mt-0.5">
-              was <span className="line-through"><Price amount={build.originalPrice} /></span> — Save <Price amount={build.originalPrice - build.price} />
-            </div>
+            {build.originalPrice > build.price && (
+              <div className="text-[11px] text-slate-400 mt-0.5">
+                {t('summary.was')} <span className="line-through"><Price amount={build.originalPrice} /></span> — {t('summary.save')} <Price amount={build.originalPrice - build.price} />
+              </div>
+            )}
           </>
         ) : (
-          <div className="text-[13px] text-slate-400 italic">No package selected</div>
+          <div className="text-[13px] text-slate-400 italic">{t('summary.noPackage')}</div>
         )}
       </div>
 
       <div className="mb-3.5 pb-3.5 border-b border-slate-100">
         <p className="text-[10px] font-bold uppercase tracking-[0.07em] text-slate-400 m-0 mb-2">
-          Monthly Care
+          {t('summary.monthlyLabel')}
         </p>
         {care.id !== 'none' ? (
           <>
             <div className="flex justify-between py-1">
-              <span className="text-[13px] text-slate-600">{care.name}</span>
-              <span className="text-[13px] font-semibold text-[#0f1f3d]"><Price amount={care.price} />/mo</span>
+              <span className="text-[13px] text-slate-600">{careName}</span>
+              <span className="text-[13px] font-semibold text-[#0f1f3d]"><Price amount={care.price} />{t('summary.perMo')}</span>
             </div>
-            <div className="text-[11px] text-green-600 font-semibold">✓ Hosting included</div>
+            <div className="text-[11px] text-green-600 font-semibold">{t('summary.hostingIncluded')}</div>
           </>
         ) : (
-          <div className="text-[13px] text-slate-400 italic">None selected</div>
+          <div className="text-[13px] text-slate-400 italic">{t('summary.noneSelected')}</div>
         )}
       </div>
 
       <div className="mb-4">
         {!isCustom && (
           <div className="flex justify-between py-1.5">
-            <span className="text-sm font-semibold text-gray-700">One-time total</span>
+            <span className="text-sm font-semibold text-gray-700">{t('summary.oneTimeTotal')}</span>
             <span className="text-[17px] font-bold text-[#0f1f3d]"><Price amount={oneTime} /></span>
           </div>
         )}
         {monthly > 0 && (
           <div className="flex justify-between py-1.5">
-            <span className="text-sm font-semibold text-gray-700">Monthly total</span>
-            <span className="text-[17px] font-bold text-blue-600"><Price amount={monthly} />/mo</span>
+            <span className="text-sm font-semibold text-gray-700">{t('summary.monthlyTotal')}</span>
+            <span className="text-[17px] font-bold text-blue-600"><Price amount={monthly} />{t('summary.perMo')}</span>
           </div>
         )}
         {care.id === 'none' && (
           <div className="mt-2">
-            <InfoBox type="amber">⚠️ No hosting included — arrange hosting separately</InfoBox>
+            <InfoBox type="amber">{t('summary.noHosting')}</InfoBox>
           </div>
         )}
         <p className="text-[11px] text-slate-400 mt-2.5 pt-2.5 border-t border-slate-100">
-          Domain name not included (~$12/year, purchased separately)
+          {t('summary.domainNote')}
         </p>
       </div>
 
       <InfoBox type="blue">
-        🔒 <strong>No payment today.</strong> We&apos;ll contact you within 1 business day to confirm details.
+        🔒 <strong>{t('summary.noPayment')}</strong> {t('summary.noPaymentRest')}
       </InfoBox>
 
       <div className="mt-4 p-3.5 bg-slate-50 border border-slate-200 rounded-[10px]">
         <div className="text-xs font-semibold text-[#0f1f3d] mb-2">
-          💡 Need IT support or social media design?
+          {t('summary.crossTitle')}
         </div>
         <div className="text-[11px] text-slate-500 leading-relaxed mb-2">
-          You can order these separately after your website is set up.
+          {t('summary.crossText')}
         </div>
         <div className="flex flex-col gap-1">
-          <a href="/order/it-support" className="text-xs font-semibold text-blue-600 no-underline">→ View IT Support plans</a>
-          <a href="/order/social-media" className="text-xs font-semibold text-violet-600 no-underline">→ View Social Media plans</a>
+          <a href="/order/it-support" className="text-xs font-semibold text-blue-600 no-underline">{t('summary.crossIt')}</a>
+          <a href="/order/social-media" className="text-xs font-semibold text-violet-600 no-underline">{t('summary.crossSocial')}</a>
         </div>
       </div>
     </div>
