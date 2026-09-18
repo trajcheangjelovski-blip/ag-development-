@@ -36,6 +36,21 @@ type FormState = {
   message: string
 }
 
+// Denar fallback prices, keyed by plan id. Used only for the very first paint on
+// the MK site (before the live /api/plans response arrives) so prices don't
+// flash the USD catalog amount and then switch to denars. Live values from the
+// admin-managed plans table still override these once loaded.
+const MKD_FALLBACK: Record<string, number> = {
+  'starter-site': 6000,
+  'business-site': 10000,
+  'premium-site': 20000,
+  'ecommerce-store': 35000,
+  'basic-care': 1500,
+  'content-care': 3000,
+  'growth-care': 6000,
+  'full-care': 10000,
+}
+
 // ── Success screen ────────────────────────────────────────────────────────────
 
 function SuccessScreen({ name }: { name: string }) {
@@ -204,17 +219,28 @@ function OrderContent() {
   })
   const [coupon, setCoupon] = useState('')
 
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+
+  // Region-aware static fallback so the first paint already shows the right
+  // currency (MK denars) instead of flashing the USD catalog price before the
+  // live /api/plans response arrives. Live values still override once loaded.
+  const staticBuild = region === 'mk'
+    ? BUILD_PACKAGES.map(p => ({ ...p, price: MKD_FALLBACK[p.id] ?? p.price, originalPrice: MKD_FALLBACK[p.id] ?? p.originalPrice }))
+    : BUILD_PACKAGES
+  const staticCare = region === 'mk'
+    ? CARE_PLANS.map(p => ({ ...p, price: MKD_FALLBACK[p.id] ?? p.price }))
+    : CARE_PLANS
+
   // Live (admin-editable) plan content merged over the static cards
-  const buildPackages = useMergedCards(BUILD_PACKAGES)
-  const carePlans = useMergedCards(CARE_PLANS)
+  const buildPackages = useMergedCards(staticBuild)
+  const carePlans = useMergedCards(staticCare)
 
   const isCustom = selectedBuild === 'custom'
   const buildPkg: BuildPkg = buildPackages.find(p => p.id === selectedBuild)
   const carePlan: CarePlan = carePlans.find(p => p.id === selectedCare) ?? carePlans[0]
   const oneTimeTotal = buildPkg?.price ?? 0
 
-  const locale = useLocale()
-  const region = regionFromLocale(locale)
   const fmt = (n: number) => formatPrice(n, region === 'mk' ? 'MKD' : 'USD', locale)
   const priceOf = (id: string) => carePlans.find(p => p.id === id)?.price ?? 0
 
