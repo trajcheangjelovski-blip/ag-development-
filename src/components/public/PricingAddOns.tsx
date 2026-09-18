@@ -260,7 +260,7 @@ const gridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))',
   gap: 24,
-  alignItems: 'start',
+  alignItems: 'stretch',
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
