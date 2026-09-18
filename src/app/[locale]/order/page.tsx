@@ -444,12 +444,6 @@ function OrderContent() {
                           )}
                           style={sel ? { boxShadow: '0 0 0 4px rgba(37,99,235,0.1), 0 8px 24px rgba(37,99,235,0.12)' } : undefined}
                         >
-                          {/* Top gradient accent */}
-                          <div className={clsx(
-                            'absolute top-0 left-0 right-0 h-[3px] rounded-t-2xl bg-gradient-to-r from-blue-600 to-violet-600 transition-opacity duration-[250ms]',
-                            sel ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
-                          )} />
-
                           {/* Left selection bar */}
                           {sel && (
                             <div className="absolute left-0 top-[10%] h-[80%] w-1 bg-gradient-to-b from-blue-600 to-violet-600 rounded-r" />
