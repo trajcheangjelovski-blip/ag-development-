@@ -2,7 +2,7 @@
 
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { usePlanPriceMap } from '@/lib/usePlans'
 import { Link } from '@/i18n/navigation'
 import type { CSSProperties } from 'react'
@@ -62,8 +62,14 @@ const DESIGN_PLANS = [
 
 const PLATFORMS = ['Facebook', 'Instagram', 'LinkedIn', 'TikTok', 'Other']
 
+// Denar fallback prices (keyed by card id) so the MK site shows denars on the
+// first paint instead of flashing the USD catalog price before live prices load.
+const MKD_FALLBACK: Record<string, number> = { starter: 2000, business: 4000, growth: 6000 }
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// `badge` here is the static English style key (kept English for the color map);
+// the visible label is translated separately.
 function badgeStyle(badge: string, selected: boolean): CSSProperties {
   if (selected) return { background: '#7c3aed', color: 'white' }
   if (badge === 'Most Popular') return { background: '#dbeafe', color: '#1d4ed8' }
@@ -72,7 +78,8 @@ function badgeStyle(badge: string, selected: boolean): CSSProperties {
 }
 
 function StepBar({ step, mobile }: { step: number; mobile: boolean }) {
-  const labels = ['Choose Plan', 'Your Details']
+  const t = useTranslations('orderSocial')
+  const labels = [t('steps.plan'), t('steps.details')]
   return (
     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '40px' }}>
       {labels.map((label, i) => {
@@ -106,34 +113,36 @@ function StepBar({ step, mobile }: { step: number; mobile: boolean }) {
 }
 
 function DesignSummary({ plan }: { plan: typeof DESIGN_PLANS[0] }) {
+  const t = useTranslations('orderSocial')
+  const features = t.raw(`plans.${plan.id}.features`) as string[]
   return (
     <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '24px', boxSizing: 'border-box' }}>
       <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f1f3d', margin: '0 0 16px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
-        Order Summary
+        {t('summary.title')}
       </h3>
-      <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', margin: '0 0 10px' }}>Social Media Plan — Monthly</p>
+      <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', margin: '0 0 10px' }}>{t('summary.label')}</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-        <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f1f3d' }}>{plan.name}</span>
-        <span style={{ fontSize: '17px', fontWeight: 700, color: '#7c3aed' }}><Price amount={plan.price} />/mo</span>
+        <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f1f3d' }}>{t(`plans.${plan.id}.name`)}</span>
+        <span style={{ fontSize: '17px', fontWeight: 700, color: '#7c3aed' }}><Price amount={plan.price} />{t('perMo')}</span>
       </div>
       <ul style={{ listStyle: 'none', padding: 0, margin: '10px 0 14px' }}>
-        {plan.features.slice(0, 3).map(f => (
+        {features.slice(0, 3).map(f => (
           <li key={f} style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.7, display: 'flex', gap: '6px' }}>
             <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0 }}>✓</span>{f}
           </li>
         ))}
-        {plan.features.length > 3 && (
-          <li style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.7, paddingLeft: '14px' }}>+ {plan.features.length - 3} more included</li>
+        {features.length > 3 && (
+          <li style={{ fontSize: '12px', color: '#94a3b8', lineHeight: 1.7, paddingLeft: '14px' }}>{t('summary.moreIncluded', { n: features.length - 3 })}</li>
         )}
       </ul>
       <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '14px', marginBottom: '14px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>Monthly Total</span>
-          <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}><Price amount={plan.price} />/mo</span>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{t('summary.monthlyTotal')}</span>
+          <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}><Price amount={plan.price} />{t('perMo')}</span>
         </div>
       </div>
       <div style={{ background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', color: '#7c3aed', lineHeight: 1.6 }}>
-        🔒 <strong>Secure checkout via Stripe.</strong> You&apos;ll enter payment on the next step. Cancel your subscription anytime.
+        🔒 <strong>{t('summary.secureStrong')}</strong> {t('summary.secureText')}
       </div>
     </div>
   )
@@ -142,6 +151,7 @@ function DesignSummary({ plan }: { plan: typeof DESIGN_PLANS[0] }) {
 // ── Main content (uses useSearchParams — needs Suspense) ──────────────────────
 
 function SocialOrderContent() {
+  const t = useTranslations('orderSocial')
   const searchParams = useSearchParams()
   const initialPlan = searchParams.get('plan') || 'business'
 
@@ -173,20 +183,23 @@ function SocialOrderContent() {
 
   const isDesktop = !mobile && !tablet
 
-  // Live prices from the admin panel (catalog id = `social-${card id}`)
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+
+  // Live prices from the admin panel (catalog id = `social-${card id}`). Before
+  // they load, MK falls back to denar prices so the price doesn't flash USD first.
   const priceMap = usePlanPriceMap()
   const DESIGN_PLANS_LIVE = useMemo(
     () => DESIGN_PLANS.map(p => {
       const live = priceMap[`social-${p.id}`]
-      return live != null ? { ...p, price: live } : p
+      if (live != null) return { ...p, price: live }
+      if (region === 'mk' && MKD_FALLBACK[p.id] != null) return { ...p, price: MKD_FALLBACK[p.id] }
+      return p
     }),
-    [priceMap],
+    [priceMap, region],
   )
 
   const plan = DESIGN_PLANS_LIVE.find(p => p.id === selectedPlan) ?? DESIGN_PLANS_LIVE[1]
-
-  const locale = useLocale()
-  const region = regionFromLocale(locale)
 
   function goTo(n: number) { setStep(n); window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
@@ -196,10 +209,10 @@ function SocialOrderContent() {
 
   function validate() {
     const e: Record<string, string> = {}
-    if (!form.businessName.trim()) e.businessName = 'Required'
-    if (!form.fullName.trim()) e.fullName = 'Required'
-    if (!form.email.trim()) e.email = 'Required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email'
+    if (!form.businessName.trim()) e.businessName = t('required')
+    if (!form.fullName.trim()) e.fullName = t('required')
+    if (!form.email.trim()) e.email = t('required')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t('invalidEmail')
     return e
   }
 
@@ -240,10 +253,10 @@ function SocialOrderContent() {
         window.location.href = data.url
         return
       }
-      setApiError(data.error || 'Could not start checkout. Please try again.')
+      setApiError(data.error || t('genericError'))
       setLoading(false)
     } catch {
-      setApiError('Network error. Please check your connection and try again.')
+      setApiError(t('networkError'))
       setLoading(false)
     }
   }
@@ -261,18 +274,13 @@ function SocialOrderContent() {
       <div style={{ minHeight: '80vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
         <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', padding: mobile ? '40px 24px' : '60px 48px', textAlign: 'center', maxWidth: '580px', width: '100%' }}>
           <div style={{ fontSize: '64px', lineHeight: 1, marginBottom: '20px' }}>🎉</div>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>Order Received!</h1>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>{t('success.title')}</h1>
           <p style={{ fontSize: '16px', color: '#64748b', margin: '0 0 32px' }}>
-            Thank you, {submittedName}! We&apos;ll review your order and contact you within <strong style={{ color: '#0f1f3d' }}>1 business day</strong>.
+            {t.rich('success.thanks', { name: submittedName, strong: (chunks) => <strong style={{ color: '#0f1f3d' }}>{chunks}</strong> })}
           </p>
           <div style={{ textAlign: 'left', background: '#f8fafc', borderRadius: '12px', padding: '24px', marginBottom: '32px' }}>
-            <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', margin: '0 0 16px' }}>What happens next</p>
-            {[
-              'We review your order and reach out to confirm',
-              'We confirm your brand colors, logo, and content preferences',
-              'First designs delivered within 5–7 business days',
-              'High-resolution files delivered, ready to post',
-            ].map((s, i) => (
+            <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', margin: '0 0 16px' }}>{t('success.whatNext')}</p>
+            {(t.raw('success.steps') as string[]).map((s, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: i < 3 ? '12px' : 0 }}>
                 <span style={{ width: '24px', height: '24px', borderRadius: '50%', background: '#7c3aed', color: 'white', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
                 <span style={{ fontSize: '14px', color: '#475569', lineHeight: 1.5 }}>{s}</span>
@@ -280,8 +288,8 @@ function SocialOrderContent() {
             ))}
           </div>
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/" style={{ display: 'inline-block', background: '#0f1f3d', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>← Back to Home</Link>
-            <Link href="/contact" style={{ display: 'inline-block', background: '#f1f5f9', color: '#374151', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>Contact Us</Link>
+            <Link href="/" style={{ display: 'inline-block', background: '#0f1f3d', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>{t('success.backHome')}</Link>
+            <Link href="/contact" style={{ display: 'inline-block', background: '#f1f5f9', color: '#374151', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>{t('success.contact')}</Link>
           </div>
         </div>
       </div>
@@ -294,9 +302,9 @@ function SocialOrderContent() {
 
         {/* Breadcrumb */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px', fontSize: '12px', color: '#94a3b8' }}>
-          <Link href="/order" style={{ color: '#94a3b8', textDecoration: 'none' }}>Order</Link>
+          <Link href="/order" style={{ color: '#94a3b8', textDecoration: 'none' }}>{t('breadcrumbOrder')}</Link>
           <span>›</span>
-          <span style={{ color: '#475569', fontWeight: 500 }}>Social Media & Design Only</span>
+          <span style={{ color: '#475569', fontWeight: 500 }}>{t('breadcrumb')}</span>
         </div>
 
         <StepBar step={step} mobile={mobile} />
@@ -305,19 +313,24 @@ function SocialOrderContent() {
         {step === 1 && (
           <div>
             <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-              <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7c3aed', margin: '0 0 10px' }}>Step 1 of 2</p>
-              <h1 style={{ fontSize: mobile ? '24px' : '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>Choose Your Social Media & Design Plan</h1>
-              <p style={{ fontSize: '15px', color: '#64748b', margin: 0 }}>Monthly graphic design for your brand. No website required.</p>
+              <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7c3aed', margin: '0 0 10px' }}>{t('step1Eyebrow')}</p>
+              <h1 style={{ fontSize: mobile ? '24px' : '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>{t('step1Title')}</h1>
+              <p style={{ fontSize: '15px', color: '#64748b', margin: 0 }}>{t('step1Subtitle')}</p>
             </div>
 
             <div style={{ background: '#fdf4ff', border: '1px solid #e9d5ff', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', fontSize: '13px', color: '#7c3aed', lineHeight: 1.6 }}>
-              🎨 <strong>All designs are custom branded to your business.</strong> You provide your logo and brand colors on setup. Files delivered as high-resolution images ready to post. Revisions included.
+              🎨 <strong>{t('infoBoxStrong')}</strong> {t('infoBoxText')}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '28px' }}>
               {DESIGN_PLANS_LIVE.map(p => {
                 const sel = selectedPlan === p.id
                 const hov = hoveredPlan === p.id
+                const name = t(`plans.${p.id}.name`)
+                const description = t(`plans.${p.id}.description`)
+                const goodFor = t(`plans.${p.id}.goodFor`)
+                const badge = t(`plans.${p.id}.badge`)
+                const features = t.raw(`plans.${p.id}.features`) as string[]
                 return (
                   <div
                     key={p.id}
@@ -341,7 +354,7 @@ function SocialOrderContent() {
                     }}
                   >
                     {p.popular && (
-                      <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#7c3aed', color: 'white', fontSize: '10px', fontWeight: 700, padding: '3px 12px', borderRadius: '100px', whiteSpace: 'nowrap' }}>★ Most Popular</div>
+                      <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#7c3aed', color: 'white', fontSize: '10px', fontWeight: 700, padding: '3px 12px', borderRadius: '100px', whiteSpace: 'nowrap' }}>{t('mostPopular')}</div>
                     )}
                     {sel && (
                       <div style={{ position: 'absolute', left: 0, top: '15%', height: '70%', width: '4px', background: 'linear-gradient(180deg, #7c3aed, #2563eb)', borderRadius: '0 4px 4px 0' }} />
@@ -354,20 +367,20 @@ function SocialOrderContent() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
                           <div style={{ fontSize: '28px', lineHeight: 1, flexShrink: 0 }}>{p.icon}</div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{p.name}</div>
+                            <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{name}</div>
                             <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginTop: '2px' }}>
                               <span style={{ fontSize: '20px', fontWeight: 800, color: '#7c3aed' }}><Price amount={p.price} /></span>
-                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>/mo</span>
+                              <span style={{ fontSize: '11px', color: '#94a3b8' }}>{t('perMo')}</span>
                             </div>
                           </div>
-                          <span style={{ ...badgeStyle(p.badge, sel), fontSize: '9px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', flexShrink: 0, whiteSpace: 'nowrap' }}>{p.badge}</span>
+                          <span style={{ ...badgeStyle(p.badge, sel), fontSize: '9px', fontWeight: 700, padding: '3px 8px', borderRadius: '100px', flexShrink: 0, whiteSpace: 'nowrap' }}>{badge}</span>
                         </div>
                         {/* Description */}
-                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.6, margin: '0 0 10px' }}>{p.description}</p>
+                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.6, margin: '0 0 10px' }}>{description}</p>
                         {/* Features */}
-                        <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '7px' }}>What&apos;s included</div>
+                        <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '7px' }}>{t('whatsIncluded')}</div>
                         <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 10px' }}>
-                          {p.features.map(f => (
+                          {features.map(f => (
                             <li key={f} style={{ fontSize: '12px', color: '#374151', lineHeight: 1.7, display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
                               <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0 }}>✓</span>
                               <span>{f}</span>
@@ -376,7 +389,7 @@ function SocialOrderContent() {
                         </ul>
                         {/* Good for */}
                         <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
-                          <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
+                          <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>{t('goodFor')}</strong> {goodFor}
                         </p>
                       </>
                     ) : (
@@ -385,22 +398,22 @@ function SocialOrderContent() {
                         {/* Left column */}
                         <div style={{ width: tablet ? '145px' : '180px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                           <div style={{ fontSize: tablet ? '28px' : '32px', lineHeight: 1, marginBottom: '8px' }}>{p.icon}</div>
-                          <div style={{ fontSize: tablet ? '16px' : '18px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{p.name}</div>
+                          <div style={{ fontSize: tablet ? '16px' : '18px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{name}</div>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginBottom: '8px' }}>
                             <span style={{ fontSize: tablet ? '20px' : '24px', fontWeight: 800, color: '#7c3aed', display: 'inline-block', transition: 'transform 0.2s ease', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}><Price amount={p.price} /></span>
-                            <span style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8' }}>/mo</span>
+                            <span style={{ fontSize: '12px', fontWeight: 500, color: '#94a3b8' }}>{t('perMo')}</span>
                           </div>
-                          <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', width: 'fit-content', marginBottom: '10px' }}>{p.badge}</span>
-                          <p style={{ fontSize: tablet ? '12px' : '13px', color: '#64748b', lineHeight: 1.65, margin: '0 0 8px', flex: 1 }}>{p.description}</p>
+                          <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', width: 'fit-content', marginBottom: '10px' }}>{badge}</span>
+                          <p style={{ fontSize: tablet ? '12px' : '13px', color: '#64748b', lineHeight: 1.65, margin: '0 0 8px', flex: 1 }}>{description}</p>
                           <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
-                            <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
+                            <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>{t('goodFor')}</strong> {goodFor}
                           </p>
                         </div>
                         {/* Right column: features */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '12px' }}>What&apos;s included</div>
+                          <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '12px' }}>{t('whatsIncluded')}</div>
                           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                            {p.features.map(f => (
+                            {features.map(f => (
                               <li key={f} style={{ fontSize: tablet ? '12px' : '13px', color: '#374151', lineHeight: 1.85, display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
                                 <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✓</span>
                                 <span>{f}</span>
@@ -415,7 +428,7 @@ function SocialOrderContent() {
               })}
             </div>
 
-            <button onClick={() => goTo(2)} style={btnPrimary}>Continue → Your Details</button>
+            <button onClick={() => goTo(2)} style={btnPrimary}>{t('continueDetails')}</button>
           </div>
         )}
 
@@ -423,9 +436,9 @@ function SocialOrderContent() {
         {step === 2 && (
           <form onSubmit={handleSubmit}>
             <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-              <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7c3aed', margin: '0 0 10px' }}>Step 2 of 2</p>
-              <h1 style={{ fontSize: mobile ? '24px' : '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>Your Details</h1>
-              <p style={{ fontSize: '15px', color: '#64748b', margin: 0 }}>Almost done — we&apos;ll confirm your plan and reach out within 1 business day.</p>
+              <p style={{ fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#7c3aed', margin: '0 0 10px' }}>{t('step2Eyebrow')}</p>
+              <h1 style={{ fontSize: mobile ? '24px' : '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>{t('step2Title')}</h1>
+              <p style={{ fontSize: '15px', color: '#64748b', margin: 0 }}>{t('step2Subtitle')}</p>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
@@ -434,32 +447,32 @@ function SocialOrderContent() {
               <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #e2e8f0', padding: mobile ? '20px 16px' : tablet ? '24px 20px' : '32px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr', gap: '16px', marginBottom: '16px' }}>
                   <div>
-                    <label style={lbl}>Business Name <span style={{ color: '#ef4444' }}>*</span></label>
-                    <input style={errors.businessName ? inputError : inputStyle} placeholder="e.g. Bloom Florist" value={form.businessName} onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))} />
+                    <label style={lbl}>{t('businessName')} <span style={{ color: '#ef4444' }}>*</span></label>
+                    <input style={errors.businessName ? inputError : inputStyle} placeholder={t('businessNamePlaceholder')} value={form.businessName} onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))} />
                     {errors.businessName && <p style={{ fontSize: '11px', color: '#ef4444', margin: '4px 0 0' }}>{errors.businessName}</p>}
                   </div>
                   <div>
-                    <label style={lbl}>Your Full Name <span style={{ color: '#ef4444' }}>*</span></label>
-                    <input style={errors.fullName ? inputError : inputStyle} placeholder="e.g. Sarah Miller" value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} />
+                    <label style={lbl}>{t('fullName')} <span style={{ color: '#ef4444' }}>*</span></label>
+                    <input style={errors.fullName ? inputError : inputStyle} placeholder={t('fullNamePlaceholder')} value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} />
                     {errors.fullName && <p style={{ fontSize: '11px', color: '#ef4444', margin: '4px 0 0' }}>{errors.fullName}</p>}
                   </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: isDesktop ? '1fr 1fr' : '1fr', gap: '16px', marginBottom: '16px' }}>
                   <div>
-                    <label style={lbl}>Email Address <span style={{ color: '#ef4444' }}>*</span></label>
-                    <input type="email" style={errors.email ? inputError : inputStyle} placeholder="you@company.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                    <label style={lbl}>{t('email')} <span style={{ color: '#ef4444' }}>*</span></label>
+                    <input type="email" style={errors.email ? inputError : inputStyle} placeholder={t('emailPlaceholder')} value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                     {errors.email && <p style={{ fontSize: '11px', color: '#ef4444', margin: '4px 0 0' }}>{errors.email}</p>}
                   </div>
                   <div>
-                    <label style={lbl}>Phone Number</label>
-                    <input type="tel" style={inputStyle} placeholder="(555) 123-4567" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                    <label style={lbl}>{t('phone')}</label>
+                    <input type="tel" style={inputStyle} placeholder={t('phonePlaceholder')} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                   </div>
                 </div>
 
                 {/* Platforms */}
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={lbl}>Your social media platforms</label>
+                  <label style={lbl}>{t('platformsLabel')}</label>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {PLATFORMS.map(p => {
                       const checked = platforms.includes(p)
@@ -477,7 +490,7 @@ function SocialOrderContent() {
                             transition: 'all 0.15s',
                           }}
                         >
-                          {checked ? '✓ ' : ''}{p}
+                          {checked ? '✓ ' : ''}{p === 'Other' ? t('platformOther') : p}
                         </button>
                       )
                     })}
@@ -486,11 +499,11 @@ function SocialOrderContent() {
 
                 {/* Brand notes */}
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={lbl}>Brand colors / style notes (optional)</label>
+                  <label style={lbl}>{t('brandNotes')}</label>
                   <textarea
                     rows={2}
                     style={{ ...inputStyle, resize: 'vertical' }}
-                    placeholder="e.g. our colors are blue and white, modern minimalist style..."
+                    placeholder={t('brandNotesPlaceholder')}
                     value={form.brandNotes}
                     onChange={e => setForm(f => ({ ...f, brandNotes: e.target.value }))}
                   />
@@ -498,7 +511,7 @@ function SocialOrderContent() {
 
                 {/* Logo */}
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={lbl}>Do you have a logo?</label>
+                  <label style={lbl}>{t('logoQuestion')}</label>
                   <div style={{ display: 'flex', gap: '20px' }}>
                     {(['yes', 'no'] as const).map(v => (
                       <label key={v} style={{ display: 'flex', alignItems: 'center', gap: '7px', cursor: 'pointer', fontSize: '14px', color: '#374151', fontWeight: 500 }}>
@@ -510,20 +523,20 @@ function SocialOrderContent() {
                           onChange={() => setHasLogo(v)}
                           style={{ accentColor: '#7c3aed', width: '16px', height: '16px', cursor: 'pointer' }}
                         />
-                        {v === 'yes' ? 'Yes, I have a logo' : 'No, I need one designed'}
+                        {v === 'yes' ? t('logoYes') : t('logoNo')}
                       </label>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label style={lbl}>Message / Notes</label>
-                  <textarea rows={3} style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }} placeholder="Any other details about your brand, content preferences, or requirements..." value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
+                  <label style={lbl}>{t('message')}</label>
+                  <textarea rows={3} style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }} placeholder={t('messagePlaceholder')} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))} />
                 </div>
 
                 <div style={{ marginBottom: apiError ? '16px' : 0 }}>
-                  <label style={lbl}>Discount code (optional)</label>
-                  <input style={{ ...inputStyle, textTransform: 'uppercase' }} placeholder="Enter coupon code" value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} />
+                  <label style={lbl}>{t('coupon')}</label>
+                  <input style={{ ...inputStyle, textTransform: 'uppercase' }} placeholder={t('couponPlaceholder')} value={coupon} onChange={e => setCoupon(e.target.value.toUpperCase())} />
                 </div>
 
                 {apiError && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '10px', padding: '12px 16px', fontSize: '13px', color: '#dc2626', lineHeight: 1.6 }}>{apiError}</div>}
@@ -533,13 +546,13 @@ function SocialOrderContent() {
             </div>
 
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginTop: '24px' }}>
-              <button type="button" onClick={() => goTo(1)} style={btnBack}>← Back</button>
+              <button type="button" onClick={() => goTo(1)} style={btnBack}>{t('back')}</button>
               <button type="submit" disabled={loading} style={{ ...btnPrimary, flex: 1, opacity: loading ? 0.65 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                {loading ? 'Redirecting to payment…' : 'Continue to Secure Payment →'}
+                {loading ? t('submitting') : t('submitPay')}
               </button>
             </div>
             <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', marginTop: '12px' }}>
-              🔒 Secure checkout powered by Stripe. Cancel anytime.
+              {t('footnote')}
             </p>
           </form>
         )}
@@ -550,20 +563,27 @@ function SocialOrderContent() {
 
 // ── Page export ───────────────────────────────────────────────────────────────
 
+function SocialHeader() {
+  const t = useTranslations('orderSocial')
+  return (
+    <header style={{ background: 'white', borderBottom: '1px solid #e2e8f0', height: '60px', display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100, boxSizing: 'border-box' }}>
+      <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f1f3d', letterSpacing: '-0.02em' }}>AG Development</span>
+        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+          <span style={{ fontSize: '13px', color: '#94a3b8' }}>{t('header.needHelp')}</span>
+          <Link href="/contact" style={{ fontSize: '13px', color: '#7c3aed', fontWeight: 600, textDecoration: 'none' }}>{t('header.contact')}</Link>
+        </div>
+      </div>
+    </header>
+  )
+}
+
 export default function SocialMediaOrderPage() {
   return (
     <>
-      <header style={{ background: 'white', borderBottom: '1px solid #e2e8f0', height: '60px', display: 'flex', alignItems: 'center', padding: '0 24px', position: 'sticky', top: 0, zIndex: 100, boxSizing: 'border-box' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f1f3d', letterSpacing: '-0.02em' }}>AG Development</span>
-          </Link>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <span style={{ fontSize: '13px', color: '#94a3b8' }}>Need help?</span>
-            <Link href="/contact" style={{ fontSize: '13px', color: '#7c3aed', fontWeight: 600, textDecoration: 'none' }}>Contact us</Link>
-          </div>
-        </div>
-      </header>
+      <SocialHeader />
       <Suspense fallback={<div style={{ minHeight: '80vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><span style={{ fontSize: '14px', color: '#94a3b8' }}>Loading…</span></div>}>
         <SocialOrderContent />
       </Suspense>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { usePlanPriceMap } from '@/lib/usePlans'
 import type { CSSProperties } from 'react'
@@ -109,8 +109,14 @@ const comparisonRows = [
 
 const PLATFORMS = ['WordPress', 'Shopify', 'Wix', 'Squarespace', 'Custom HTML', 'Not sure', 'Other']
 
+// Denar fallback prices (keyed by plan id) so the MK site shows denars on the
+// first paint instead of flashing the USD catalog price before live prices load.
+const MKD_FALLBACK: Record<string, number> = { 'basic-care': 1500, 'content-care': 3000, 'growth-care': 6000, 'full-care': 10000 }
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+// `badge` here is the static English style key (kept English for the color map);
+// the visible label is translated separately.
 function badgeStyle(badge: string, selected: boolean): CSSProperties {
   if (selected) return { background: '#2563eb', color: 'white' }
   if (badge === 'Most Popular')     return { background: '#dbeafe', color: '#1d4ed8' }
@@ -122,6 +128,8 @@ function badgeStyle(badge: string, selected: boolean): CSSProperties {
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function WebsiteCarePage() {
+  const t = useTranslations('orderCare')
+  const tc = useTranslations('orderPage')
   const [mobile,        setMobile]        = useState(false)
   const [tablet,        setTablet]        = useState(false)
   const [selectedPlan,  setSelectedPlan]  = useState<string | null>(null)
@@ -167,20 +175,23 @@ export default function WebsiteCarePage() {
     }
   }, [selectedPlan])
 
-  // Live prices from the admin panel (card id already matches the catalog id)
+  const locale = useLocale()
+  const region = regionFromLocale(locale)
+
+  // Live prices from the admin panel (card id already matches the catalog id).
+  // Before they load, MK falls back to denar prices so the price doesn't flash USD.
   const priceMap = usePlanPriceMap()
   const CARE_PLANS_LIVE = useMemo(
     () => CARE_PLANS.map(p => {
       const live = priceMap[p.id]
-      return live != null ? { ...p, price: live } : p
+      if (live != null) return { ...p, price: live }
+      if (region === 'mk' && MKD_FALLBACK[p.id] != null) return { ...p, price: MKD_FALLBACK[p.id] }
+      return p
     }),
-    [priceMap],
+    [priceMap, region],
   )
 
   const plan = CARE_PLANS_LIVE.find(p => p.id === selectedPlan) ?? null
-
-  const locale = useLocale()
-  const region = regionFromLocale(locale)
   const fmt = (n: number) => formatPrice(n, region === 'mk' ? 'MKD' : 'USD', locale)
   const carePrice = (id: string) => {
     const pr = CARE_PLANS_LIVE.find(p => p.id === id)?.price
@@ -189,12 +200,12 @@ export default function WebsiteCarePage() {
 
   function validate() {
     const e: Record<string, string> = {}
-    if (!form.businessName.trim()) e.businessName = 'Required'
-    if (!form.fullName.trim())     e.fullName     = 'Required'
-    if (!form.email.trim())        e.email        = 'Required'
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email'
-    if (!form.website.trim())      e.website      = 'Required'
-    if (!selectedPlan)             e.plan         = 'Please select a plan above'
+    if (!form.businessName.trim()) e.businessName = t('required')
+    if (!form.fullName.trim())     e.fullName     = t('required')
+    if (!form.email.trim())        e.email        = t('required')
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = t('invalidEmail')
+    if (!form.website.trim())      e.website      = t('required')
+    if (!selectedPlan)             e.plan         = t('planError')
     return e
   }
 
@@ -222,14 +233,14 @@ export default function WebsiteCarePage() {
       })
       if (!res.ok) {
         const d = await res.json().catch(() => ({})) as { error?: string }
-        setApiError(d.error || 'Something went wrong. Please try again.')
+        setApiError(d.error || t('genericError'))
       } else {
         setSubmittedName(form.fullName.split(' ')[0] || 'there')
         setSubmitted(true)
         window.scrollTo({ top: 0, behavior: 'smooth' })
       }
     } catch {
-      setApiError('Network error. Please check your connection and try again.')
+      setApiError(t('networkError'))
     } finally {
       setLoading(false)
     }
@@ -259,30 +270,25 @@ export default function WebsiteCarePage() {
         <div style={{ minHeight: '80vh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
           <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 4px 24px rgba(0,0,0,0.06)', padding: mobile ? '32px 20px' : '60px 48px', textAlign: 'center', maxWidth: '560px', width: '100%' }}>
             <div style={{ fontSize: '56px', lineHeight: 1, marginBottom: '16px' }}>🎉</div>
-            <h1 style={{ fontSize: mobile ? '24px' : '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>You&apos;re all set!</h1>
+            <h1 style={{ fontSize: mobile ? '24px' : '28px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>{t('success.title')}</h1>
             <p style={{ fontSize: '15px', color: '#64748b', margin: '0 0 24px', lineHeight: 1.6 }}>
-              Thank you, {submittedName}! We&apos;ve received your care plan request. We&apos;ll review your website and contact you within <strong style={{ color: '#0f1f3d' }}>1 business day</strong> to confirm compatibility and get you started.
+              {t.rich('success.text', { name: submittedName, strong: (chunks) => <strong style={{ color: '#0f1f3d' }}>{chunks}</strong> })}
             </p>
 
             {plan && (
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '12px', padding: '16px 20px', marginBottom: '24px', textAlign: 'left' }}>
-                <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#16a34a', margin: '0 0 8px' }}>Your Selected Plan</p>
+                <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#16a34a', margin: '0 0 8px' }}>{t('success.selectedPlanLabel')}</p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: '15px', fontWeight: 700, color: '#0f1f3d' }}>{plan.icon} {plan.name}</span>
-                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}><Price amount={plan.price} />/mo</span>
+                  <span style={{ fontSize: '15px', fontWeight: 700, color: '#0f1f3d' }}>{plan.icon} {tc(`care.${plan.id}.name`)}</span>
+                  <span style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb' }}><Price amount={plan.price} />{t('perMo')}</span>
                 </div>
-                <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '6px 0 0' }}>🏠 Web hosting included</p>
+                <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '6px 0 0' }}>{t('success.hostingIncluded')}</p>
               </div>
             )}
 
             <div style={{ textAlign: 'left', background: '#f8fafc', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
-              <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', margin: '0 0 14px' }}>What happens next</p>
-              {[
-                'We review your website for compatibility with our care plans',
-                'We confirm your plan details and domain info',
-                'We set up hosting, backups, and security monitoring',
-                'Your care plan goes live within 1–2 business days',
-              ].map((s, i) => (
+              <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', margin: '0 0 14px' }}>{t('success.whatNext')}</p>
+              {(t.raw('success.steps') as string[]).map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: i < 3 ? '10px' : 0 }}>
                   <span style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#2563eb', color: 'white', fontSize: '11px', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
                   <span style={{ fontSize: '13px', color: '#475569', lineHeight: 1.5 }}>{s}</span>
@@ -291,8 +297,8 @@ export default function WebsiteCarePage() {
             </div>
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link href="/" style={{ display: 'inline-block', background: '#0f1f3d', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>← Back to Home</Link>
-              <Link href="/contact" style={{ display: 'inline-block', background: '#f1f5f9', color: '#374151', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>Contact Us</Link>
+              <Link href="/" style={{ display: 'inline-block', background: '#0f1f3d', color: 'white', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>{t('success.backHome')}</Link>
+              <Link href="/contact" style={{ display: 'inline-block', background: '#f1f5f9', color: '#374151', padding: '12px 28px', borderRadius: '10px', textDecoration: 'none', fontSize: '14px', fontWeight: 600 }}>{t('success.contact')}</Link>
             </div>
           </div>
         </div>
@@ -313,16 +319,16 @@ export default function WebsiteCarePage() {
 
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '24px', fontSize: '12px', color: '#94a3b8' }}>
-            <Link href="/order" style={{ color: '#94a3b8', textDecoration: 'none' }}>Order</Link>
+            <Link href="/order" style={{ color: '#94a3b8', textDecoration: 'none' }}>{t('breadcrumbOrder')}</Link>
             <span>›</span>
-            <span style={{ color: '#475569', fontWeight: 500 }}>Website Care Plans</span>
+            <span style={{ color: '#475569', fontWeight: 500 }}>{t('breadcrumb')}</span>
           </div>
 
           {/* Page title */}
           <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <h1 style={{ fontSize: mobile ? '22px' : tablet ? '26px' : '30px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>Website Care Plans</h1>
+            <h1 style={{ fontSize: mobile ? '22px' : tablet ? '26px' : '30px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 10px' }}>{t('title')}</h1>
             <p style={{ fontSize: mobile ? '14px' : '15px', color: '#64748b', margin: '0', maxWidth: '560px', marginLeft: 'auto', marginRight: 'auto', lineHeight: 1.65 }}>
-              Already have a website? Choose a monthly care plan to keep it secure, updated, and running smoothly.
+              {t('subtitle')}
             </p>
           </div>
 
@@ -331,10 +337,10 @@ export default function WebsiteCarePage() {
             <span style={{ fontSize: 22, flexShrink: 0, lineHeight: 1.3 }}>✅</span>
             <div>
               <div style={{ fontWeight: 700, fontSize: mobile ? 13 : 14, color: '#166534', marginBottom: 3 }}>
-                All Website Care Plans include web hosting
+                {t('hostingTitle')}
               </div>
               <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.6 }}>
-                No separate hosting bill. Only extra cost: your domain name, usually around $12/year.
+                {t('hostingText')}
               </div>
             </div>
           </div>
@@ -356,6 +362,12 @@ export default function WebsiteCarePage() {
             {CARE_PLANS_LIVE.map(p => {
               const sel = selectedPlan === p.id
               const hov = hoveredPlan  === p.id
+              const name = tc(`care.${p.id}.name`)
+              const description = tc(`care.${p.id}.description`)
+              const goodFor = tc(`care.${p.id}.goodFor`)
+              const badge = tc(`care.${p.id}.badge`)
+              const features = tc.raw(`care.${p.id}.features`) as string[]
+              const details = tc.raw(`care.${p.id}.details`) as { label: string; value: string }[]
               return (
                 <div
                   key={p.id}
@@ -380,7 +392,7 @@ export default function WebsiteCarePage() {
                   {/* Recommended ribbon */}
                   {p.popular && (
                     <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: '#2563eb', color: 'white', fontSize: '10px', fontWeight: 700, padding: '3px 12px', borderRadius: '100px', whiteSpace: 'nowrap' }}>
-                      ★ Recommended
+                      {t('recommended')}
                     </div>
                   )}
 
@@ -396,10 +408,10 @@ export default function WebsiteCarePage() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '10px' }}>
                         <div style={{ fontSize: '28px', lineHeight: 1, flexShrink: 0 }}>{p.icon}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{p.name}</div>
+                          <div style={{ fontSize: '16px', fontWeight: 700, color: '#0f1f3d', lineHeight: 1.2 }}>{name}</div>
                           <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginTop: '2px' }}>
                             <span style={{ fontSize: '21px', fontWeight: 800, color: '#2563eb' }}><Price amount={p.price} /></span>
-                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>/mo</span>
+                            <span style={{ fontSize: '12px', color: '#94a3b8' }}>{t('perMo')}</span>
                           </div>
                         </div>
                         {sel && (
@@ -410,19 +422,19 @@ export default function WebsiteCarePage() {
                       {/* Badges */}
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' }}>
                         <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 10px', borderRadius: '100px' }}>
-                          {p.badge}
+                          {badge}
                         </span>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#16a34a', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '100px', padding: '3px 9px' }}>
-                          🏠 Hosting included
+                          {t('hostingIncluded')}
                         </span>
                       </div>
 
                       {/* Description */}
-                      <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.6, margin: '0 0 10px' }}>{p.description}</p>
+                      <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.6, margin: '0 0 10px' }}>{description}</p>
 
                       {/* Features */}
                       <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 10px' }}>
-                        {p.features.map(f => (
+                        {features.map(f => (
                           <li key={f} style={{ fontSize: '13px', color: '#374151', lineHeight: 1.75, display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
                             <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0 }}>✓</span>
                             <span>{f}</span>
@@ -432,7 +444,7 @@ export default function WebsiteCarePage() {
 
                       {/* Good for */}
                       <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
-                        <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
+                        <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>{t('goodFor')}</strong> {goodFor}
                       </p>
                     </>
                   ) : (
@@ -441,44 +453,44 @@ export default function WebsiteCarePage() {
                       {/* Left column */}
                       <div style={{ width: tablet ? '145px' : '165px', flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
                         <div style={{ fontSize: '28px', lineHeight: 1, marginBottom: '8px' }}>{p.icon}</div>
-                        <div style={{ fontSize: tablet ? '15px' : '17px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{p.name}</div>
+                        <div style={{ fontSize: tablet ? '15px' : '17px', fontWeight: 700, color: '#0f1f3d', marginBottom: '6px', lineHeight: 1.3 }}>{name}</div>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px', marginBottom: '8px' }}>
                           <span style={{ fontSize: tablet ? '21px' : '24px', fontWeight: 800, color: '#2563eb', transition: 'transform 0.2s', display: 'inline-block', transform: sel || hov ? 'scale(1.05)' : 'scale(1)' }}>
                             <Price amount={p.price} />
                           </span>
-                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>/mo</span>
+                          <span style={{ fontSize: '12px', color: '#94a3b8' }}>{t('perMo')}</span>
                         </div>
                         <span style={{ ...badgeStyle(p.badge, sel), display: 'inline-block', fontSize: '10px', fontWeight: 700, padding: '3px 9px', borderRadius: '100px', width: 'fit-content', marginBottom: '8px' }}>
-                          {p.badge}
+                          {badge}
                         </span>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#16a34a', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '100px', padding: '3px 9px', width: 'fit-content', marginBottom: '10px' }}>
-                          🏠 Hosting included
+                          {t('hostingIncluded')}
                         </span>
-                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.65, margin: '0 0 8px', flex: 1 }}>{p.description}</p>
+                        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.65, margin: '0 0 8px', flex: 1 }}>{description}</p>
                         <p style={{ fontSize: '11px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.5, margin: 0, marginTop: 'auto', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
-                          <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>Good for:</strong> {p.goodFor}
+                          <strong style={{ fontStyle: 'normal', fontWeight: 600, color: '#64748b' }}>{t('goodFor')}</strong> {goodFor}
                         </p>
                       </div>
 
                       {/* Right column */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '10px' }}>
-                          What&apos;s included
+                          {t('whatsIncluded')}
                         </div>
                         <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 12px' }}>
-                          {p.features.map(f => (
+                          {features.map(f => (
                             <li key={f} style={{ fontSize: '12px', color: '#374151', lineHeight: 1.8, display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
                               <span style={{ color: '#16a34a', fontWeight: 700, flexShrink: 0, marginTop: '2px' }}>✓</span>
                               <span>{f}</span>
                             </li>
                           ))}
                         </ul>
-                        {p.details.length > 0 && (
+                        {details.length > 0 && (
                           <div style={{ padding: '10px 12px', background: '#f8fafc', borderRadius: 10, border: '1px solid #f1f5f9' }}>
-                            {p.details.map((detail, i) => (
-                              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: i < p.details.length - 1 ? '1px solid #e2e8f0' : 'none', fontSize: 11, gap: 8 }}>
+                            {details.map((detail, i) => (
+                              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: i < details.length - 1 ? '1px solid #e2e8f0' : 'none', fontSize: 11, gap: 8 }}>
                                 <span style={{ color: '#64748b' }}>{detail.label}</span>
-                                <span style={{ fontWeight: 600, color: detail.value === 'Not included' ? '#94a3b8' : '#0f1f3d', textAlign: 'right', flexShrink: 0 }}>{detail.value}</span>
+                                <span style={{ fontWeight: 600, color: detail.value === tc('notIncluded') ? '#94a3b8' : '#0f1f3d', textAlign: 'right', flexShrink: 0 }}>{detail.value}</span>
                               </div>
                             ))}
                           </div>
@@ -493,7 +505,7 @@ export default function WebsiteCarePage() {
 
           {/* ── Comparison table ── */}
           <div style={{ marginBottom: 36 }}>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f1f3d', marginBottom: 10 }}>📊 Full Plan Comparison</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#0f1f3d', marginBottom: 10 }}>{t('comparisonTitle')}</div>
 
             {mobile ? (
               /* ── Mobile: no-scroll compact table ──
@@ -511,10 +523,10 @@ export default function WebsiteCarePage() {
                   <tr style={{ background: '#f8fafc' }}>
                     <th style={{ padding: '9px 10px', textAlign: 'left' as const, fontWeight: 700, color: '#64748b', borderBottom: '1px solid #e2e8f0', fontSize: '10px' }}></th>
                     {[
-                      { id: 'basic-care',   short: 'Basic',  price: '$29' },
-                      { id: 'content-care', short: 'Cont.',  price: '$49' },
-                      { id: 'growth-care',  short: 'Growth', price: '$100' },
-                      { id: 'full-care',    short: 'Full',   price: '$150' },
+                      { id: 'basic-care',   short: t('cols.basic') },
+                      { id: 'content-care', short: t('cols.contentShort') },
+                      { id: 'growth-care',  short: t('cols.growth') },
+                      { id: 'full-care',    short: t('cols.full') },
                     ].map(col => {
                       const sel = selectedPlan === col.id
                       return (
@@ -532,7 +544,7 @@ export default function WebsiteCarePage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {comparisonRows.map((row, ri) => {
+                  {(tc.raw("step2.comparison") as typeof comparisonRows).map((row, ri) => {
                     const isPrice = row.type === 'price'
                     if (isPrice) return null // price already shown in header
                     return (
@@ -558,25 +570,25 @@ export default function WebsiteCarePage() {
                 <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: 0, fontSize: '12px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', minWidth: '480px' }}>
                   <thead>
                     <tr style={{ background: '#f8fafc' }}>
-                      <th style={{ padding: '10px 14px', textAlign: 'left' as const, fontWeight: 700, color: '#374151', borderBottom: '1px solid #e2e8f0', fontSize: '11px', minWidth: 160 }}>Feature</th>
+                      <th style={{ padding: '10px 14px', textAlign: 'left' as const, fontWeight: 700, color: '#374151', borderBottom: '1px solid #e2e8f0', fontSize: '11px', minWidth: 160 }}>{t('featureCol')}</th>
                       {[
-                        { id: 'basic-care',   label: 'Basic' },
-                        { id: 'content-care', label: 'Content' },
-                        { id: 'growth-care',  label: 'Growth' },
-                        { id: 'full-care',    label: 'Full' },
+                        { id: 'basic-care',   label: t('cols.basic') },
+                        { id: 'content-care', label: t('cols.content') },
+                        { id: 'growth-care',  label: t('cols.growth') },
+                        { id: 'full-care',    label: t('cols.full') },
                       ].map(col => {
                         const sel = selectedPlan === col.id
                         return (
                           <th key={col.id} onClick={() => setSelectedPlan(col.id)} style={{ padding: '10px 14px', textAlign: 'center' as const, fontWeight: 700, color: sel ? '#2563eb' : '#374151', background: sel ? '#eff6ff' : '#f8fafc', borderBottom: '1px solid #e2e8f0', fontSize: '11px', cursor: 'pointer', whiteSpace: 'nowrap' as const }}>
                             {`${col.label} ${carePrice(col.id)}`}
-                            {sel && <span style={{ display: 'block', fontSize: 9, fontWeight: 600, color: '#2563eb', marginTop: 2 }}>▲ Selected</span>}
+                            {sel && <span style={{ display: 'block', fontSize: 9, fontWeight: 600, color: '#2563eb', marginTop: 2 }}>{t('selected')}</span>}
                           </th>
                         )
                       })}
                     </tr>
                   </thead>
                   <tbody>
-                    {comparisonRows.map((row, ri) => {
+                    {(tc.raw("step2.comparison") as typeof comparisonRows).map((row, ri) => {
                       const isPrice = row.type === 'price'
                       return (
                         <tr key={row.feature} style={{ background: isPrice ? '#f0f7ff' : ri % 2 === 0 ? 'white' : '#fafafa' }}>
@@ -586,7 +598,7 @@ export default function WebsiteCarePage() {
                             const isSel = selectedPlan === colId
                             return (
                               <td key={ci} style={{ padding: '9px 14px', textAlign: 'center' as const, borderBottom: '1px solid #f1f5f9', background: isSel ? '#f0f7ff' : 'inherit', color: val === '✓' ? '#16a34a' : val === '—' ? '#cbd5e1' : isPrice ? '#2563eb' : '#374151', fontWeight: val === '✓' || isPrice ? 700 : 400, fontSize: isPrice ? 12 : 11 }}>
-                                {isPrice ? `${carePrice(colId)}/mo` : val}
+                                {isPrice ? `${carePrice(colId)}${t('perMo')}` : val}
                               </td>
                             )
                           })}
@@ -598,13 +610,13 @@ export default function WebsiteCarePage() {
               </div>
             )}
 
-            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8, textAlign: 'center' as const }}>Tap a column header to select that plan</div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8, textAlign: 'center' as const }}>{t('tapHint')}</div>
           </div>
 
           {/* Warning note */}
           <div style={{ marginBottom: 36, padding: mobile ? '12px 14px' : '14px 18px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, fontSize: 12, color: '#92400e', lineHeight: 1.75 }}>
-            <strong>⚠️ What&apos;s not included:</strong>
-            {' '}Domain name, premium plugins, business email, advanced custom work, and extra update time are not included unless agreed separately. Content updates cover small changes only — new pages, redesigns, and advanced features are quoted separately. Minimum 6-month subscription. Hours do not roll over.
+            <strong>{t('noteStrong')}</strong>
+            {' '}{t('noteText')}
           </div>
 
           {/* ── Form ── */}
@@ -612,10 +624,10 @@ export default function WebsiteCarePage() {
             <div ref={formRef} style={{ scrollMarginTop: '80px' }}>
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <h2 style={{ fontSize: mobile ? '19px' : tablet ? '21px' : '24px', fontWeight: 800, color: '#0f1f3d', margin: '0 0 8px' }}>
-                  Almost done! Tell us about your website.
+                  {t('formTitle')}
                 </h2>
                 <p style={{ fontSize: '14px', color: '#64748b', margin: 0 }}>
-                  We&apos;ll review your site and confirm it&apos;s compatible before anything is charged.
+                  {t('formSubtitle')}
                 </p>
               </div>
 
@@ -630,34 +642,34 @@ export default function WebsiteCarePage() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
                       <div>
-                        <label style={lbl}>Business Name <Req /></label>
-                        <input style={errors.businessName ? inputErr : inputStyle} placeholder="e.g. Bloom Florist" value={form.businessName} onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))} />
+                        <label style={lbl}>{t('businessName')} <Req /></label>
+                        <input style={errors.businessName ? inputErr : inputStyle} placeholder={t('businessNamePlaceholder')} value={form.businessName} onChange={e => setForm(f => ({ ...f, businessName: e.target.value }))} />
                         <FieldErr msg={errors.businessName} />
                       </div>
                       <div>
-                        <label style={lbl}>Your Full Name <Req /></label>
-                        <input style={errors.fullName ? inputErr : inputStyle} placeholder="e.g. Sarah Miller" value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} />
+                        <label style={lbl}>{t('fullName')} <Req /></label>
+                        <input style={errors.fullName ? inputErr : inputStyle} placeholder={t('fullNamePlaceholder')} value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} />
                         <FieldErr msg={errors.fullName} />
                       </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: mobile ? '1fr' : '1fr 1fr', gap: '14px', marginBottom: '14px' }}>
                       <div>
-                        <label style={lbl}>Email Address <Req /></label>
-                        <input type="email" style={errors.email ? inputErr : inputStyle} placeholder="you@company.com" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+                        <label style={lbl}>{t('email')} <Req /></label>
+                        <input type="email" style={errors.email ? inputErr : inputStyle} placeholder={t('emailPlaceholder')} value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
                         <FieldErr msg={errors.email} />
                       </div>
                       <div>
-                        <label style={lbl}>Phone Number</label>
-                        <input type="tel" style={inputStyle} placeholder="(555) 123-4567" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
+                        <label style={lbl}>{t('phone')}</label>
+                        <input type="tel" style={inputStyle} placeholder={t('phonePlaceholder')} value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
                       </div>
                     </div>
 
                     <div style={{ marginBottom: '14px' }}>
-                      <label style={lbl}>Your current website URL <Req /></label>
+                      <label style={lbl}>{t('website')} <Req /></label>
                       <input
                         style={errors.website ? inputErr : inputStyle}
-                        placeholder="e.g. yourbusiness.com"
+                        placeholder={t('websitePlaceholder')}
                         value={form.website}
                         onChange={e => setForm(f => ({ ...f, website: e.target.value }))}
                       />
@@ -665,23 +677,23 @@ export default function WebsiteCarePage() {
                     </div>
 
                     <div style={{ marginBottom: '14px' }}>
-                      <label style={lbl}>What platform is your website on?</label>
+                      <label style={lbl}>{t('platform')}</label>
                       <select
                         value={platform}
                         onChange={e => setPlatform(e.target.value)}
                         style={{ ...inputStyle, appearance: 'auto', color: platform ? '#0f1f3d' : '#94a3b8' }}
                       >
-                        <option value="">Select platform…</option>
-                        {PLATFORMS.map(p => <option key={p} value={p}>{p}</option>)}
+                        <option value="">{t('platformSelect')}</option>
+                        {PLATFORMS.map(p => <option key={p} value={p}>{p === 'Custom HTML' ? t('platformCustomHtml') : p === 'Not sure' ? t('platformNotSure') : p === 'Other' ? t('platformOther') : p}</option>)}
                       </select>
                     </div>
 
                     <div style={{ marginBottom: apiError ? '14px' : 0 }}>
-                      <label style={lbl}>Notes (optional)</label>
+                      <label style={lbl}>{t('notes')}</label>
                       <textarea
                         rows={4}
                         style={{ ...inputStyle, resize: 'vertical', minHeight: '96px' }}
-                        placeholder="Any specific things you'd like us to update or fix? Any concerns about your current site?"
+                        placeholder={t('notesPlaceholder')}
                         value={form.notes}
                         onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
                       />
@@ -708,10 +720,10 @@ export default function WebsiteCarePage() {
                     disabled={loading}
                     style={{ ...btnPrimary, opacity: loading ? 0.65 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
                   >
-                    {loading ? 'Submitting…' : 'Start My Care Plan →'}
+                    {loading ? t('submitting') : t('submit')}
                   </button>
                   <p style={{ fontSize: '12px', color: '#94a3b8', textAlign: 'center', marginTop: '12px', lineHeight: 1.6 }}>
-                    🔒 No payment required now. We&apos;ll check your website is compatible before charging anything.
+                    {t('formFootnote')}
                   </p>
                 </div>
               </form>
@@ -721,7 +733,7 @@ export default function WebsiteCarePage() {
           {/* Prompt when no plan selected */}
           {!selectedPlan && (
             <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', marginTop: '8px' }}>
-              ↑ Select a plan above to continue
+              {t('selectPrompt')}
             </div>
           )}
 
@@ -734,6 +746,7 @@ export default function WebsiteCarePage() {
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function PageHeader() {
+  const t = useTranslations('orderCare')
   return (
     <header style={{ background: 'white', borderBottom: '1px solid #e2e8f0', height: '60px', display: 'flex', alignItems: 'center', padding: '0 20px', position: 'sticky', top: 0, zIndex: 100, boxSizing: 'border-box' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -741,8 +754,8 @@ function PageHeader() {
           <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f1f3d', letterSpacing: '-0.02em' }}>AG Development</span>
         </Link>
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '13px', color: '#94a3b8' }}>Need help?</span>
-          <Link href="/contact" style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>Contact us</Link>
+          <span style={{ fontSize: '13px', color: '#94a3b8' }}>{t('header.needHelp')}</span>
+          <Link href="/contact" style={{ fontSize: '13px', color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>{t('header.contact')}</Link>
         </div>
       </div>
     </header>
@@ -750,27 +763,29 @@ function PageHeader() {
 }
 
 function CareSummary({ plan }: { plan: typeof CARE_PLANS[0] }) {
+  const t = useTranslations('orderCare')
+  const tc = useTranslations('orderPage')
   return (
     <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '14px', padding: '20px', boxSizing: 'border-box' }}>
       <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f1f3d', margin: '0 0 14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
-        Order Summary
+        {t('summary.title')}
       </h3>
-      <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', margin: '0 0 8px' }}>Selected Plan</p>
+      <p style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', margin: '0 0 8px' }}>{t('summary.selectedPlan')}</p>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-        <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f1f3d' }}>{plan.name}</span>
-        <span style={{ fontSize: '17px', fontWeight: 700, color: '#2563eb' }}><Price amount={plan.price} />/mo</span>
+        <span style={{ fontSize: '14px', fontWeight: 600, color: '#0f1f3d' }}>{tc(`care.${plan.id}.name`)}</span>
+        <span style={{ fontSize: '17px', fontWeight: 700, color: '#2563eb' }}><Price amount={plan.price} />{t('perMo')}</span>
       </div>
       <p style={{ fontSize: '12px', color: '#16a34a', fontWeight: 600, margin: '4px 0 12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-        🏠 Web hosting included ✓
+        {t('summary.hostingIncluded')}
       </p>
       <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', marginBottom: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>Monthly Total</span>
-          <span style={{ fontSize: '20px', fontWeight: 800, color: '#2563eb' }}><Price amount={plan.price} />/mo</span>
+          <span style={{ fontSize: '14px', fontWeight: 700, color: '#374151' }}>{t('summary.monthlyTotal')}</span>
+          <span style={{ fontSize: '20px', fontWeight: 800, color: '#2563eb' }}><Price amount={plan.price} />{t('perMo')}</span>
         </div>
       </div>
       <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '12px 14px', fontSize: '12px', color: '#1e40af', lineHeight: 1.6 }}>
-        🔒 <strong>No payment today.</strong> We&apos;ll contact you within 1 business day to confirm details and arrange payment.
+        🔒 <strong>{t('summary.noPayment')}</strong> {t('summary.noPaymentRest')}
       </div>
     </div>
   )
