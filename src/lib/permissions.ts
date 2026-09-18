@@ -45,6 +45,9 @@ export const PERMISSION_GROUPS: { group: string; perms: { key: string; label: st
   { group: 'Email', perms: [
     { key: 'emails.send', label: 'Send & schedule emails' },
   ]},
+  { group: 'Viber Outreach', perms: [
+    { key: 'outreach.send', label: 'Import contacts & send Viber messages' },
+  ]},
 ]
 
 export const ALL_GRANTABLE: string[] = PERMISSION_GROUPS.flatMap(g => g.perms.map(p => p.key))
@@ -73,6 +76,7 @@ export const PRESETS: Record<PresetKey, { label: string; description: string; pe
       'reports.view', 'reports.export',
       'activity.view',
       'emails.send',
+      'outreach.send',
     ],
     scope: 'all',
   },

@@ -12,6 +12,7 @@ const adminLinks: { href: string; label: string; icon: string; perm?: string }[]
   { href: '/admin/clients', label: 'Clients', icon: '👥', perm: 'clients.view' },
   { href: '/admin/leads', label: 'Leads & CRM', icon: '📋', perm: 'leads.view' },
   { href: '/admin/emails', label: 'Email', icon: '✉️', perm: 'emails.send' },
+  { href: '/admin/outreach', label: 'Viber Outreach', icon: '💬', perm: 'outreach.send' },
   { href: '/admin/reports', label: 'Monthly Reports', icon: '📊', perm: 'reports.view' },
   { href: '/admin/stats', label: 'Statistics', icon: '📈', perm: 'reports.view' },
   { href: '/admin/invoices', label: 'Invoices', icon: '💳', perm: 'invoices.view' },
