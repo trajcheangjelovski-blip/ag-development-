@@ -1,14 +1,19 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 
-export const metadata: Metadata = {
-  title: 'See a Demo of Your Website for Your Business',
-  description: 'Get a free custom website demo built for your business by AG Development — no cost, no commitment. See what your new site could look like.',
-  openGraph: {
-    title: 'See a Demo of Your Website for Your Business — AG Development',
-    description: 'Request a free custom website demo built for your business. See what your new site could look like before you commit.',
-    url: 'https://ag-development.dev/review',
-  },
-  alternates: { canonical: 'https://ag-development.dev/review' },
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'reviewPage.meta' })
+  return {
+    title: t('title'),
+    description: t('description'),
+    openGraph: {
+      title: t('ogTitle'),
+      description: t('ogDescription'),
+      url: 'https://ag-development.dev/review',
+    },
+    alternates: { canonical: 'https://ag-development.dev/review' },
+  }
 }
 
 export default function ReviewLayout({ children }: { children: React.ReactNode }) {

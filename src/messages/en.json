@@ -369,6 +369,12 @@
     }
   },
   "orderPage": {
+    "meta": {
+      "title": "Order a Service",
+      "description": "Order a website, care plan, IT support, or social media design plan from AG Development. Simple checkout, no contracts.",
+      "ogTitle": "Order — AG Development",
+      "ogDescription": "Choose your plan and get started. Website, IT support, or social media design."
+    },
     "header": { "needHelp": "Need help?", "contact": "Contact us" },
     "loading": "Loading…",
     "cross": {
@@ -531,6 +537,12 @@
     }
   },
   "reviewPage": {
+    "meta": {
+      "title": "See a Demo of Your Website for Your Business",
+      "description": "Get a free custom website demo built for your business by AG Development — no cost, no commitment. See what your new site could look like.",
+      "ogTitle": "See a Demo of Your Website for Your Business — AG Development",
+      "ogDescription": "Request a free custom website demo built for your business. See what your new site could look like before you commit."
+    },
     "heroTitle": "See a Demo of Your Website for Your Business",
     "heroSubtitle": "Fill out this form and we'll build a free custom demo for your business and send it over — at no cost, no commitment.",
     "successTitle": "Request Submitted!",
@@ -564,6 +576,12 @@
     "genericError": "Something went wrong. Please try again."
   },
   "orderCare": {
+    "meta": {
+      "title": "Website Care Plans",
+      "description": "Monthly website maintenance and hosting plans. Backups, security, updates, and more. Starting at $29/mo. Cancel anytime.",
+      "ogTitle": "Website Care Plans — AG Development",
+      "ogDescription": "Monthly website maintenance, hosting, and support plans from $29/mo."
+    },
     "header": { "needHelp": "Need help?", "contact": "Contact us" },
     "breadcrumbOrder": "Order",
     "breadcrumb": "Website Care Plans",
@@ -631,6 +649,12 @@
     }
   },
   "orderIt": {
+    "meta": {
+      "title": "IT Support Plans",
+      "description": "Monthly remote IT support for small business teams. Password resets, software issues, printers, and more. Plans from $49/mo.",
+      "ogTitle": "IT Support Plans — AG Development",
+      "ogDescription": "Remote IT support for small business teams. From $49/mo."
+    },
     "header": { "needHelp": "Need help?", "contact": "Contact us" },
     "breadcrumbOrder": "Order",
     "breadcrumb": "IT Support Only",
@@ -693,6 +717,12 @@
     }
   },
   "orderSocial": {
+    "meta": {
+      "title": "Social Media & Design Plans",
+      "description": "Monthly branded social media content and graphic design for small businesses. Custom posts, stories, and banners. Starting at $29/mo.",
+      "ogTitle": "Social Media & Design Plans — AG Development",
+      "ogDescription": "Monthly branded social media content and graphics for small businesses. From $29/mo."
+    },
     "header": { "needHelp": "Need help?", "contact": "Contact us" },
     "breadcrumbOrder": "Order",
     "breadcrumb": "Social Media & Design Only",
