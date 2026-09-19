@@ -5,7 +5,15 @@ import { PublicFooter } from '@/components/public/Footer'
 import { PricingTabs } from '@/components/public/PricingTabs'
 import { ServiceCards } from '@/components/public/ServiceCards'
 import { ServicesSection } from '@/components/public/ServicesSection'
+import { PlansProvider } from '@/lib/usePlans'
+import { getPublicPlans } from '@/lib/plans'
+import { regionFromLocale } from '@/i18n/routing'
 import type { Metadata } from 'next'
+
+// Render per-request so the region's live prices are fetched on the server and
+// painted on first load — otherwise the client-only price fetch briefly shows
+// the USD fallback before swapping to denars.
+export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Websites, IT Support & Digital Growth for Small Businesses',
@@ -98,8 +106,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const whyText = t.raw('why') as { title: string; desc: string }[]
   const stepsText = t.raw('steps') as { title: string; desc: string }[]
   const testimonialsText = t.raw('testimonials') as { quote: string; name: string; biz: string; initials: string }[]
+  const initialPlans = await getPublicPlans(regionFromLocale(locale))
   return (
-    <>
+    <PlansProvider initial={initialPlans}>
       <PublicHeader />
 
       {/* HERO */}
@@ -431,6 +440,6 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       </section>
 
       <PublicFooter />
-    </>
+    </PlansProvider>
   )
 }

@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { CATALOG } from '@/lib/catalog'
+import { getCardDefaults } from '@/lib/planDefaults'
 
 // Server-side plan access: reads the `plans` table (admin-editable), falling
 // back to the static catalog when the table is missing or empty.
@@ -102,4 +103,29 @@ export async function getPlans(region = 'us'): Promise<{ plans: Plan[]; fromDb: 
 export async function getPlan(id: string, region = 'us'): Promise<Plan | undefined> {
   const { plans } = await getPlans(region)
   return plans.find(p => p.id === id)
+}
+
+// Public, display-ready plans: active plans with rich card content filled in
+// from the built-in defaults and the sale-aware effective price precomputed.
+// Same shape the /api/plans GET returns and the client `usePlans` hook expects,
+// so a server page can pass this as the hook's initial data (no price flash).
+export type PublicPlan = Plan & { effective_price: number }
+
+export async function getPublicPlans(region = 'us'): Promise<PublicPlan[]> {
+  const { plans } = await getPlans(region)
+  return plans
+    .filter(p => p.is_active)
+    .map(p => {
+      const d = getCardDefaults(p.id)
+      return {
+        ...p,
+        badge: p.badge ?? d?.badge ?? null,
+        features: p.features ?? d?.features ?? null,
+        details: p.details ?? d?.details ?? null,
+        good_for: p.good_for ?? d?.good_for ?? null,
+        delivery: p.delivery ?? d?.delivery ?? null,
+        description: p.description || d?.description || '',
+        effective_price: effectivePrice(p),
+      }
+    })
 }

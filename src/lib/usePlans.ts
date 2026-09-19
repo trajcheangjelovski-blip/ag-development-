@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, createContext, useContext, createElement, type ReactNode } from 'react'
 import { useLocale } from 'next-intl'
 import { regionFromLocale } from '@/i18n/routing'
 
@@ -47,16 +47,28 @@ function loadPlans(region: string): Promise<ApiPlan[]> {
   return plansInFlight[region]
 }
 
+// Server-provided initial plans. A server component fetches the region's plans
+// and wraps the tree in <PlansProvider> so the very first (server) render and
+// the client hydration both paint the correct region price — no flash of the
+// USD fallback before the client fetch resolves.
+const PlansInitialContext = createContext<ApiPlan[] | null>(null)
+
+export function PlansProvider({ initial, children }: { initial: ApiPlan[]; children: ReactNode }) {
+  return createElement(PlansInitialContext.Provider, { value: initial ?? null }, children)
+}
+
 export function usePlans() {
   const locale = useLocale()
   const region = regionFromLocale(locale)
-  // Seed from cache on first render so a remounted tab shows the correct price
-  // immediately (no empty -> USD-fallback -> real-price flicker).
-  const [apiPlans, setApiPlans] = useState<ApiPlan[]>(() => plansCache[region] ?? [])
+  const initial = useContext(PlansInitialContext)
+  // Seed from server-provided data (or the module cache) on first render so the
+  // correct price shows immediately — no empty -> USD-fallback -> real-price
+  // flicker, on the server render, the hydration, or a remounted tab.
+  const [apiPlans, setApiPlans] = useState<ApiPlan[]>(() => plansCache[region] ?? initial ?? [])
   useEffect(() => {
     if (plansCache[region]) { setApiPlans(plansCache[region]); return }
     let active = true
-    loadPlans(region).then(arr => { if (active) setApiPlans(arr) })
+    loadPlans(region).then(arr => { if (active && arr.length) setApiPlans(arr) })
     return () => { active = false }
   }, [region])
   return apiPlans
