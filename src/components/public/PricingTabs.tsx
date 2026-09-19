@@ -108,9 +108,8 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
               <div className="mt-2 mb-4 space-y-0.5">
                 <div style={{ fontSize: '11px', color: '#94a3b8' }}>{t('domainNotIncluded')}</div>
                 <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                  →{' '}
-                  <button onClick={onSwitchToCare} className="underline hover:text-blue-500 transition-colors" style={{ fontSize: '11px', color: '#94a3b8', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                    {t('addCareToInclude')}
+                  <button onClick={onSwitchToCare} className="hover:text-blue-500 transition-colors" style={{ fontSize: '11px', color: '#94a3b8', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
+                    →{' '}<span className="underline">{t('addCareToInclude')}</span>
                   </button>
                 </div>
               </div>
