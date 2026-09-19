@@ -39,12 +39,22 @@ export function PublicFooter() {
           </div>
           <div>
             <h4 className="text-white font-semibold text-sm mb-4">{t('contactHeading')}</h4>
-            <div className="space-y-2.5 text-sm">
-              <div><a href={`mailto:${t('email')}`} className="hover:text-white/80 transition-colors">{t('email')}</a></div>
-              {locale === 'mk' && <div><a href="tel:+38975498887" className="hover:text-white/80 transition-colors">{t('phone')}</a></div>}
-              <div>{t('contactResponse')}</div>
-              <div>{t('contactHours')}</div>
-              <div>{t('contactArea')}</div>
+            <div className="space-y-3.5 text-sm">
+              <div>
+                <div className="text-white/35 text-[11px] font-semibold uppercase tracking-wider mb-0.5">{t('emailLabel')}</div>
+                <a href={`mailto:${t('email')}`} className="hover:text-white/80 transition-colors break-words">{t('email')}</a>
+              </div>
+              {locale === 'mk' && (
+                <div>
+                  <div className="text-white/35 text-[11px] font-semibold uppercase tracking-wider mb-0.5">{t('phoneLabel')}</div>
+                  <a href="tel:+38975498887" className="hover:text-white/80 transition-colors">{t('phone')}</a>
+                </div>
+              )}
+              <div>
+                <div className="text-white/35 text-[11px] font-semibold uppercase tracking-wider mb-0.5">{t('availabilityLabel')}</div>
+                <div>{t('contactHours')}</div>
+              </div>
+              <div className="text-white/40 pt-0.5">{t('contactArea')}</div>
             </div>
           </div>
         </div>

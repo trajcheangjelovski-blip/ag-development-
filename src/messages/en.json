@@ -198,6 +198,8 @@
     "servicesHeading": "Services",
     "companyHeading": "Company",
     "contactHeading": "Contact",
+    "emailLabel": "Email",
+    "availabilityLabel": "Availability",
     "services": ["Website Development", "WordPress Support", "Shopify Support", "Domain & DNS", "Business Email", "IT Support"],
     "company": ["About", "Portfolio", "Pricing", "Free Demo", "Contact", "Client Portal"],
     "email": "trajche.angjelovski@ag-development.dev",
