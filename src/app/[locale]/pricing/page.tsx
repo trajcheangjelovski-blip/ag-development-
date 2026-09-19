@@ -272,7 +272,7 @@ export default async function PricingPage() {
               <div>
                 <div className="text-xs font-bold uppercase tracking-widest text-blue-400 mb-3">{tp('custom.eyebrow')}</div>
                 <h2 className="font-display text-3xl font-extrabold text-white mb-2">{tp('custom.title')}</h2>
-                <div className="font-display text-4xl font-extrabold text-white mb-2">{t('custom.from')} {money(isMk ? 3000 : 49)}<span className="text-lg font-normal text-white/50">{tp('perMo')}</span></div>
+                <div className="font-display text-4xl font-extrabold text-white mb-2">{t('custom.from')} {money(isMk ? 7000 : 49)}<span className="text-lg font-normal text-white/50">{tp('perMo')}</span></div>
                 <p className="text-white/55 text-sm mb-7">{tp('custom.subtitle')}</p>
                 <ul className="space-y-2.5">
                   {(tp.raw('custom.features') as string[]).map(item => (
