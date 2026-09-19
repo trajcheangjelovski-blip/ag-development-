@@ -40,6 +40,10 @@
     "languageName": "English",
     "switchTo": "MK"
   },
+  "cart": {
+    "add": "Add to Cart",
+    "inCart": "In Cart"
+  },
   "contact": {
     "title": "Contact AG Development",
     "subtitle": "Have a question, a technical problem, or want to find out which service best fits your business?",

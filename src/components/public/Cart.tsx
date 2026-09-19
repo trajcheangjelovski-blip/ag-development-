@@ -1,5 +1,6 @@
 'use client'
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { CATALOG, getCatalogItem } from '@/lib/catalog'
 import { fbTrack } from '@/lib/fbpixel'
@@ -73,6 +74,7 @@ export function useCart() {
 
 export function AddToCartButton({ id, className }: { id: string; className?: string }) {
   const { add, has } = useCart()
+  const t = useTranslations('cart')
   const item = getCatalogItem(id)
   if (!item) return null
   const inCart = has(id)
@@ -97,7 +99,7 @@ export function AddToCartButton({ id, className }: { id: string; className?: str
         ? { background: '#f0fdf4', color: '#166534', borderColor: '#bbf7d0', cursor: 'default' }
         : { background: 'white', color: '#2563eb', borderColor: '#bfdbfe' }}
     >
-      {inCart ? '✓ In Cart' : '🛒 Add to Cart'}
+      {inCart ? `✓ ${t('inCart')}` : `🛒 ${t('add')}`}
     </button>
   )
 }
