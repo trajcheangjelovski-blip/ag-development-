@@ -1,4 +1,4 @@
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { Link } from '@/i18n/navigation'
 import { LogoMark } from '@/components/public/Logo'
 
@@ -6,6 +6,7 @@ const COMPANY_HREFS = ['/about', '/portfolio', '/pricing', '/review', '/contact'
 
 export function PublicFooter() {
   const t = useTranslations('footer')
+  const locale = useLocale()
   const services = t.raw('services') as string[]
   const company = t.raw('company') as string[]
 
@@ -39,7 +40,8 @@ export function PublicFooter() {
           <div>
             <h4 className="text-white font-semibold text-sm mb-4">{t('contactHeading')}</h4>
             <div className="space-y-2.5 text-sm">
-              <div><a href="mailto:support@ag-development.dev" className="hover:text-white/80 transition-colors">support@ag-development.dev</a></div>
+              <div><a href={`mailto:${t('email')}`} className="hover:text-white/80 transition-colors">{t('email')}</a></div>
+              {locale === 'mk' && <div><a href="tel:+38975498887" className="hover:text-white/80 transition-colors">{t('phone')}</a></div>}
               <div>{t('contactResponse')}</div>
               <div>{t('contactHours')}</div>
               <div>{t('contactArea')}</div>

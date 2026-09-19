@@ -120,7 +120,13 @@ export default async function LocaleLayout({
         <NextIntlClientProvider messages={messages}>
           <CartProvider>{children}<ChatWidget /></CartProvider>
         </NextIntlClientProvider>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(
+          {
+            ...orgSchema,
+            email: 'trajche.angjelovski@ag-development.dev',
+            ...(locale === 'mk' ? { telephone: '+38975498887' } : {}),
+          }
+        ) }} />
       </body>
     </html>
   )

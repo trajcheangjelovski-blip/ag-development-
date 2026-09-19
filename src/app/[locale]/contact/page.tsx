@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { Spinner } from '@/components/ui'
@@ -8,6 +8,8 @@ import { fbTrack } from '@/lib/fbpixel'
 
 export default function ContactPage() {
   const t = useTranslations('contact')
+  const isMk = useLocale() === 'mk'
+  const email = 'trajche.angjelovski@ag-development.dev'
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -38,7 +40,8 @@ export default function ContactPage() {
   }
 
   const info = [
-    { icon: '📧', label: t('emailLabel'), val: 'support@ag-development.dev', href: 'mailto:support@ag-development.dev' },
+    { icon: '📧', label: t('emailLabel'), val: email, href: `mailto:${email}` },
+    ...(isMk ? [{ icon: '📞', label: t('phoneLabel'), val: '075 498 887', href: 'tel:+38975498887' }] : []),
     { icon: '💬', label: t('responseLabel'), val: t('responseValue') },
     { icon: '🕘', label: t('hoursLabel'), val: t('hoursValue') },
     { icon: '🌐', label: t('supportLabel'), val: t('supportValue') },
