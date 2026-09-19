@@ -933,5 +933,76 @@
         ]
       }
     }
+  },
+  "portfolioPage": {
+    "meta": {
+      "title": "Portfolio",
+      "description": "Real client websites and design work by AG Development — custom sites, WordPress builds, social media graphics, logos, and print materials.",
+      "ogTitle": "Portfolio — AG Development",
+      "ogDescription": "Real client websites and design work by AG Development."
+    },
+    "hero": {
+      "eyebrow": "My Work",
+      "title": "Real client websites I build & maintain",
+      "desc": "These are real businesses I work with — from first launch to day-to-day care. Every site here is live, running, and under my ongoing support."
+    },
+    "clients": {
+      "eyebrow": "Client Websites",
+      "title": "Sites I built & keep running",
+      "desc": "Each project below is a real client — I built their website from scratch and continue to handle hosting, updates, and support every month.",
+      "sinceLabel": "Since",
+      "visitCta": "Visit live site →"
+    },
+    "websites": {
+      "murovska": {
+        "type": "Restaurant Website",
+        "location": "Skopje, North Macedonia",
+        "desc": "Traditional Macedonian restaurant with a fully custom-built website — multilingual (MK/EN), full food & drinks menu, photo gallery, table reservations, and Wolt delivery integration.",
+        "tags": ["Custom Build", "Multilingual", "Reservations", "Wolt Integration"],
+        "role": "Website build + ongoing monthly care"
+      },
+      "trueDefender": {
+        "type": "News Publication",
+        "location": "Online · US News",
+        "desc": "Independent American news publication on a fully custom-built newsroom platform — category sections (Politics, US News, World, Opinion, Story of Hope), fast article publishing updated throughout the day, and an SEO-optimized reading experience.",
+        "tags": ["Custom Build", "News / Publishing", "CMS", "SEO"],
+        "role": "Full custom build + hosting & maintenance"
+      }
+    },
+    "demosSection": {
+      "eyebrow": "Sites I Built",
+      "title": "Websites I built",
+      "desc": "These are front-end only builds — the design, layout, and UI are fully built out, but they don't include a live backend, real data, or actual business integrations. They show the kind of website I can build for your business.",
+      "warning": "⚠️ Front-end demo only — not a live business website",
+      "hover": "View front-end demo →"
+    },
+    "demos": {
+      "restaurant": {
+        "type": "Restaurant Website",
+        "desc": "Full menu, photo gallery and table reservations for an Italian restaurant.",
+        "tags": ["WordPress-style", "Menu", "Reservations"]
+      },
+      "dental": {
+        "type": "Clinic Website",
+        "desc": "Service pages, team profiles and online appointment booking for a dental clinic.",
+        "tags": ["WordPress-style", "Booking", "SEO"]
+      },
+      "fitness": {
+        "type": "Fitness Website",
+        "desc": "Class schedule, membership pricing and trainer profiles for a gym.",
+        "tags": ["WordPress-style", "Pricing", "Schedule"]
+      },
+      "store": {
+        "type": "Shopify-style Store",
+        "desc": "Product grid, categories, sale badges and checkout-ready layout for an online shop.",
+        "tags": ["Shopify", "E-commerce", "Product pages"]
+      }
+    },
+    "cta": {
+      "title": "Want a website like these?",
+      "desc": "I'll build you a clean, modern site and handle everything from hosting to monthly updates.",
+      "primary": "See a Demo of Your Website for Your Business →",
+      "secondary": "Start Your Website Project"
+    }
   }
 }
