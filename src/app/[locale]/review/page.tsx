@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { Spinner, Alert } from '@/components/ui'
@@ -15,6 +15,7 @@ const Field = ({ error, label, req, children }: { error?: string; label: string;
 
 export default function ReviewPage() {
   const t = useTranslations('reviewPage')
+  const locale = useLocale()
   const [form, setForm] = useState({
     business_name: '', website: '', full_name: '', email: '', phone: '', about: '',
   })
@@ -98,11 +99,23 @@ export default function ReviewPage() {
         <div className="max-w-xl mx-auto">
           <h1 className="font-display text-4xl font-extrabold mb-4">{t('heroTitle')}</h1>
           <p className="text-white/75 text-lg">{t('heroSubtitle')}</p>
+          {locale === 'mk' && (
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-7 text-sm font-medium text-white/70">
+              {[t('trustFree'), t('trustFast'), t('trustNoObligation')].map(point => (
+                <span key={point} className="inline-flex items-center gap-1.5">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  {point}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
       <section className="py-16 px-6">
-        <div className="max-w-lg mx-auto">
+        <div className="mx-auto" style={{ maxWidth: 560 }}>
           {submitted ? (
             <div className="card p-12 text-center">
               <div
