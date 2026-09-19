@@ -112,6 +112,13 @@ export default function OutreachPage() {
 
   useEffect(() => { load() }, [load])
 
+  // While a campaign is still sending in the background, poll for progress.
+  useEffect(() => {
+    if (!campaigns.some(k => k.status === 'sending')) return
+    const t = setTimeout(load, 3000)
+    return () => clearTimeout(t)
+  }, [campaigns, load])
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
     if (!q) return contacts
@@ -187,7 +194,7 @@ export default function OutreachPage() {
       })
       const data = await res.json()
       if (!res.ok) { setBanner({ ok: false, text: data.error || 'Send failed.' }); return }
-      setBanner({ ok: true, text: `Campaign sent — ${data.sent} delivered to Viber, ${data.failed} failed.` })
+      setBanner({ ok: true, text: `Campaign started — sending to ${data.total} contact(s) over Viber. Progress updates below.` })
       setCampName(''); setCampMessage('')
       load()
     } finally {

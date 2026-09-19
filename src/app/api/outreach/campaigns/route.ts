@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, after } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { requireOutreachAdmin, isOutreachTableMissing, renderMessage } from '@/lib/outreach'
 import { sendViber, infobipConfigured } from '@/lib/infobip'
+
+type Recipient = { id: string; company_name: string | null; phone: string }
 
 // GET  /api/outreach/campaigns   → list campaigns
 // POST /api/outreach/campaigns   → create a campaign and send it now
@@ -72,40 +74,62 @@ export async function POST(request: NextRequest) {
   if (campErr || !campaign) return NextResponse.json({ error: campErr?.message || 'Could not create campaign' }, { status: 500 })
 
   const campaignId = campaign.id as string
+
+  // Send in the background so the request returns immediately — a large list can
+  // take minutes (recipients × SEND_DELAY_MS) and would otherwise time out the
+  // request / block the UI. `after` keeps the loop running on the standalone
+  // Node server after the response is sent; the UI polls campaign status.
+  after(() => runCampaign(campaignId, recipients, message, Boolean(body.smsFailover)))
+
+  return NextResponse.json({ id: campaignId, total: recipients.length, queued: true })
+}
+
+// Send one campaign to all recipients, logging each message and keeping the
+// campaign row's counts/status current. Never throws — on an unexpected error it
+// marks the campaign failed so the UI stops showing "sending" forever.
+async function runCampaign(campaignId: string, recipients: Recipient[], message: string, smsFailover: boolean) {
+  const admin = await createAdminClient()
   let sent = 0, failed = 0
+  try {
+    for (const r of recipients) {
+      const text = renderMessage(message, r.company_name)
+      const smsText = smsFailover ? text : undefined
+      const result = await sendViber(r.phone, text, smsText)
 
-  // Send sequentially with a light throttle. (Self-hosted Node server, so a
-  // longer-running request is fine; for very large lists move this to a queue.)
-  for (const r of recipients) {
-    const text = renderMessage(message, r.company_name)
-    const smsText = body.smsFailover ? text : undefined
-    const result = await sendViber(r.phone, text, smsText)
+      await admin.from('outreach_messages').insert({
+        campaign_id: campaignId,
+        contact_id: r.id,
+        phone: r.phone,
+        company_name: r.company_name,
+        body: text,
+        provider_message_id: result.messageId || null,
+        status: result.ok ? 'sent' : 'failed',
+        error: result.ok ? null : (result.error || 'Send failed'),
+      })
 
-    await admin.from('outreach_messages').insert({
-      campaign_id: campaignId,
-      contact_id: r.id,
-      phone: r.phone,
-      company_name: r.company_name,
-      body: text,
-      provider_message_id: result.messageId || null,
-      status: result.ok ? 'sent' : 'failed',
-      error: result.ok ? null : (result.error || 'Send failed'),
-    })
+      if (result.ok) sent++; else failed++
+      // Keep the campaign counts live so the polling UI shows progress.
+      await admin.from('outreach_campaigns')
+        .update({ sent_count: sent, failed_count: failed })
+        .eq('id', campaignId)
 
-    if (result.ok) sent++; else failed++
-    if (SEND_DELAY_MS) await new Promise(res => setTimeout(res, SEND_DELAY_MS))
-  }
+      if (SEND_DELAY_MS) await new Promise(res => setTimeout(res, SEND_DELAY_MS))
+    }
 
-  await admin
-    .from('outreach_campaigns')
-    .update({
+    await admin.from('outreach_campaigns').update({
       status: failed === recipients.length ? 'failed' : 'sent',
       sent_count: sent,
       failed_count: failed,
       sent_at: new Date().toISOString(),
       error: failed === recipients.length ? 'All messages failed — check Infobip credentials/sender.' : null,
-    })
-    .eq('id', campaignId)
-
-  return NextResponse.json({ id: campaignId, total: recipients.length, sent, failed })
+    }).eq('id', campaignId)
+  } catch (e) {
+    await admin.from('outreach_campaigns').update({
+      status: 'failed',
+      sent_count: sent,
+      failed_count: failed,
+      sent_at: new Date().toISOString(),
+      error: e instanceof Error ? e.message : 'Campaign send crashed',
+    }).eq('id', campaignId)
+  }
 }

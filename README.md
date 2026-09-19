@@ -22,7 +22,7 @@ One codebase, three audiences:
 
 1. **Public marketing site** — home, about, services, pricing, portfolio, demos, order/checkout, review, contact.
 2. **Client portal** (`/portal/*`) — logged-in clients see tickets, invoices, usage, reports, activity, chat.
-3. **Admin CRM** (`/admin/*`) — manage clients, leads, tickets, invoices, plans, team, emails, reports, stats.
+3. **Admin CRM** (`/admin/*`) — manage clients, leads, tickets, invoices, plans, team, emails, Viber outreach, reports, stats.
 
 Core flow the MVP delivers:
 public site → free website review lead → admin sees lead → admin creates client → client logs in →
@@ -94,7 +94,7 @@ Internet → Cloudflare (DNS/CDN, CF-IPCountry) → Hetzner VPS
 src/
 ├── middleware.ts            # i18n routing + auth/role gating (admin/portal/login)
 ├── app/
-│   ├── [locale]/            # localized pages (feature/i18n-mk); on main these live at app/ root
+│   ├── [locale]/            # localized pages (now merged to main; every page lives under [locale])
 │   │   ├── (public)         # /, about, services, pricing, portfolio, contact, review, cart, order/*, demos/*
 │   │   ├── admin/           # dashboard, clients, leads, tickets, invoices, plans, emails, reports, settings, stats, team, activity
 │   │   └── portal/          # dashboard, tickets, invoices, reports, usage, activity, settings, team
@@ -133,7 +133,7 @@ server/                      # ⚠️ LEGACY Nginx-based deploy (setup.sh, nginx
 `/demos/{dental,fitness,restaurant,store}` (store has about/contact/product/shop).
 
 **Admin** (`role=admin`, gated in middleware): `dashboard, clients, clients/[id], clients/new,
-leads, leads/[id], tickets, tickets/[id], tickets/new, invoices, plans, emails, reports,
+leads, leads/[id], tickets, tickets/[id], tickets/new, invoices, plans, emails, outreach, reports,
 settings, stats, team, activity`.
 
 **Portal** (logged-in clients): `dashboard, tickets, tickets/[id], tickets/new, invoices,
@@ -150,6 +150,7 @@ HTTP method = exported function name (`GET/POST/PATCH/DELETE`).
 - **Billing:** `checkout`, `stripe/webhook`, `invoices`, `invoices/[id]`, `coupons`, `coupons/validate`, `plans`, `packages`
 - **Chat:** `chat`, `chat/conversations`, `chat/messages`, `chat/unread`, `chat/typing`, `chat/upload`
 - **Email:** `emails`, `emails/[id]`, `email-templates`, `email-templates/[id]`, `contact`, `review`
+- **Viber outreach:** `outreach/contacts`, `outreach/contacts/[id]`, `outreach/campaigns`, `outreach/campaigns/[id]`, `outreach/webhook` (Infobip delivery reports + STOP-reply opt-out; guarded by `INFOBIP_WEBHOOK_TOKEN`)
 - **Admin/account:** `settings`, `settings/test-email`, `team`, `admins`, `stats`, `reports`, `upload`, `account/avatar`, `account/email-connection`
 - **Cron** (guarded by `CRON_SECRET` Bearer): `cron/monthly-invoices`, `cron/send-scheduled`
 
@@ -176,9 +177,13 @@ Schema in [supabase/schema.sql](supabase/schema.sql). Tables:
 | `coupons` | discount codes (percent/amount, redemptions, expiry) |
 | `app_settings` | key/value app config (Stripe keys, email, notification_from…) |
 | `email_campaigns` | composed/bulk email sends (may need pending migration) |
+| `outreach_contacts` | Viber outreach list: phone (E.164, unique), company, consent_status, opt-out |
+| `outreach_campaigns` | Viber campaigns (message + `{company}` placeholder, audience, sent/failed counts) |
+| `outreach_messages` | per-recipient Viber delivery log (status, Infobip messageId for webhook matching) |
 
 - **Migrations:** run SQL files from `supabase/` in the Supabase SQL editor. `email_campaigns`
-  lives in `pending-migrations.sql`.
+  lives in `pending-migrations.sql`; the Viber outreach tables live in `viber-outreach.sql`
+  (idempotent — the outreach admin page shows a "run this SQL" prompt until it's applied).
 - **RLS is on.** User-scoped access via `createClient()`; admin overrides via `createAdminClient()`.
 - **Storage buckets:** `proof-uploads` (private) and `avatars` (public) — see §11.
 
@@ -191,6 +196,9 @@ Schema in [supabase/schema.sql](supabase/schema.sql). Tables:
 | `supabase/server.ts` / `client.ts` | Supabase clients (server cookie-based + admin service-role; browser) |
 | `email.ts` | All email sending. Resend + SMTP. `sendComposedEmail` = campaigns/lead replies (normalizes `&nbsp;`, adds `List-Unsubscribe`). Notification templates via `wrap()`. |
 | `emailCampaigns.ts` | Bulk campaign sending, recipient parsing, attachments |
+| `infobip.ts` | Viber Business Messages client (Infobip unified Messages API) + SMS failover + status mapping |
+| `outreach.ts` | Viber outreach helpers: admin guard (`outreach.send`), CSV parse/dedupe, `{company}` templating |
+| `phone.ts` | Phone normalization to E.164 digits (MK-aware: 070…/+389…/389…) |
 | `stripe.ts` | Hand-rolled Stripe REST client + webhook signature verification |
 | `permissions.ts` | Admin RBAC + client-team capabilities (see §9) |
 | `settings.ts` | Reads `app_settings` (Stripe/email config, senders) |
@@ -236,6 +244,13 @@ SMTP_HOST= SMTP_PORT= SMTP_USER= SMTP_PASS=   # notification/fallback mailbox
 
 # Stripe (can also live in app_settings table)
 STRIPE_SECRET_KEY= STRIPE_PUBLISHABLE_KEY= STRIPE_WEBHOOK_SECRET=
+
+# Viber outreach (Infobip) — feature is inert until these are set
+INFOBIP_BASE_URL=                   # account base URL, e.g. https://xxxxx.api.infobip.com
+INFOBIP_API_KEY=
+INFOBIP_VIBER_SENDER=               # approved Viber sender / brand name
+INFOBIP_MESSAGES_PATH=              # optional; default /messages-api/1/messages
+INFOBIP_WEBHOOK_TOKEN=              # shared secret guarding the webhook (?token=…)
 
 # App
 NEXT_PUBLIC_APP_URL=                # e.g. https://ag-development.dev
@@ -420,14 +435,17 @@ plans/prices per region, auto-routing visitors by country (soft redirect), and f
 **Confirmed decisions:** path-prefix URLs (`/en/…`, `/mk/…`) · soft redirect (detect country,
 allow manual switch) · Hetzner + Supabase · full Macedonian translation.
 
-**Status:** the move of all pages under `src/app/[locale]/` lives on branch **`feature/i18n-mk`**
-and is **not yet merged to `main`**. Production (`main`) still serves pages from `src/app/` root
-(no `[locale]`). Finish + test before merging.
+**Status:** ✅ **merged to `main`** (as of 2026-09). All pages now live under `src/app/[locale]/`
+with `next-intl` MK/EN routing; `src/app/` root no longer has non-localized pages. The admin CRM and
+client portal render in **English only** (message files cover public/marketing namespaces only — see §16.4).
 
 ### 16.1 Concepts
 - **Locale** = display language (`en` / `mk`) — controls translation.
 - **Region** = pricing market (`us` / `mk`) — controls which plans and which currency.
 - They map 1:1 for now (`en→us`, `mk→mk`) but are kept distinct to allow, e.g., MK-language pages priced in EUR.
+
+> **§16.2–16.8 below are the original implementation plan, now completed and merged.** Kept as a
+> record of how the i18n/geo/pricing system was built and why; not a to-do list any more.
 
 ### 16.2 Prerequisites (before resuming the refactor)
 1. Finish any interrupted `git pull` (`git stash` → `git pull` → `git stash pop`, resolve conflicts).
@@ -520,6 +538,10 @@ on geo and pricing.
 - **DB change:** write SQL, run in Supabase SQL editor, keep `supabase/schema.sql` updated.
 - **Change Stripe/email config:** Admin → Settings (persists to `app_settings`), or env vars.
 - **Send a campaign:** Admin → Emails (uses `sendComposedEmail`; needs sender identity in Account Settings).
+- **Send a Viber campaign:** Admin → Viber Outreach (perm `outreach.send`). Import contacts (paste/CSV),
+  set consent, then compose with `{company}` and send. Needs `viber-outreach.sql` applied + `INFOBIP_*`
+  env set. Sending runs in the background (Next `after()`); the campaign list polls for progress. Point the
+  Infobip callback at `/api/outreach/webhook?token=$INFOBIP_WEBHOOK_TOKEN` for delivery reports + STOP opt-out.
 - **Run locally:** `npm run dev` (needs `.env.local`). Build: `npm run build`.
 - **Deploy:** see §13.
 
@@ -527,9 +549,9 @@ on geo and pricing.
 
 ## 18. Gotchas & known issues
 
-- **Production runs `main`; dev work is on `feature/i18n-mk`.** The i18n migration is unfinished —
-  don't merge/deploy it until tested. Email-deliverability fix + "True Defender" portfolio entry
-  are already on `main` (hotfixed separately).
+- **Production runs `main`.** The i18n migration is now merged and live on `main` (all pages under
+  `[locale]`). Only public/marketing copy is translated; the admin CRM and client portal are
+  English-only (no `admin`/`portal` namespaces in `messages/*.json`).
 - **Server has local uncommitted drift** on `Caddyfile`, `docker-compose.yml`, `deploy.sh`, and
   2 order pages. `git pull` only works cleanly if incoming commits don't touch those files. Don't
   `git reset`/`checkout` those on the server (they're live config). Better: commit that drift into
@@ -564,6 +586,5 @@ Current baseline ≈ **€4/month** (self-hosted on Hetzner) vs the original Ver
 ## 20. Repo / git
 
 - Remote: `https://github.com/trajcheangjelovski-blip/ag-development-`
-- Default / production branch: **`main`**
-- Active dev branch: **`feature/i18n-mk`** (i18n migration)
+- Default / production branch: **`main`** (i18n migration now merged in)
 - Deploy target: `main` via `deploy.sh` on the server.

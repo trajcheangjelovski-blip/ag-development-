@@ -14,6 +14,13 @@ export const dynamic = 'force-dynamic'
 
 const OPT_OUT_KEYWORDS = ['stop', 'unsubscribe', 'стоп', 'отпиши', 'откажи']
 
+// True when the reply is an opt-out. Matches whole words only, so "nonstop" or
+// "stopwatch" don't trigger an unsubscribe — only a standalone STOP/СТОП etc.
+function isOptOutReply(text: string): boolean {
+  const tokens = (text || '').toLowerCase().split(/[^\p{L}]+/u).filter(Boolean)
+  return tokens.some(t => OPT_OUT_KEYWORDS.includes(t))
+}
+
 function authorized(request: NextRequest): boolean {
   const expected = process.env.INFOBIP_WEBHOOK_TOKEN
   if (!expected) return true // not configured → don't block (dev)
@@ -38,8 +45,7 @@ export async function POST(request: NextRequest) {
       r?.message?.text || r?.text || r?.content?.text || r?.message?.body?.text
     const fromRaw: string | undefined = r?.from || r?.sender || r?.destination
     if (inboundText && fromRaw) {
-      const normalized = (inboundText || '').trim().toLowerCase()
-      if (OPT_OUT_KEYWORDS.some(k => normalized === k || normalized.startsWith(k + ' ') || normalized.includes(k))) {
+      if (isOptOutReply(inboundText)) {
         const phone = normalizePhone(fromRaw)
         if (phone) {
           await admin.from('outreach_contacts')
