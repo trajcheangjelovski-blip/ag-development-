@@ -118,7 +118,7 @@
       { "icon": "💻", "title": "Web design & development", "items": ["Business websites", "WordPress websites", "Shopify stores", "Landing pages", "Responsive design for mobile devices", "Ongoing care, backups & updates"] },
       { "icon": "🎧", "title": "IT support", "items": ["L1 IT support", "Remote troubleshooting", "Password resets & user access", "Software install & licensing", "Email & account configuration", "Printer & peripheral setup", "Antivirus & malware protection", "Ticket intake, handling & resolution"] },
       { "icon": "🖥️", "title": "Systems & endpoints", "items": ["Windows install & administration", "Active Directory", "Microsoft Entra & Configuration Manager", "Security settings for users & devices"] },
-      { "icon": "🌐", "title": "Networking & hardware", "items": ["PC hardware diagnostics & repair", "Network setup, FTP cabling & troubleshooting", "CCTV & video surveillance — on-site install & service"] },
+      { "icon": "🌐", "title": "Networking & hardware", "items": ["PC hardware diagnostics & repair", "Network setup, UTP cabling & troubleshooting", "CCTV & video surveillance — on-site install & service"] },
       { "icon": "🗄️", "title": "Data & Cloud", "items": ["SQL Server Express administration, backup, clean-up & shrink", "QNAP NAS setup, maintenance & backups", "Amazon Web Services management"] },
       { "icon": "🎨", "title": "Social media & design", "items": ["Social media posts & stories", "Banners & ad graphics", "Brand visuals & logos", "Monthly content packages", "Design optimized for mobile & every platform"] }
     ],
