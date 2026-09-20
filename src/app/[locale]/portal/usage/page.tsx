@@ -1,12 +1,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, ProgressBar } from '@/components/ui'
 import { formatMinutes, currentBillingMonth, formatMonth } from '@/lib/utils'
+import { formatPrice } from '@/lib/money'
 
 export default async function ClientUsage() {
   const locale = await getLocale()
+  const t = await getTranslations('portal.usage')
+  const tc = await getTranslations('portal.common')
+  const tp = await getTranslations('portal.planTerms')
+  const fmt = (n: number) => formatPrice(n, locale === 'mk' ? 'MKD' : 'USD', locale)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${locale}/login`)
@@ -55,10 +60,10 @@ export default async function ClientUsage() {
     }
   }
   const planTerms: string[] = pkg ? [
-    includedRequests > 0 ? `${includedRequests} support requests per month` : '',
-    includedHours > 0 ? `${includedHours}h of support work per month` : '',
-    pkg.response_time ? `First response: ${pkg.response_time.toLowerCase().startsWith('within') ? pkg.response_time.toLowerCase() : pkg.response_time}` : '',
-    pkg.extra_hourly_rate ? `Extra work beyond included hours at $${pkg.extra_hourly_rate}/hr` : '',
+    includedRequests > 0 ? tp('requests', { count: includedRequests }) : '',
+    includedHours > 0 ? tp('hours', { hours: includedHours }) : '',
+    pkg.response_time ? tp('firstResponse', { time: pkg.response_time.toLowerCase().startsWith('within') ? pkg.response_time.toLowerCase() : pkg.response_time }) : '',
+    pkg.extra_hourly_rate ? tp('extraRate', { rate: tc('perHour', { price: fmt(pkg.extra_hourly_rate) }) }) : '',
   ].filter(Boolean) : []
 
   // Past months
@@ -78,45 +83,45 @@ export default async function ClientUsage() {
   return (
     <PortalLayout>
       <div className="p-8">
-        <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-6">Plan Usage</h1>
+        <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-6">{t('title')}</h1>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Current Plan" value={pkg?.name || '—'} sub={pkg ? `$${pkg.price}/month` : ''} accent />
-          <StatCard label="Requests Used" value={`${usedRequests}/${includedRequests}`} sub={`${Math.max(0, includedRequests - usedRequests)} remaining`} />
-          <StatCard label="Hours Used" value={`${(usedMinutes / 60).toFixed(1)}h`} sub={`of ${includedHours}h included`} />
-          <StatCard label="Extra Hours" value={`${(extraMinutes / 60).toFixed(1)}h`} sub={extraMinutes > 0 ? `Billed at $${pkg?.extra_hourly_rate}/hr` : 'None this month'} />
+          <StatCard label={t('currentPlan')} value={pkg?.name || '—'} sub={pkg ? tc('perMonth', { price: fmt(pkg.price) }) : ''} accent />
+          <StatCard label={t('requestsUsed')} value={`${usedRequests}/${includedRequests}`} sub={t('remaining', { count: Math.max(0, includedRequests - usedRequests) })} />
+          <StatCard label={t('hoursUsed')} value={`${(usedMinutes / 60).toFixed(1)}h`} sub={t('ofHoursIncluded', { hours: includedHours })} />
+          <StatCard label={t('extraHours')} value={`${(extraMinutes / 60).toFixed(1)}h`} sub={extraMinutes > 0 ? t('billedAt', { rate: tc('perHour', { price: fmt(pkg?.extra_hourly_rate) }) }) : t('noneThisMonth')} />
         </div>
 
         {/* Current month */}
         <div className="card p-6 mb-6">
           <h2 className="font-display font-bold text-slate-800 mb-5">
-            {new Date().toLocaleString('default', { month: 'long', year: 'numeric' })} — Current Month
+            {t('currentMonth', { month: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }) })}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-            <ProgressBar used={usedRequests} total={includedRequests} label="Support Requests" />
-            <ProgressBar used={parseFloat((usedMinutes / 60).toFixed(1))} total={includedHours} label="Support Hours" />
+            <ProgressBar used={usedRequests} total={includedRequests} label={tc('supportRequests')} />
+            <ProgressBar used={parseFloat((usedMinutes / 60).toFixed(1))} total={includedHours} label={tc('supportHours')} />
           </div>
           {extraMinutes > 0 && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-medium">
-              ⚠️ {formatMinutes(extraMinutes)} over your included hours this month — billed at ${pkg?.extra_hourly_rate}/hr
+              {t('overHoursMonth', { time: formatMinutes(extraMinutes), rate: tc('perHour', { price: fmt(pkg?.extra_hourly_rate) }) })}
             </div>
           )}
           <div className="mt-4 pt-4 border-t border-slate-100 grid grid-cols-3 gap-4 text-center text-sm">
             <div>
-              <div className="text-slate-400 text-xs mb-1">Included Requests</div>
-              <div className="font-bold text-slate-800">{includedRequests}/month</div>
-              {topupRequests > 0 && <div className="text-[11px] text-blue-600">{baseRequests} base + {topupRequests} top-up</div>}
+              <div className="text-slate-400 text-xs mb-1">{t('includedRequests')}</div>
+              <div className="font-bold text-slate-800">{t('perMonthCount', { count: includedRequests })}</div>
+              {topupRequests > 0 && <div className="text-[11px] text-blue-600">{t('baseTopupRequests', { base: baseRequests, topup: topupRequests })}</div>}
             </div>
             <div>
-              <div className="text-slate-400 text-xs mb-1">Included Hours</div>
-              <div className="font-bold text-slate-800">{includedHours}h/month</div>
-              {topupHours > 0 && <div className="text-[11px] text-blue-600">{baseHours}h base + {topupHours}h top-up</div>}
+              <div className="text-slate-400 text-xs mb-1">{t('includedHours')}</div>
+              <div className="font-bold text-slate-800">{t('hoursPerMonth', { hours: includedHours })}</div>
+              {topupHours > 0 && <div className="text-[11px] text-blue-600">{t('baseTopupHours', { base: baseHours, topup: topupHours })}</div>}
             </div>
-            <div><div className="text-slate-400 text-xs mb-1">Extra Rate</div><div className="font-bold text-slate-800">${pkg?.extra_hourly_rate}/hr</div></div>
+            <div><div className="text-slate-400 text-xs mb-1">{t('extraRate')}</div><div className="font-bold text-slate-800">{tc('perHour', { price: fmt(pkg?.extra_hourly_rate) })}</div></div>
           </div>
           {(topupHours > 0 || topupRequests > 0) && (
             <p className="text-xs text-blue-600 mt-3">
-              ✦ Your plan includes extra capacity top-ups: {topupHours > 0 ? `+${topupHours}h ` : ''}{topupRequests > 0 ? `+${topupRequests} tickets` : ''}.
+              {t('capacityNote', { detail: [topupHours > 0 ? t('capacityHours', { hours: topupHours }) : '', topupRequests > 0 ? t('capacityTickets', { count: topupRequests }) : ''].filter(Boolean).join(' ') })}
             </p>
           )}
         </div>
@@ -125,9 +130,9 @@ export default async function ClientUsage() {
         {pkg && (planBenefits.length > 0 || planTerms.length > 0) && (
           <div className="card p-6 mb-6">
             <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-              <h2 className="font-display font-bold text-slate-800">What&apos;s Included in Your Plan</h2>
+              <h2 className="font-display font-bold text-slate-800">{tc('whatsIncluded')}</h2>
               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
-                {pkg.name} — ${pkg.price}/month
+                {tc('planBadge', { name: pkg.name, price: tc('perMonth', { price: fmt(pkg.price) }) })}
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
@@ -144,18 +149,18 @@ export default async function ClientUsage() {
         {/* Your Extras & Capacity */}
         {(extrasData?.length || 0) > 0 && (
           <div className="card p-6 mb-6">
-            <h2 className="font-display font-bold text-slate-800 mb-4">Your Extras &amp; Capacity</h2>
+            <h2 className="font-display font-bold text-slate-800 mb-4">{t('yourExtrasCapacity')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
               {extrasData!.map((x: any) => {
                 const done = x.qty_used >= x.qty_total
                 const left = Math.max(0, x.qty_total - x.qty_used)
-                const unit = x.unit === 'hours' ? (left === 1 ? 'hour' : 'hours') : x.unit === 'tickets' ? (left === 1 ? 'ticket' : 'tickets') : ''
+                const unit = x.unit === 'hours' ? (left === 1 ? tc('unitHour') : tc('unitHours')) : x.unit === 'tickets' ? (left === 1 ? tc('unitTicket') : tc('unitTickets')) : ''
                 return (
                   <div key={x.id}>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="font-medium text-slate-700">{x.name}</span>
                       <span className={`text-xs font-bold ${done ? 'text-red-500' : 'text-slate-500'}`}>
-                        {done ? 'All used' : `${left}${unit ? ` ${unit}` : ` of ${x.qty_total}`} left`}
+                        {done ? tc('allUsed') : unit ? tc('extraLeft', { left, unit }) : tc('extraLeftOf', { left, total: x.qty_total })}
                       </span>
                     </div>
                     <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -174,7 +179,7 @@ export default async function ClientUsage() {
         {/* History */}
         {allMonths.filter(m => m !== month).length > 0 && (
           <div>
-            <h2 className="font-display font-bold text-slate-700 text-sm uppercase tracking-wider mb-3">Usage History</h2>
+            <h2 className="font-display font-bold text-slate-700 text-sm uppercase tracking-wider mb-3">{t('usageHistory')}</h2>
             <div className="space-y-3">
               {allMonths.filter(m => m !== month).map(m => {
                 const mins = monthMap[m] || 0
@@ -185,14 +190,14 @@ export default async function ClientUsage() {
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="font-display font-bold text-slate-800">{formatMonth(m)}</h3>
                       <div className="flex gap-4 text-sm">
-                        <span><strong>{reqs}</strong>/{includedRequests} requests</span>
+                        <span><strong>{reqs}</strong>/{includedRequests} {t('requestsWord')}</span>
                         <span><strong>{(mins/60).toFixed(1)}h</strong>/{includedHours}h</span>
-                        {extra > 0 && <span className="text-red-600 font-semibold">+{formatMinutes(extra)} extra</span>}
+                        {extra > 0 && <span className="text-red-600 font-semibold">{t('extraShort', { time: formatMinutes(extra) })}</span>}
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <ProgressBar used={reqs} total={includedRequests} label="Requests" />
-                      <ProgressBar used={parseFloat((mins/60).toFixed(1))} total={includedHours} label="Hours" />
+                      <ProgressBar used={reqs} total={includedRequests} label={t('requestsLabel')} />
+                      <ProgressBar used={parseFloat((mins/60).toFixed(1))} total={includedHours} label={t('hoursLabel')} />
                     </div>
                   </div>
                 )

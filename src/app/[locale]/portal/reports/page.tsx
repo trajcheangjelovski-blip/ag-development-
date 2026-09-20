@@ -1,13 +1,14 @@
 // portal/reports/page.tsx
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, EmptyState } from '@/components/ui'
 import { formatDate, formatMinutes, formatMonth } from '@/lib/utils'
 
 export default async function ClientReports() {
   const locale = await getLocale()
+  const t = await getTranslations('portal.reports')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${locale}/login`)
@@ -23,10 +24,10 @@ export default async function ClientReports() {
   return (
     <PortalLayout>
       <div className="p-8">
-        <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-6">Monthly Reports</h1>
+        <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-6">{t('title')}</h1>
         {!reports?.length ? (
           <div className="card">
-            <EmptyState icon="📊" title="No reports yet" description="Monthly reports will appear here once your account manager creates them for your account." />
+            <EmptyState icon="📊" title={t('noReportsYet')} description={t('noReportsDesc')} />
           </div>
         ) : (
           <div className="space-y-5">
@@ -34,16 +35,16 @@ export default async function ClientReports() {
               <div key={r.id} className="card p-6">
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="font-display text-xl font-extrabold text-slate-800">{formatMonth(r.report_month)}</h2>
-                  <span className="text-xs text-slate-400">Created {formatDate(r.created_at)}</span>
+                  <span className="text-xs text-slate-400">{t('created', { date: formatDate(r.created_at) })}</span>
                 </div>
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <StatCard label="Tickets Completed" value={r.completed_tickets} />
-                  <StatCard label="Total Support Time" value={formatMinutes(r.total_minutes)} />
+                  <StatCard label={t('ticketsCompleted')} value={r.completed_tickets} />
+                  <StatCard label={t('totalSupportTime')} value={formatMinutes(r.total_minutes)} />
                 </div>
                 {[
-                  ['Website Updates Completed', r.website_updates],
-                  ['Recommendations', r.recommendations],
-                  ['Next Suggested Improvements', r.next_improvements],
+                  [t('websiteUpdates'), r.website_updates],
+                  [t('recommendations'), r.recommendations],
+                  [t('nextImprovements'), r.next_improvements],
                 ].filter(([, v]) => v).map(([label, val]) => (
                   <div key={label as string} className="mb-4 last:mb-0">
                     <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">{label}</div>

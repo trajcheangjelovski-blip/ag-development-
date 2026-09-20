@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { EmptyState } from '@/components/ui'
 import { formatDateTime } from '@/lib/utils'
@@ -8,6 +8,7 @@ import { Link } from '@/i18n/navigation'
 
 export default async function ClientActivity() {
   const locale = await getLocale()
+  const t = await getTranslations('portal.activity')
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${locale}/login`)
@@ -33,10 +34,10 @@ export default async function ClientActivity() {
   return (
     <PortalLayout>
       <div className="p-8">
-        <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-6">Activity Log</h1>
+        <h1 className="font-display text-2xl font-extrabold text-slate-800 mb-6">{t('title')}</h1>
         <div className="card overflow-hidden">
           {!logs?.length ? (
-            <EmptyState icon="📜" title="No activity yet" description="All ticket activity will be logged here automatically." />
+            <EmptyState icon="📜" title={t('noActivityYet')} description={t('noActivityDesc')} />
           ) : (
             <div className="divide-y divide-slate-100">
               {logs.map((a: any) => (
@@ -52,9 +53,9 @@ export default async function ClientActivity() {
                     </div>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-xs text-slate-400">
-                        by {a.actor
-                          ? (a.actor.role === 'admin' ? `${a.actor.full_name.split(' ')[0]} from AG Development` : a.actor.full_name)
-                          : 'AG Development'}
+                        {t('by', { name: a.actor
+                          ? (a.actor.role === 'admin' ? t('fromAg', { name: a.actor.full_name.split(' ')[0] }) : a.actor.full_name)
+                          : 'AG Development' })}
                       </span>
                       {a.ticket && (
                         <Link href={`/portal/tickets/${a.ticket.id}`} className="text-xs text-blue-600 hover:underline truncate">

@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { StatusBadge, PriorityBadge, SectionCard, Spinner, Alert } from '@/components/ui'
 import { formatDate, formatDateTime, formatRelativeTime, formatMinutes, TICKET_STATUSES } from '@/lib/utils'
@@ -38,6 +39,8 @@ interface TicketDetailClientProps {
 }
 
 export default function TicketDetailClient({ ticketId, initialTicket, profile }: TicketDetailClientProps) {
+  const t = useTranslations('portal.ticketDetail')
+  const tc = useTranslations('portal.common')
   const router = useRouter()
   const isAdmin = profile.role === 'admin'
   // Messages are stored as tickets but get a stripped-down, conversation-style
@@ -46,7 +49,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
   const backHref = isMessage
     ? (isAdmin ? '/admin/messages' : '/portal/message')
     : (isAdmin ? '/admin/tickets' : '/portal/tickets')
-  const backLabel = isMessage ? '← Back to Messages' : '← Back to Tickets'
+  const backLabel = isMessage ? t('backToMessages') : t('backToTickets')
   const [ticket, setTicket] = useState<Ticket>(initialTicket)
   const [comments, setComments] = useState<TicketComment[]>([])
   const [timeEntries, setTimeEntries] = useState<TimeEntry[]>([])
@@ -98,7 +101,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
       setTicket(prev => ({ ...prev, remote_url: url } as Ticket))
       setRemoteDraft(url)
     } else {
-      setError('Failed to save the remote session link')
+      setError(t('failSaveRemote'))
     }
     setSavingRemote(false)
   }
@@ -107,7 +110,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
     const files = Array.from(e.target.files || [])
     const oversize = files.find(f => f.size > 200 * 1024 * 1024)
     if (oversize) {
-      setError(`"${oversize.name}" is over the 200MB limit`)
+      setError(t('oversize', { name: oversize.name }))
       e.target.value = ''
       return
     }
@@ -180,12 +183,12 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
           data.append('file', file)
           const upRes = await fetch(`/api/tickets/${ticketId}/attachments`, { method: 'POST', body: data })
           const up = await upRes.json()
-          if (!upRes.ok) throw new Error(up?.error || `Failed to upload ${file.name}`)
+          if (!upRes.ok) throw new Error(up?.error || t('failUpload', { name: file.name }))
           links.push(`📎 ${up.name} (${(up.size / 1024 / 1024).toFixed(1)} MB): ${up.url}`)
         }
         body = [body, ...links].filter(Boolean).join('\n')
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Attachment upload failed')
+        setError(e instanceof Error ? e.message : t('failUploadAttachment'))
         setPostingComment(false)
         return
       }
@@ -201,14 +204,14 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
       setAttachments([])
       fetchData()
     } else {
-      setError('Failed to post comment')
+      setError(t('failPostComment'))
     }
     setPostingComment(false)
   }
 
   async function reopenTicket() {
     if (reopenReason.trim().length < 20) {
-      setReopenError('Please provide at least 20 characters explaining why you need to reopen this ticket.')
+      setReopenError(t('reopenReasonError'))
       return
     }
     setReopening(true)
@@ -227,13 +230,13 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
       fetchData()
     } else {
       const data = await res.json()
-      setReopenError(data.error || 'Failed to reopen ticket')
+      setReopenError(data.error || t('failReopen'))
     }
     setReopening(false)
   }
 
   async function closeTicket() {
-    if (!confirm('Close this ticket? You can reopen it later if you still need help.')) return
+    if (!confirm(t('confirmClose'))) return
     const res = await fetch(`/api/tickets/${ticketId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -245,16 +248,16 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
       fetchData()
     } else {
       const data = await res.json().catch(() => ({}))
-      setError(data.error || 'Failed to close ticket')
+      setError(data.error || t('failCloseTicket'))
     }
   }
 
   async function deleteMessage() {
-    const otherParty = isAdmin ? 'The client will still have their copy.' : 'AG Development will still have their copy.'
-    if (!confirm(`Remove this message from your inbox? ${otherParty}`)) return
+    const otherParty = isAdmin ? t('copyAdmin') : t('copyClient')
+    if (!confirm(`${t('confirmDeletePrefix')} ${otherParty}`)) return
     const res = await fetch(`/api/tickets/${ticketId}`, { method: 'DELETE' })
     if (res.ok) router.push(isAdmin ? '/admin/messages' : '/portal/message')
-    else setError('Failed to delete message')
+    else setError(t('failDeleteMessage'))
   }
 
   async function updateStatus() {
@@ -325,10 +328,10 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
         setProofFiles({})
         fetchData()
       } else {
-        setError('Failed to save proof')
+        setError(t('failSaveProof'))
       }
     } catch {
-      setError('Upload failed. Please try again.')
+      setError(t('uploadFailedRetry'))
     }
     setPostingProof(false)
   }
@@ -354,7 +357,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
             <StatusBadge status={ticket.status} />
             {!isMessage && <PriorityBadge priority={ticket.priority} />}
             {!isMessage && <span className="text-xs text-slate-400">{ticket.category}</span>}
-            {isMessage && <span className="text-xs text-slate-400">Message</span>}
+            {isMessage && <span className="text-xs text-slate-400">{t('message')}</span>}
             {isAdmin && (ticket as any).client && (
               <span className="text-xs text-slate-400">· {(ticket as any).client.business_name}</span>
             )}
@@ -364,21 +367,21 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
           {isAdmin && (
             <>
               <button className="btn-ghost text-sm" onClick={() => { setNewStatus(ticket.status); setShowStatusModal(true) }}>
-                Change Status
+                {t('changeStatus')}
               </button>
               {!isMessage && (
                 <>
                   <button className="btn-ghost text-sm" onClick={() => setShowTimeModal(true)}>
-                    ⏱ Log Time
+                    {t('logTime')}
                   </button>
                   <button className="btn-ghost text-sm" onClick={() => setShowProofModal(true)}>
-                    📸 Add Proof
+                    {t('addProof')}
                   </button>
                 </>
               )}
               {isMessage && (
                 <button className="btn-ghost text-sm text-red-600 hover:text-red-700" onClick={deleteMessage}>
-                  🗑 Delete
+                  {t('deleteBtn')}
                 </button>
               )}
             </>
@@ -388,17 +391,17 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
               className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-amber-300 bg-amber-50 text-amber-800 text-sm font-semibold hover:bg-amber-100 transition-all"
               onClick={() => { setReopenReason(''); setReopenError(''); setShowReopenModal(true) }}
             >
-              ↺ Reopen Ticket
+              {t('reopenTicketBtn')}
             </button>
           )}
           {!isAdmin && !isMessage && !['Completed', 'Closed'].includes(ticket.status) && (
             <button className="btn-ghost text-sm" onClick={closeTicket}>
-              ✓ Close Ticket
+              {t('closeTicketBtn')}
             </button>
           )}
           {!isAdmin && isMessage && (
             <button className="btn-ghost text-sm text-red-600 hover:text-red-700" onClick={deleteMessage}>
-              🗑 Delete
+              {t('deleteBtn')}
             </button>
           )}
         </div>
@@ -409,29 +412,29 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
       {/* ── Remote support session ── */}
       {!isMessage && (isAdmin || ticket.remote_url) && (
         <div className="card p-4 mb-4 flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">🖥 Remote session</span>
+          <span className="text-sm font-semibold text-slate-700 flex items-center gap-1.5">{t('remoteSession')}</span>
           {ticket.remote_url && (
             <a href={ticket.remote_url} target="_blank" rel="noreferrer" className="btn-secondary text-sm">
-              Join Remote Session →
+              {t('joinRemote')}
             </a>
           )}
           {isAdmin ? (
             <div className="flex items-center gap-2 w-full sm:flex-1 sm:w-auto sm:min-w-[240px]">
               <input
                 className="form-input text-sm py-1.5 flex-1 min-w-0"
-                placeholder="Paste a Chrome Remote Desktop / Quick Assist / Meet link…"
+                placeholder={t('remotePlaceholder')}
                 value={remoteDraft}
                 onChange={e => setRemoteDraft(e.target.value)}
               />
               <button onClick={() => saveRemote(remoteDraft.trim())} disabled={savingRemote} className="btn-ghost text-sm flex-shrink-0">
-                {savingRemote ? 'Saving…' : ticket.remote_url ? 'Update' : 'Save'}
+                {savingRemote ? t('saving') : ticket.remote_url ? t('update') : t('save')}
               </button>
               {ticket.remote_url && (
-                <button onClick={() => saveRemote('')} disabled={savingRemote} className="text-xs text-red-500 hover:text-red-600 flex-shrink-0">Clear</button>
+                <button onClick={() => saveRemote('')} disabled={savingRemote} className="text-xs text-red-500 hover:text-red-600 flex-shrink-0">{t('clear')}</button>
               )}
             </div>
           ) : (
-            !ticket.remote_url && <span className="text-xs text-slate-400">No active remote session.</span>
+            !ticket.remote_url && <span className="text-xs text-slate-400">{t('noActiveRemote')}</span>
           )}
         </div>
       )}
@@ -442,11 +445,11 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
           {/* Description */}
           <div className="card p-6">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">{isMessage ? 'Message' : 'Description'}</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">{isMessage ? t('message') : t('description')}</h3>
             <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{ticket.description}</p>
             {ticket.affected_site && (
               <div className="mt-3 text-sm text-slate-500">
-                <strong>Affected:</strong> {ticket.affected_site}
+                <strong>{t('affected')}</strong> {ticket.affected_site}
               </div>
             )}
           </div>
@@ -454,42 +457,42 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
           {/* Proof uploads */}
           {proofUploads.length > 0 && (
             <div className="card p-6 border-2 border-green-200">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-green-600 mb-4">✅ Proof of Work</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-green-600 mb-4">{t('proofOfWork')}</h3>
               {proofUploads.map(p => (
                 <div key={p.id} className="space-y-3">
                   {p.before_note && (
                     <div>
-                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Before</div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('before')}</div>
                       <p className="text-sm text-slate-600 bg-red-50 rounded-lg p-3">{p.before_note}</p>
                     </div>
                   )}
                   {p.before_image_url && (
                     <div>
-                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Before Screenshot</div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('beforeScreenshot')}</div>
                       <img src={p.before_image_url} alt="Before" className="rounded-lg border border-slate-200 max-h-64 max-w-full object-cover" />
                     </div>
                   )}
                   {p.after_note && (
                     <div>
-                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">After</div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('after')}</div>
                       <p className="text-sm text-slate-600 bg-green-50 rounded-lg p-3">{p.after_note}</p>
                     </div>
                   )}
                   {p.after_image_url && (
                     <div>
-                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">After Screenshot</div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('afterScreenshot')}</div>
                       <img src={p.after_image_url} alt="After" className="rounded-lg border border-slate-200 max-h-64 max-w-full object-cover" />
                     </div>
                   )}
                   {p.completion_note && (
                     <div>
-                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Completion Note</div>
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">{t('completionNote')}</div>
                       <p className="text-sm text-slate-700 leading-relaxed">{p.completion_note}</p>
                     </div>
                   )}
                   {p.video_link && (
                     <a href={p.video_link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                      🎬 View Proof Video →
+                      {t('viewProofVideo')}
                     </a>
                   )}
                   <div className="text-xs text-slate-400">{formatDateTime(p.created_at)}</div>
@@ -506,16 +509,16 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 <span className="text-lg mt-0.5 flex-shrink-0">💬</span>
                 <div>
                   <p className="text-sm font-semibold text-blue-800">
-                    {unreadAdminCount} new {unreadAdminCount === 1 ? 'reply' : 'replies'} from AG Development
+                    {t('newReplies', { count: unreadAdminCount })}
                   </p>
-                  <p className="text-xs text-blue-600 mt-0.5">Scroll down to read the latest update</p>
+                  <p className="text-xs text-blue-600 mt-0.5">{t('scrollDown')}</p>
                 </div>
               </div>
             )}
 
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                {isMessage ? 'Conversation' : 'Comments'}
+                {isMessage ? t('conversation') : t('comments')}
                 {comments.length > 0 && (
                   <span className="ml-2 text-slate-400 normal-case font-normal">({comments.length})</span>
                 )}
@@ -528,7 +531,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 <div className="flex justify-center py-6"><Spinner /></div>
               ) : comments.length === 0 ? (
                 <p className="text-sm text-slate-400 text-center py-6">
-                  No comments yet. {isAdmin ? 'Be the first to reply.' : 'We\'ll reply here when we have an update for you.'}
+                  {t('noCommentsPrefix')} {isAdmin ? t('beFirstReply') : t('weWillReply')}
                 </p>
               ) : (
                 <div className="space-y-5 mb-2">
@@ -596,27 +599,27 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                             </span>
                             {isReopenComment && (
                               <span className="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-semibold">
-                                Ticket reopened
+                                {t('ticketReopened')}
                               </span>
                             )}
                             {isCompletedComment && (
                               <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
-                                Ticket completed
+                                {t('ticketCompleted')}
                               </span>
                             )}
                             {isClosedComment && (
                               <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-semibold">
-                                Ticket closed
+                                {t('ticketClosed')}
                               </span>
                             )}
                             {c.comment_type === 'internal' && !isReopenComment && (
                               <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-semibold">
-                                Internal note
+                                {t('internalNote')}
                               </span>
                             )}
                             {isNewAdminReply && (
                               <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">
-                                New
+                                {t('newBadge')}
                               </span>
                             )}
                           </div>
@@ -653,7 +656,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
               {/* Last reply indicator — clients only */}
               {!isAdmin && myLastReply && (
                 <p className="text-xs text-slate-400 mb-3">
-                  Your last reply was{' '}
+                  {t('yourLastReply')}{' '}
                   <span className="text-slate-500 font-medium" title={formatDateTime(myLastReply.created_at)}>
                     {formatRelativeTime(myLastReply.created_at)}
                   </span>
@@ -669,7 +672,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                       commentType === 'public' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    Public Reply
+                    {t('publicReply')}
                   </button>
                   <button
                     onClick={() => setCommentType('internal')}
@@ -677,7 +680,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                       commentType === 'internal' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
-                    Internal Note
+                    {t('internalNoteBtn')}
                   </button>
                 </div>
               )}
@@ -688,10 +691,10 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 }`}
                 placeholder={
                   commentType === 'internal'
-                    ? 'Internal note — client will not see this…'
+                    ? t('placeholderInternal')
                     : isAdmin
-                    ? 'Write a reply to the client…'
-                    : 'Describe the issue further, provide additional info, or reply to our update…'
+                    ? t('placeholderAdminReply')
+                    : t('placeholderClientReply')
                 }
                 value={commentBody}
                 onChange={e => setCommentBody(e.target.value.slice(0, MAX_COMMENT_LENGTH))}
@@ -724,7 +727,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                       <button
                         onClick={() => setAttachments(prev => prev.filter((_, x) => x !== i))}
                         className="text-slate-400 hover:text-red-500 flex-shrink-0"
-                        aria-label={`Remove ${f.name}`}
+                        aria-label={t('removeAria', { name: f.name })}
                       >
                         ✕
                       </button>
@@ -739,13 +742,13 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                   disabled={postingComment || (!commentBody.trim() && !attachments.length)}
                   className="btn-secondary text-sm flex items-center gap-2"
                 >
-                  {postingComment ? <><Spinner size="sm" /> Posting…</> : isAdmin ? 'Post Reply' : 'Send Message'}
+                  {postingComment ? <><Spinner size="sm" /> {t('posting')}</> : isAdmin ? t('postReply') : t('sendMessage')}
                 </button>
                 <label className="btn-ghost text-sm cursor-pointer flex items-center gap-1.5">
-                  📎 Attach Files
+                  {t('attachFiles')}
                   <input type="file" multiple className="hidden" onChange={addAttachments} disabled={postingComment} />
                 </label>
-                <span className="text-xs text-slate-400 w-full sm:w-auto">Screenshots or files, up to 200MB each</span>
+                <span className="text-xs text-slate-400 w-full sm:w-auto">{t('attachHint')}</span>
               </div>
             </div>
           </div>
@@ -753,21 +756,21 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
         {/* ── Sidebar ── */}
         <div className="space-y-4">
-          <SectionCard title={isMessage ? 'Message Details' : 'Ticket Details'}>
+          <SectionCard title={isMessage ? t('messageDetails') : t('ticketDetails')}>
             {(isMessage
               ? [
-                  ['ID', '#' + ticketId.slice(0,8).toUpperCase()],
-                  ['Status', ticket.status],
-                  ['Started', formatDate(ticket.created_at)],
-                  ['Updated', formatDate(ticket.updated_at)],
+                  [t('fieldId'), '#' + ticketId.slice(0,8).toUpperCase()],
+                  [t('fieldStatus'), ticket.status],
+                  [t('fieldStarted'), formatDate(ticket.created_at)],
+                  [t('fieldUpdated'), formatDate(ticket.updated_at)],
                 ]
               : [
-                  ['ID', '#' + ticketId.slice(0,8).toUpperCase()],
-                  ['Status', ticket.status],
-                  ['Priority', ticket.priority],
-                  ['Category', ticket.category],
-                  ['Created', formatDate(ticket.created_at)],
-                  ['Updated', formatDate(ticket.updated_at)],
+                  [t('fieldId'), '#' + ticketId.slice(0,8).toUpperCase()],
+                  [t('fieldStatus'), ticket.status],
+                  [t('fieldPriority'), ticket.priority],
+                  [t('fieldCategory'), ticket.category],
+                  [t('fieldCreated'), formatDate(ticket.created_at)],
+                  [t('fieldUpdated'), formatDate(ticket.updated_at)],
                 ]
             ).map(([l, v]) => (
               <div key={l} className="flex justify-between text-sm py-1.5 border-b border-slate-100 last:border-0">
@@ -777,10 +780,10 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
             ))}
           </SectionCard>
 
-          {!isMessage && <SectionCard title="Time Logged">
+          {!isMessage && <SectionCard title={t('timeLogged')}>
             <div className="font-display text-2xl font-extrabold text-slate-800 mb-3">{formatMinutes(totalMins)}</div>
             {timeEntries.length === 0 ? (
-              <p className="text-xs text-slate-400">No time logged yet.</p>
+              <p className="text-xs text-slate-400">{t('noTimeLogged')}</p>
             ) : (
               <div className="space-y-2">
                 {timeEntries.map(te => (
@@ -792,7 +795,7 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                     <div className="text-right flex-shrink-0 ml-2">
                       <div className="text-slate-400">{formatDate(te.work_date)}</div>
                       <div className={te.is_included_in_package ? 'text-green-600 font-semibold' : 'text-amber-600 font-semibold'}>
-                        {te.is_included_in_package ? 'Included' : 'Extra'}
+                        {te.is_included_in_package ? t('included') : t('extra')}
                       </div>
                     </div>
                   </div>
@@ -801,9 +804,9 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
             )}
           </SectionCard>}
 
-          {!isMessage && <SectionCard title="Activity Log">
+          {!isMessage && <SectionCard title={t('activityLog')}>
             {activity.length === 0 ? (
-              <p className="text-xs text-slate-400">No activity yet.</p>
+              <p className="text-xs text-slate-400">{t('noActivity')}</p>
             ) : (
               <div className="space-y-2">
                 {activity.map(a => (
@@ -824,9 +827,9 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
       {/* ── Reopen Modal ── */}
       {showReopenModal && (
-        <Modal title="Reopen this ticket?" onClose={() => setShowReopenModal(false)}>
+        <Modal title={t('reopenTitleQ')} onClose={() => setShowReopenModal(false)}>
           <p className="text-sm text-slate-600 mb-4">
-            Please describe why you need to reopen this ticket so we can help you faster.
+            {t('reopenPrompt')}
           </p>
           {reopenError && (
             <div className="mb-4">
@@ -834,26 +837,26 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
             </div>
           )}
           <div className="mb-5">
-            <label className="form-label">Reason for reopening <span className="text-red-500">*</span></label>
+            <label className="form-label">{t('reasonLabel')} <span className="text-red-500">*</span></label>
             <textarea
               className="form-input min-h-[100px] resize-none"
-              placeholder="e.g. The issue has returned — the same error appeared again after the update yesterday…"
+              placeholder={t('reopenPlaceholder')}
               value={reopenReason}
               onChange={e => setReopenReason(e.target.value)}
               autoFocus
             />
             <div className={`text-xs mt-1 ${reopenReason.trim().length < 20 && reopenReason.length > 0 ? 'text-amber-500' : 'text-slate-400'}`}>
-              {reopenReason.trim().length}/20 minimum characters
+              {t('minChars', { count: reopenReason.trim().length })}
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button className="btn-ghost" onClick={() => setShowReopenModal(false)}>Cancel</button>
+            <button className="btn-ghost" onClick={() => setShowReopenModal(false)}>{tc('cancel')}</button>
             <button
               className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg font-semibold text-sm hover:bg-amber-500 transition-all disabled:opacity-60"
               onClick={reopenTicket}
               disabled={reopening || reopenReason.trim().length < 20}
             >
-              {reopening ? <><Spinner size="sm" /> Reopening…</> : '↺ Reopen Ticket'}
+              {reopening ? <><Spinner size="sm" /> {t('reopening')}</> : t('reopenTicketBtn')}
             </button>
           </div>
         </Modal>
@@ -861,9 +864,9 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
       {/* ── Status Modal ── */}
       {showStatusModal && (
-        <Modal title="Change Status" onClose={() => setShowStatusModal(false)}>
+        <Modal title={t('statusModalTitle')} onClose={() => setShowStatusModal(false)}>
           <div className="mb-5">
-            <label className="form-label">New Status</label>
+            <label className="form-label">{t('newStatusLabel')}</label>
             <select className="form-input" value={newStatus} onChange={e => setNewStatus(e.target.value as any)}>
               {/* "Waiting Client" is set automatically when you reply, so it's not
                   a manual option (unless the ticket is already in that state). */}
@@ -871,12 +874,12 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
                 .filter(s => s !== 'Waiting Client' || ticket.status === 'Waiting Client')
                 .map(s => <option key={s}>{s}</option>)}
             </select>
-            <p className="text-xs text-slate-400 mt-1.5">“Waiting Client” is applied automatically when you reply.</p>
+            <p className="text-xs text-slate-400 mt-1.5">{t('waitingClientNote')}</p>
           </div>
           <div className="flex justify-end gap-2">
-            <button className="btn-ghost" onClick={() => setShowStatusModal(false)}>Cancel</button>
+            <button className="btn-ghost" onClick={() => setShowStatusModal(false)}>{tc('cancel')}</button>
             <button className="btn-secondary flex items-center gap-2" onClick={updateStatus} disabled={updatingStatus}>
-              {updatingStatus ? <><Spinner size="sm" /> Updating…</> : 'Update Status'}
+              {updatingStatus ? <><Spinner size="sm" /> {t('updating')}</> : t('updateStatus')}
             </button>
           </div>
         </Modal>
@@ -884,35 +887,35 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
       {/* ── Time Entry Modal ── */}
       {showTimeModal && (
-        <Modal title="Log Time Entry" onClose={() => setShowTimeModal(false)}>
+        <Modal title={t('logTimeTitle')} onClose={() => setShowTimeModal(false)}>
           <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
-              <label className="form-label">Date</label>
+              <label className="form-label">{t('dateLabel')}</label>
               <input type="date" className="form-input" value={timeForm.work_date} onChange={e => setTimeForm(p => ({ ...p, work_date: e.target.value }))} />
             </div>
             <div>
-              <label className="form-label">Minutes Spent</label>
+              <label className="form-label">{t('minutesSpent')}</label>
               <input type="number" className="form-input" min="1" value={timeForm.minutes} onChange={e => setTimeForm(p => ({ ...p, minutes: parseInt(e.target.value) || 0 }))} />
             </div>
           </div>
           <div className="mb-3">
-            <label className="form-label">Work Note</label>
-            <input className="form-input" placeholder="Brief description of work done…" value={timeForm.work_note} onChange={e => setTimeForm(p => ({ ...p, work_note: e.target.value }))} />
+            <label className="form-label">{t('workNote')}</label>
+            <input className="form-input" placeholder={t('workNotePlaceholder')} value={timeForm.work_note} onChange={e => setTimeForm(p => ({ ...p, work_note: e.target.value }))} />
           </div>
           <div className="flex gap-5 mb-5">
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input type="checkbox" checked={timeForm.is_included_in_package} onChange={e => setTimeForm(p => ({ ...p, is_included_in_package: e.target.checked }))} />
-              Included in package
+              {t('includedInPackage')}
             </label>
             <label className="flex items-center gap-2 text-sm cursor-pointer">
               <input type="checkbox" checked={timeForm.is_billable} onChange={e => setTimeForm(p => ({ ...p, is_billable: e.target.checked }))} />
-              Billable extra
+              {t('billableExtra')}
             </label>
           </div>
           <div className="flex justify-end gap-2">
-            <button className="btn-ghost" onClick={() => setShowTimeModal(false)}>Cancel</button>
+            <button className="btn-ghost" onClick={() => setShowTimeModal(false)}>{tc('cancel')}</button>
             <button className="btn-secondary flex items-center gap-2" onClick={logTime} disabled={postingTime}>
-              {postingTime ? <><Spinner size="sm" /> Saving…</> : 'Log Time'}
+              {postingTime ? <><Spinner size="sm" /> {t('saving')}</> : t('logTimeBtn')}
             </button>
           </div>
         </Modal>
@@ -920,41 +923,41 @@ export default function TicketDetailClient({ ticketId, initialTicket, profile }:
 
       {/* ── Proof Modal ── */}
       {showProofModal && (
-        <Modal title="Add Proof of Work" onClose={() => setShowProofModal(false)}>
+        <Modal title={t('addProofTitle')} onClose={() => setShowProofModal(false)}>
           <div className="space-y-3 mb-4">
             <div>
-              <label className="form-label">Before (what the issue was)</label>
-              <input className="form-input" placeholder="Describe the state before the fix…" value={proofForm.before_note} onChange={e => setProofForm(p => ({ ...p, before_note: e.target.value }))} />
+              <label className="form-label">{t('beforeLabel')}</label>
+              <input className="form-input" placeholder={t('beforePlaceholder')} value={proofForm.before_note} onChange={e => setProofForm(p => ({ ...p, before_note: e.target.value }))} />
             </div>
             <div>
-              <label className="form-label">Before Screenshot</label>
+              <label className="form-label">{t('beforeScreenshot')}</label>
               <input type="file" accept="image/*" className="form-input py-2" onChange={e => setProofFiles(p => ({ ...p, before: e.target.files?.[0] }))} />
             </div>
             <div>
-              <label className="form-label">After (what was fixed)</label>
-              <input className="form-input" placeholder="Describe the resolved state…" value={proofForm.after_note} onChange={e => setProofForm(p => ({ ...p, after_note: e.target.value }))} />
+              <label className="form-label">{t('afterLabel')}</label>
+              <input className="form-input" placeholder={t('afterPlaceholder')} value={proofForm.after_note} onChange={e => setProofForm(p => ({ ...p, after_note: e.target.value }))} />
             </div>
             <div>
-              <label className="form-label">After Screenshot</label>
+              <label className="form-label">{t('afterScreenshot')}</label>
               <input type="file" accept="image/*" className="form-input py-2" onChange={e => setProofFiles(p => ({ ...p, after: e.target.files?.[0] }))} />
             </div>
             <div>
-              <label className="form-label">Completion Note <span className="text-red-500">*</span></label>
-              <textarea className="form-input min-h-20 resize-none" placeholder="Detailed explanation of work completed…" value={proofForm.completion_note} onChange={e => setProofForm(p => ({ ...p, completion_note: e.target.value }))} />
+              <label className="form-label">{t('completionNote')} <span className="text-red-500">*</span></label>
+              <textarea className="form-input min-h-20 resize-none" placeholder={t('completionPlaceholder')} value={proofForm.completion_note} onChange={e => setProofForm(p => ({ ...p, completion_note: e.target.value }))} />
             </div>
             <div>
-              <label className="form-label">Proof Video Link (optional)</label>
+              <label className="form-label">{t('proofVideoLabel')}</label>
               <input className="form-input" placeholder="https://…" value={proofForm.video_link} onChange={e => setProofForm(p => ({ ...p, video_link: e.target.value }))} />
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button className="btn-ghost" onClick={() => setShowProofModal(false)}>Cancel</button>
+            <button className="btn-ghost" onClick={() => setShowProofModal(false)}>{tc('cancel')}</button>
             <button
               className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg font-semibold text-sm hover:bg-green-500 transition-all"
               onClick={uploadProof}
               disabled={postingProof || !proofForm.completion_note}
             >
-              {postingProof ? <><Spinner size="sm" /> Saving…</> : '✓ Save Proof'}
+              {postingProof ? <><Spinner size="sm" /> {t('saving')}</> : t('saveProof')}
             </button>
           </div>
         </Modal>

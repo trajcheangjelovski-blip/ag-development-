@@ -1,40 +1,43 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { useTranslations } from 'next-intl'
 import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { can, clientCan, type ClientCapability } from '@/lib/permissions'
 import type { Profile } from '@/types'
 
-const adminLinks: { href: string; label: string; icon: string; perm?: string }[] = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: '⊞' },
-  { href: '/admin/tickets', label: 'All Tickets', icon: '🎫', perm: 'tickets.view' },
-  { href: '/admin/clients', label: 'Clients', icon: '👥', perm: 'clients.view' },
-  { href: '/admin/leads', label: 'Leads & CRM', icon: '📋', perm: 'leads.view' },
-  { href: '/admin/emails', label: 'Email', icon: '✉️', perm: 'emails.send' },
-  { href: '/admin/outreach', label: 'Viber Outreach', icon: '💬', perm: 'outreach.send' },
-  { href: '/admin/reports', label: 'Monthly Reports', icon: '📊', perm: 'reports.view' },
-  { href: '/admin/stats', label: 'Statistics', icon: '📈', perm: 'reports.view' },
-  { href: '/admin/invoices', label: 'Invoices', icon: '💳', perm: 'invoices.view' },
-  { href: '/admin/plans', label: 'Plans & Coupons', icon: '🏷️', perm: 'plans.view' },
-  { href: '/admin/activity', label: 'Activity Log', icon: '📜', perm: 'activity.view' },
-  { href: '/admin/team', label: 'Team', icon: '👤', perm: 'admins.manage' },
-  { href: '/admin/settings', label: 'Settings', icon: '⚙️', perm: 'settings.manage' },
-  { href: '/portal/settings', label: 'My Account', icon: '🔐' },
+const adminLinks: { href: string; labelKey: string; icon: string; perm?: string }[] = [
+  { href: '/admin/dashboard', labelKey: 'adminDashboard', icon: '⊞' },
+  { href: '/admin/tickets', labelKey: 'allTickets', icon: '🎫', perm: 'tickets.view' },
+  { href: '/admin/clients', labelKey: 'clients', icon: '👥', perm: 'clients.view' },
+  { href: '/admin/leads', labelKey: 'leads', icon: '📋', perm: 'leads.view' },
+  { href: '/admin/emails', labelKey: 'email', icon: '✉️', perm: 'emails.send' },
+  { href: '/admin/outreach', labelKey: 'outreach', icon: '💬', perm: 'outreach.send' },
+  { href: '/admin/reports', labelKey: 'adminReports', icon: '📊', perm: 'reports.view' },
+  { href: '/admin/stats', labelKey: 'statistics', icon: '📈', perm: 'reports.view' },
+  { href: '/admin/invoices', labelKey: 'adminInvoices', icon: '💳', perm: 'invoices.view' },
+  { href: '/admin/plans', labelKey: 'plans', icon: '🏷️', perm: 'plans.view' },
+  { href: '/admin/activity', labelKey: 'adminActivity', icon: '📜', perm: 'activity.view' },
+  { href: '/admin/team', labelKey: 'adminTeam', icon: '👤', perm: 'admins.manage' },
+  { href: '/admin/settings', labelKey: 'adminSettings', icon: '⚙️', perm: 'settings.manage' },
+  { href: '/portal/settings', labelKey: 'myAccount', icon: '🔐' },
 ]
 
-const clientLinks: { href: string; label: string; icon: string; cap?: ClientCapability }[] = [
-  { href: '/portal/dashboard', label: 'Dashboard', icon: '⊞' },
-  { href: '/portal/tickets', label: 'My Tickets', icon: '🎫' },
-  { href: '/portal/usage', label: 'Plan Usage', icon: '📦' },
-  { href: '/portal/reports', label: 'Monthly Reports', icon: '📊' },
-  { href: '/portal/invoices', label: 'Invoices', icon: '💳', cap: 'billing' },
-  { href: '/portal/team', label: 'Team', icon: '👥', cap: 'team' },
-  { href: '/portal/activity', label: 'Activity Log', icon: '📜' },
-  { href: '/portal/settings', label: 'Account Settings', icon: '🔐' },
+const clientLinks: { href: string; labelKey: string; icon: string; cap?: ClientCapability }[] = [
+  { href: '/portal/dashboard', labelKey: 'dashboard', icon: '⊞' },
+  { href: '/portal/tickets', labelKey: 'tickets', icon: '🎫' },
+  { href: '/portal/usage', labelKey: 'usage', icon: '📦' },
+  { href: '/portal/reports', labelKey: 'reports', icon: '📊' },
+  { href: '/portal/invoices', labelKey: 'invoices', icon: '💳', cap: 'billing' },
+  { href: '/portal/team', labelKey: 'team', icon: '👥', cap: 'team' },
+  { href: '/portal/activity', labelKey: 'activity', icon: '📜' },
+  { href: '/portal/settings', labelKey: 'settings', icon: '🔐' },
 ]
 
 export function Sidebar({ profile, open = false, onClose }: { profile: Profile; open?: boolean; onClose?: () => void }) {
+  const t = useTranslations('portal.nav')
+  const ts = useTranslations('portal.sidebar')
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
@@ -134,7 +137,7 @@ export function Sidebar({ profile, open = false, onClose }: { profile: Profile; 
           </div>
           <div>
             <div className="font-display font-bold text-sm text-white leading-tight">AG Development</div>
-            <div className="text-xs text-white/40">{isAdmin ? 'Admin Portal' : 'Client Portal'}</div>
+            <div className="text-xs text-white/40">{isAdmin ? ts('adminPortal') : ts('clientPortal')}</div>
           </div>
         </Link>
       </div>
@@ -153,7 +156,7 @@ export function Sidebar({ profile, open = false, onClose }: { profile: Profile; 
               )}
             >
               <span className="text-base leading-none">{link.icon}</span>
-              {link.label}
+              {t(link.labelKey)}
               {link.href === '/admin/leads' && newLeads > 0 && (
                 <span className="ml-auto bg-red-500 text-white text-[10px] font-bold rounded-full px-1.5 py-0.5 min-w-[22px] text-center leading-none flex-shrink-0">
                   +{newLeads > 99 ? '99' : newLeads}
@@ -171,10 +174,10 @@ export function Sidebar({ profile, open = false, onClose }: { profile: Profile; 
         {isAdmin && (
           <>
             <div className="text-xs font-bold uppercase tracking-widest text-white/25 px-3 pt-5 pb-1.5">
-              Public Site
+              {ts('publicSite')}
             </div>
             <Link href="/" target="_blank" className="sidebar-link">
-              <span>🌐</span> View Website
+              <span>🌐</span> {ts('viewWebsite')}
             </Link>
           </>
         )}
@@ -202,14 +205,14 @@ export function Sidebar({ profile, open = false, onClose }: { profile: Profile; 
           style={{ background: '#dc2626' }}
           onMouseOver={e => { (e.currentTarget as HTMLElement).style.background = '#b91c1c' }}
           onMouseOut={e => { (e.currentTarget as HTMLElement).style.background = '#dc2626' }}
-          title="Sign Out"
+          title={ts('signOut')}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <polyline points="16 17 21 12 16 7" />
             <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
-          Sign Out
+          {ts('signOut')}
         </button>
       </div>
     </aside>

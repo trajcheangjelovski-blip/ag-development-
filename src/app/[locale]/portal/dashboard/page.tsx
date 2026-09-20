@@ -1,17 +1,22 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { getLocale } from 'next-intl/server'
+import { getLocale, getTranslations } from 'next-intl/server'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge, ProgressBar, EmptyState } from '@/components/ui'
 import { PayInvoiceButton } from '@/components/portal/PayInvoiceButton'
 import { BuyExtraHourButton } from '@/components/portal/BuyExtraHourButton'
 import { getClientPlanState } from '@/lib/planUsage'
 import { formatDate, formatDateTime, formatMinutes, currentBillingMonth } from '@/lib/utils'
+import { formatPrice } from '@/lib/money'
 import { clientCan } from '@/lib/permissions'
 import { Link } from '@/i18n/navigation'
 
 export default async function ClientDashboard() {
   const locale = await getLocale()
+  const t = await getTranslations('portal.dashboard')
+  const tc = await getTranslations('portal.common')
+  const tp = await getTranslations('portal.planTerms')
+  const fmt = (n: number) => formatPrice(n, locale === 'mk' ? 'MKD' : 'USD', locale)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/${locale}/login`)
@@ -77,10 +82,10 @@ export default async function ClientDashboard() {
     }
   }
   const planTerms: string[] = pkg ? [
-    baseRequests > 0 ? `${baseRequests} support requests per month` : '',
-    baseHours > 0 ? `${baseHours}h of support work per month` : '',
-    pkg.response_time ? `First response: ${pkg.response_time.toLowerCase().startsWith('within') ? pkg.response_time.toLowerCase() : pkg.response_time}` : '',
-    pkg.extra_hourly_rate ? `Extra work beyond included hours at $${pkg.extra_hourly_rate}/hr` : '',
+    baseRequests > 0 ? tp('requests', { count: baseRequests }) : '',
+    baseHours > 0 ? tp('hours', { hours: baseHours }) : '',
+    pkg.response_time ? tp('firstResponse', { time: pkg.response_time.toLowerCase().startsWith('within') ? pkg.response_time.toLowerCase() : pkg.response_time }) : '',
+    pkg.extra_hourly_rate ? tp('extraRate', { rate: tc('perHour', { price: fmt(pkg.extra_hourly_rate) }) }) : '',
   ].filter(Boolean) : []
 
   return (
@@ -88,17 +93,17 @@ export default async function ClientDashboard() {
       <div className="p-8">
         <div className="mb-6">
           <h1 className="font-display text-xl font-extrabold text-slate-800">
-            Welcome back, {profile.full_name.split(' ')[0]}! 👋
+            {t('welcome', { name: profile.full_name.split(' ')[0] })}
           </h1>
           <p className="text-slate-500 text-sm mt-1">{(client as any)?.business_name} · {pkg?.name}</p>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatCard label="Your Plan" value={pkg?.name || '—'} sub={pkg ? `$${pkg.price}/month` : ''} accent />
-          <StatCard label="Open Tickets" value={openTickets?.length || 0} sub="Active requests" />
-          <StatCard label="Hours Used" value={`${(usedMinutes/60).toFixed(1)}h`} sub={`of ${includedHours}h included`} />
-          <StatCard label="Requests Used" value={usedRequests} sub={`of ${includedRequests} included`} />
+          <StatCard label={t('planLabel')} value={pkg?.name || '—'} sub={pkg ? tc('perMonth', { price: fmt(pkg.price) }) : ''} accent />
+          <StatCard label={t('openTickets')} value={openTickets?.length || 0} sub={t('activeRequests')} />
+          <StatCard label={t('hoursUsed')} value={`${(usedMinutes/60).toFixed(1)}h`} sub={t('ofHoursIncluded', { hours: includedHours })} />
+          <StatCard label={t('requestsUsed')} value={usedRequests} sub={t('ofRequestsIncluded', { count: includedRequests })} />
         </div>
 
         {/* Balance due */}
@@ -111,18 +116,18 @@ export default async function ClientDashboard() {
           >
             <div className="flex-1 min-w-[200px]">
               <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: hasOverdue ? '#b91c1c' : '#1d4ed8' }}>
-                {hasOverdue ? '⚠️ Payment Overdue' : 'Balance Due'}
+                {hasOverdue ? t('paymentOverdue') : t('balanceDue')}
               </div>
               <div className="font-display text-2xl font-extrabold" style={{ color: hasOverdue ? '#991b1b' : '#0f1f3d' }}>
-                ${totalDue}
+                {fmt(totalDue)}
                 <span className="text-sm font-medium text-slate-500 ml-2">
                   {dueInvoices.length === 1
-                    ? `${dueInvoices[0].description} (${dueInvoices[0].billing_month})`
-                    : `${dueInvoices.length} unpaid invoices`}
+                    ? t('invoiceOne', { description: dueInvoices[0].description, month: dueInvoices[0].billing_month })
+                    : t('invoicesMany', { count: dueInvoices.length })}
                 </span>
               </div>
               {dueInvoices[0]?.due_date && (
-                <div className="text-xs text-slate-500 mt-0.5">Due {formatDate(dueInvoices[0].due_date)}</div>
+                <div className="text-xs text-slate-500 mt-0.5">{t('due', { date: formatDate(dueInvoices[0].due_date) })}</div>
               )}
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
@@ -134,11 +139,11 @@ export default async function ClientDashboard() {
                   className="px-4 py-2 rounded-lg text-xs font-bold text-white whitespace-nowrap"
                   style={{ background: '#2563eb' }}
                 >
-                  💳 View & Pay →
+                  {t('viewAndPay')}
                 </Link>
               )}
               <Link href="/portal/invoices" className="text-xs text-slate-500 hover:text-slate-700 font-medium whitespace-nowrap">
-                All invoices →
+                {t('allInvoices')}
               </Link>
             </div>
           </div>
@@ -149,10 +154,10 @@ export default async function ClientDashboard() {
           <div className="card p-5 mb-6 flex flex-wrap items-center gap-4" style={{ borderColor: '#fecaca', background: '#fef2f2' }}>
             <div className="flex-1 min-w-[220px]">
               <div className="text-xs font-bold uppercase tracking-wider mb-1" style={{ color: '#b91c1c' }}>
-                {planState.expired ? '⏳ Plan Period Ended' : '⚡ All Credits Used'}
+                {planState.expired ? t('planPeriodEnded') : t('allCreditsUsed')}
               </div>
               <p className="text-sm leading-relaxed" style={{ color: '#991b1b' }}>
-                {planState.blockReason} New tickets are paused until you top up or renew — but you can still message us anytime.
+                {planState.blockReason} {t('blockedNote')}
               </p>
             </div>
             <div className="flex items-center gap-3 flex-shrink-0 flex-wrap">
@@ -162,14 +167,14 @@ export default async function ClientDashboard() {
                 className="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap border transition-all"
                 style={{ color: '#b91c1c', borderColor: '#fca5a5', background: 'white' }}
               >
-                ✉️ Message Us
+                {t('messageUs')}
               </Link>
               <Link
                 href="/pricing"
                 className="px-4 py-2 rounded-lg text-xs font-bold whitespace-nowrap border transition-all"
                 style={{ color: '#b91c1c', borderColor: '#fca5a5', background: 'white' }}
               >
-                {planState.expired ? '🔄 Renew / Order New Plan' : 'Upgrade Plan →'}
+                {planState.expired ? t('renewPlan') : t('upgradePlan')}
               </Link>
             </div>
           </div>
@@ -178,19 +183,19 @@ export default async function ClientDashboard() {
         {/* Usage */}
         <div className="card p-6 mb-6">
           <h2 className="font-display font-bold text-slate-800 mb-4">
-            This Period&apos;s Usage <span className="text-sm font-medium text-slate-400">({periodLabel})</span>
+            {t('thisPeriodUsage')} <span className="text-sm font-medium text-slate-400">({periodLabel})</span>
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ProgressBar used={usedRequests} total={includedRequests} label="Support Requests" />
-            <ProgressBar used={parseFloat((usedMinutes/60).toFixed(1))} total={includedHours} label="Support Hours" />
+            <ProgressBar used={usedRequests} total={includedRequests} label={tc('supportRequests')} />
+            <ProgressBar used={parseFloat((usedMinutes/60).toFixed(1))} total={includedHours} label={tc('supportHours')} />
           </div>
           {usedMinutes > includedHours * 60 && (
             <div className="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 font-medium">
-              ⚠️ {formatMinutes(usedMinutes - includedHours * 60)} over included hours — billed at ${pkg?.extra_hourly_rate}/hr
+              {t('overHours', { time: formatMinutes(usedMinutes - includedHours * 60), rate: tc('perHour', { price: fmt(pkg?.extra_hourly_rate) }) })}
             </div>
           )}
           <div className="mt-4 text-xs text-slate-400">
-            Plan: {includedRequests} requests/mo · {includedHours}h/mo · Response within {pkg?.response_time} · Extra at ${pkg?.extra_hourly_rate}/hr
+            {t('planSummary', { requests: includedRequests, hours: includedHours, response: pkg?.response_time, rate: tc('perHour', { price: fmt(pkg?.extra_hourly_rate) }) })}
           </div>
         </div>
 
@@ -198,9 +203,9 @@ export default async function ClientDashboard() {
         {pkg && (planBenefits.length > 0 || planTerms.length > 0) && (
           <div className="card p-6 mb-6">
             <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-              <h2 className="font-display font-bold text-slate-800">What&apos;s Included in Your Plan</h2>
+              <h2 className="font-display font-bold text-slate-800">{tc('whatsIncluded')}</h2>
               <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-blue-50 text-blue-700">
-                {pkg.name} — ${pkg.price}/month
+                {tc('planBadge', { name: pkg.name, price: tc('perMonth', { price: fmt(pkg.price) }) })}
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
@@ -215,18 +220,18 @@ export default async function ClientDashboard() {
             {/* Extras usage */}
             {(clientExtras?.length || 0) > 0 && (
               <div className="mt-5 pt-4 border-t border-slate-100">
-                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Your Extras</div>
+                <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">{t('yourExtras')}</div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
                   {clientExtras!.map((x: any) => {
                     const done = x.qty_used >= x.qty_total
                     const left = Math.max(0, x.qty_total - x.qty_used)
-                    const unit = x.unit === 'hours' ? (left === 1 ? 'hour' : 'hours') : x.unit === 'tickets' ? (left === 1 ? 'ticket' : 'tickets') : ''
+                    const unit = x.unit === 'hours' ? (left === 1 ? tc('unitHour') : tc('unitHours')) : x.unit === 'tickets' ? (left === 1 ? tc('unitTicket') : tc('unitTickets')) : ''
                     return (
                       <div key={x.id}>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="font-medium text-slate-700">{x.name}</span>
                           <span className={`text-xs font-bold ${done ? 'text-red-500' : 'text-slate-500'}`}>
-                            {done ? 'All used' : `${left}${unit ? ` ${unit}` : ` of ${x.qty_total}`} left`}
+                            {done ? tc('allUsed') : unit ? tc('extraLeft', { left, unit }) : tc('extraLeftOf', { left, total: x.qty_total })}
                           </span>
                         </div>
                         <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
@@ -248,11 +253,11 @@ export default async function ClientDashboard() {
           {/* Recent Tickets */}
           <div className="card overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
-              <h2 className="font-display font-bold text-slate-800">Recent Tickets</h2>
-              <Link href="/portal/tickets" className="text-xs text-blue-600 font-medium hover:underline">View All →</Link>
+              <h2 className="font-display font-bold text-slate-800">{t('recentTickets')}</h2>
+              <Link href="/portal/tickets" className="text-xs text-blue-600 font-medium hover:underline">{t('viewAll')}</Link>
             </div>
             {!recentTickets?.length ? (
-              <EmptyState icon="✅" title="No tickets yet" description="Submit a support request whenever you need help." />
+              <EmptyState icon="✅" title={t('noTicketsYet')} description={t('noTicketsDesc')} />
             ) : (
               <div>
                 {recentTickets.map((t: any) => (
@@ -268,17 +273,17 @@ export default async function ClientDashboard() {
               </div>
             )}
             <div className="px-5 py-3 border-t border-slate-100">
-              <Link href="/portal/tickets/new" className="btn-secondary text-xs px-3 py-2">+ New Request</Link>
+              <Link href="/portal/tickets/new" className="btn-secondary text-xs px-3 py-2">{tc('newRequest')}</Link>
             </div>
           </div>
 
           {/* Activity */}
           <div className="card overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-200">
-              <h2 className="font-display font-bold text-slate-800">Recent Activity</h2>
+              <h2 className="font-display font-bold text-slate-800">{t('recentActivity')}</h2>
             </div>
             {!activity?.length ? (
-              <EmptyState title="No activity yet" description="Activity will appear here as tickets are created and updated." />
+              <EmptyState title={t('noActivityYet')} description={t('noActivityDesc')} />
             ) : (
               <div className="divide-y divide-slate-100">
                 {activity.map((a: any) => (

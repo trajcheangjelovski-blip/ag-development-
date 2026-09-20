@@ -1,9 +1,11 @@
 'use client'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 
 // One-click Stripe checkout for an extra support hour ($39 by default,
 // price managed in Admin → Plans & Coupons as "Extra Support Hour").
 export function BuyExtraHourButton() {
+  const t = useTranslations('portal.buyExtraHour')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -17,10 +19,10 @@ export function BuyExtraHourButton() {
         body: JSON.stringify({ items: ['extra-hour'] }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Checkout failed')
+      if (!res.ok) throw new Error(data?.error || t('failCheckout'))
       window.location.href = data.url
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      setError(e instanceof Error ? e.message : t('failCheckout'))
       setLoading(false)
     }
   }
@@ -33,7 +35,7 @@ export function BuyExtraHourButton() {
         className="px-4 py-2 rounded-lg text-xs font-bold text-white transition-all disabled:opacity-60 whitespace-nowrap"
         style={{ background: '#2563eb' }}
       >
-        {loading ? 'Opening…' : '⚡ Buy Extra Support Hour'}
+        {loading ? t('opening') : t('buy')}
       </button>
       {error && <div className="text-[10px] text-red-500 mt-1">{error}</div>}
     </div>

@@ -1,5 +1,6 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 import { APP_TIME_ZONE } from '@/lib/utils'
 import type { Profile } from '@/types'
 
@@ -35,6 +36,7 @@ function ChatBody({ text, mine }: { text: string; mine: boolean }) {
 // Messenger-style popup chat between a client and AG, inside the portal.
 // One continuous conversation per client. Polls while open.
 export function PortalChat({ profile }: { profile: Profile }) {
+  const t = useTranslations('portal.chat')
   const isAdmin = profile.role === 'admin'
   const [open, setOpen] = useState(false)
   const [view, setView] = useState<'list' | 'chat'>(isAdmin ? 'list' : 'chat')
@@ -149,7 +151,7 @@ export function PortalChat({ profile }: { profile: Profile }) {
               <button onClick={() => { setView('list'); setActiveClient(null) }} className="text-white/80 hover:text-white">←</button>
             )}
             <span className="font-semibold text-sm flex-1 truncate">
-              {isAdmin ? (view === 'list' ? 'Messages' : activeClient?.name) : 'Chat with AG Development'}
+              {isAdmin ? (view === 'list' ? t('messages') : activeClient?.name) : t('chatWithAg')}
             </span>
             <button onClick={() => setOpen(false)} className="text-white/80 hover:text-white text-lg leading-none">×</button>
           </div>
@@ -157,7 +159,7 @@ export function PortalChat({ profile }: { profile: Profile }) {
           {isAdmin && view === 'list' ? (
             <div className="flex-1 overflow-y-auto">
               {conversations.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-8">No conversations yet.</p>
+                <p className="text-xs text-slate-400 text-center py-8">{t('noConversations')}</p>
               ) : conversations.map(c => (
                 <button
                   key={c.client_id}
@@ -176,7 +178,7 @@ export function PortalChat({ profile }: { profile: Profile }) {
             <>
               <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-slate-50">
                 {messages.length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center py-8">No messages yet. Say hi 👋</p>
+                  <p className="text-xs text-slate-400 text-center py-8">{t('noMessages')}</p>
                 ) : messages.map(m => {
                   const mine = (m.sender_role === 'admin') === isAdmin
                   return (
@@ -190,7 +192,7 @@ export function PortalChat({ profile }: { profile: Profile }) {
                 })}
                 {othersTyping && (
                   <div className="flex justify-start">
-                    <div className="bg-white border border-slate-200 text-slate-400 text-sm px-3 py-2 rounded-2xl italic">typing…</div>
+                    <div className="bg-white border border-slate-200 text-slate-400 text-sm px-3 py-2 rounded-2xl italic">{t('typing')}</div>
                   </div>
                 )}
               </div>
@@ -202,19 +204,19 @@ export function PortalChat({ profile }: { profile: Profile }) {
                 </div>
               )}
               <div className="p-2 border-t border-slate-100 flex items-center gap-1.5">
-                <button onClick={() => fileRef.current?.click()} disabled={uploading} className="text-slate-400 hover:text-slate-600 text-lg flex-shrink-0 disabled:opacity-50" title="Attach a file">
+                <button onClick={() => fileRef.current?.click()} disabled={uploading} className="text-slate-400 hover:text-slate-600 text-lg flex-shrink-0 disabled:opacity-50" title={t('attachTitle')}>
                   {uploading ? '…' : '📎'}
                 </button>
                 <input ref={fileRef} type="file" className="hidden" onChange={onAttach} />
-                <button onClick={() => setShowEmoji(v => !v)} className="text-slate-400 hover:text-slate-600 text-lg flex-shrink-0" title="Emoji">😊</button>
+                <button onClick={() => setShowEmoji(v => !v)} className="text-slate-400 hover:text-slate-600 text-lg flex-shrink-0" title={t('emojiTitle')}>😊</button>
                 <input
                   className="form-input text-sm py-2 flex-1"
-                  placeholder="Type a message…"
+                  placeholder={t('inputPlaceholder')}
                   value={input}
                   onChange={e => { setInput(e.target.value); pingTyping() }}
                   onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send() } }}
                 />
-                <button onClick={send} disabled={sending || !input.trim()} className="btn-primary text-sm px-3 flex-shrink-0">Send</button>
+                <button onClick={send} disabled={sending || !input.trim()} className="btn-primary text-sm px-3 flex-shrink-0">{t('send')}</button>
               </div>
             </>
           )}
@@ -225,7 +227,7 @@ export function PortalChat({ profile }: { profile: Profile }) {
         onClick={() => setOpen(o => !o)}
         className="w-14 h-14 rounded-full text-white shadow-lg flex items-center justify-center text-2xl relative transition-transform hover:scale-105"
         style={{ background: '#2563eb' }}
-        aria-label="Chat"
+        aria-label={t('chatAria')}
       >
         {open ? '×' : '💬'}
         {!open && unread > 0 && (

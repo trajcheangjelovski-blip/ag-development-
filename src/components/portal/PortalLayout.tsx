@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Sidebar } from '@/components/portal/Sidebar'
@@ -14,6 +15,7 @@ export default function PortalLayout({
   children: React.ReactNode
   requiredRole?: 'admin' | 'client'
 }) {
+  const t = useTranslations('portal.sidebar')
   const [profile, setProfile] = useState<Profile | null>(null)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const router = useRouter()
@@ -50,7 +52,7 @@ export default function PortalLayout({
           <button
             onClick={() => setSidebarOpen(true)}
             className="md:hidden p-2 -ml-1 rounded-lg text-slate-600 hover:bg-slate-100"
-            aria-label="Open menu"
+            aria-label={t('openMenu')}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
           </button>
