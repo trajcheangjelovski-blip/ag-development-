@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, Link } from '@/i18n/navigation'
 import PortalLayout from '@/components/portal/PortalLayout'
 import { Alert, Spinner } from '@/components/ui'
+import { formatPrice } from '@/lib/money'
 
 export default function AdminNewClient() {
   const router = useRouter()
@@ -18,14 +19,19 @@ export default function AdminNewClient() {
     password: '',
     phone: '',
     website: '',
+    region: 'us',
     package_id: '',
     notes: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Region-aware package list — the Macedonian market only sees MK (denar) packages.
   useEffect(() => {
-    fetch('/api/packages').then(r => r.json()).then(setPackages)
-  }, [])
+    fetch(`/api/packages?region=${form.region}`).then(r => r.json()).then(d => setPackages(Array.isArray(d) ? d : []))
+  }, [form.region])
+
+  const pkgPrice = (p: any) =>
+    form.region === 'mk' ? `${formatPrice(p.price, 'MKD', 'mk')}/месец` : `$${p.price}/month`
 
   function validate() {
     const e: Record<string, string> = {}
@@ -104,7 +110,7 @@ export default function AdminNewClient() {
               </button>
               <button className="btn-secondary btn" onClick={() => {
                 setSuccess(null)
-                setForm({ business_name:'',contact_name:'',email:'',password:'',phone:'',website:'',package_id:'',notes:'' })
+                setForm({ business_name:'',contact_name:'',email:'',password:'',phone:'',website:'',region:'us',package_id:'',notes:'' })
               }}>
                 Add Another Client
               </button>
@@ -210,10 +216,24 @@ export default function AdminNewClient() {
             {/* Divider */}
             <div className="border-t border-slate-100" />
 
-            {/* Plan */}
+            {/* Market + Plan */}
             <div>
               <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">
-                Support Plan
+                Market & Support Plan
+              </div>
+              <div className="mb-3">
+                <label className="form-label">Market</label>
+                <select
+                  className="form-input"
+                  value={form.region}
+                  onChange={e => setForm(p => ({ ...p, region: e.target.value, package_id: '' }))}
+                >
+                  <option value="us">United States (USD)</option>
+                  <option value="mk">Macedonia — Македонски пазар (МКД)</option>
+                </select>
+                <p className="text-xs text-slate-400 mt-1">
+                  Macedonian clients get a Macedonian portal, denar prices and MK packages.
+                </p>
               </div>
               <div>
                 <label className="form-label">Package</label>
@@ -221,7 +241,7 @@ export default function AdminNewClient() {
                   <option value="">Select a package…</option>
                   {packages.map((p: any) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} — ${p.price}/month ({p.requests_per_month} req · {p.hours_per_month}h)
+                      {p.name} — {pkgPrice(p)} ({p.requests_per_month} req · {p.hours_per_month}h)
                     </option>
                   ))}
                 </select>

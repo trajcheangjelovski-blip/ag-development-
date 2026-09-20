@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const supabase = await createClient()
-  const { data, error } = await supabase.from('support_packages').select('*').eq('is_active', true).order('price')
+  const region = new URL(request.url).searchParams.get('region')
+  let query = supabase.from('support_packages').select('*').eq('is_active', true).order('price')
+  if (region === 'mk' || region === 'us') query = query.eq('region', region)
+  const { data, error } = await query
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
   return NextResponse.json(data)
 }
@@ -17,7 +20,7 @@ export async function POST(request: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json()
-  const { name, price, requests_per_month, hours_per_month, response_time, extra_hourly_rate, description, extras, team_enabled, team_seats, setup_fee } = body
+  const { name, price, requests_per_month, hours_per_month, response_time, extra_hourly_rate, description, extras, team_enabled, team_seats, setup_fee, region } = body
   if (!name?.trim() || typeof price !== 'number' || price < 0) {
     return NextResponse.json({ error: 'Name and a valid price are required' }, { status: 400 })
   }
@@ -37,6 +40,7 @@ export async function POST(request: NextRequest) {
       team_enabled: !!team_enabled,
       team_seats: team_seats ? Number(team_seats) : null,
       setup_fee: Number(setup_fee) || 0,
+      region: region === 'mk' ? 'mk' : 'us',
       is_active: true,
     })
     .select()

@@ -23,11 +23,12 @@ CREATE TABLE profiles (
 CREATE TABLE support_packages (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   name TEXT NOT NULL,
-  price INTEGER NOT NULL, -- in dollars
+  price INTEGER NOT NULL, -- amount in the package's currency (USD for region 'us', MKD for 'mk')
   requests_per_month INTEGER NOT NULL,
   hours_per_month INTEGER NOT NULL, -- included support hours
   response_time TEXT NOT NULL,
   extra_hourly_rate INTEGER NOT NULL, -- extra work beyond package
+  region TEXT NOT NULL DEFAULT 'us' CHECK (region IN ('us','mk')), -- market: drives currency (mk→MKD)
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -41,6 +42,7 @@ CREATE TABLE clients (
   phone TEXT,
   website TEXT,
   package_id UUID REFERENCES support_packages(id),
+  region TEXT NOT NULL DEFAULT 'us' CHECK (region IN ('us','mk')), -- market: drives portal language + currency + packages
   notes TEXT,
   is_active BOOLEAN DEFAULT TRUE,
   joined_at TIMESTAMPTZ DEFAULT NOW(),

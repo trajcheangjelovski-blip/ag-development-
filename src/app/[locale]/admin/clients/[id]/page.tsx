@@ -6,6 +6,7 @@ import PortalLayout from '@/components/portal/PortalLayout'
 import { StatCard, StatusBadge, PriorityBadge, ProgressBar, Spinner, Alert } from '@/components/ui'
 import { formatDate, formatMinutes, currentBillingMonth } from '@/lib/utils'
 import { ResetClientPasswordButton } from '@/components/portal/ResetClientPasswordButton'
+import { formatPrice } from '@/lib/money'
 
 export default function AdminClientDetail() {
   const { id } = useParams()
@@ -26,16 +27,14 @@ export default function AdminClientDetail() {
 
   async function load() {
     setLoading(true)
-    const [cRes, tRes, teRes, pkgRes] = await Promise.all([
+    const [cRes, tRes, teRes] = await Promise.all([
       fetch(`/api/clients/${id}`),
       fetch(`/api/tickets?client_id=${id}`),
       fetch(`/api/time-entries?client_id=${id}&month=${month}`),
-      fetch('/api/packages'),
     ])
     if (cRes.ok) { const c = await cRes.json(); setClient(c); setEditForm(c) }
     if (tRes.ok) setTickets(await tRes.json())
     if (teRes.ok) setTimeEntries(await teRes.json())
-    if (pkgRes.ok) setPackages(await pkgRes.json())
     // Shared usage source — same numbers as the client dashboard (plan period + top-ups)
     const uRes = await fetch(`/api/clients/${id}/usage`)
     if (uRes.ok) setUsage(await uRes.json())
@@ -43,12 +42,20 @@ export default function AdminClientDetail() {
   }
   useEffect(() => { load() }, [id])
 
+  // Region-aware package list (refetches when the market is changed in the edit form).
+  const editRegion = editForm.region === 'mk' ? 'mk' : 'us'
+  useEffect(() => {
+    fetch(`/api/packages?region=${editRegion}`).then(r => r.json()).then(d => setPackages(Array.isArray(d) ? d : []))
+  }, [editRegion])
+  const pkgPrice = (p: any) =>
+    editRegion === 'mk' ? `${formatPrice(p.price, 'MKD', 'mk')}/месец` : `$${p.price}/month`
+
   async function saveClient() {
     setSaving(true); setError(''); setSuccess('')
     const res = await fetch(`/api/clients/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ business_name: editForm.business_name, contact_name: editForm.contact_name, phone: editForm.phone, website: editForm.website, package_id: editForm.package_id, notes: editForm.notes, is_active: editForm.is_active }),
+      body: JSON.stringify({ business_name: editForm.business_name, contact_name: editForm.contact_name, phone: editForm.phone, website: editForm.website, region: editRegion, package_id: editForm.package_id, notes: editForm.notes, is_active: editForm.is_active }),
     })
     if (res.ok) { setClient(await res.json()); setShowEdit(false); setSuccess('Client updated.') }
     else { const d = await res.json(); setError(d.error) }
@@ -164,16 +171,25 @@ export default function AdminClientDetail() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
+                    <label className="form-label">Market</label>
+                    <select className="form-input" value={editRegion} onChange={e => setEditForm((p: any) => ({ ...p, region: e.target.value, package_id: '' }))}>
+                      <option value="us">United States (USD)</option>
+                      <option value="mk">Macedonia — Македонски пазар (МКД)</option>
+                    </select>
+                  </div>
+                  <div>
                     <label className="form-label">Package</label>
                     <select className="form-input" value={editForm.package_id || ''} onChange={e => setEditForm((p: any) => ({ ...p, package_id: e.target.value }))}>
                       <option value="">No package</option>
                       {packages.map((pkg: any) => (
                         <option key={pkg.id} value={pkg.id}>
-                          {pkg.name} (${pkg.price}{(pkg.hours_per_month > 0 || pkg.requests_per_month > 0) ? '/mo' : ' one-time'})
+                          {pkg.name} ({pkgPrice(pkg)})
                         </option>
                       ))}
                     </select>
                   </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="form-label">Status</label>
                     <select className="form-input" value={editForm.is_active ? 'active' : 'inactive'} onChange={e => setEditForm((p: any) => ({ ...p, is_active: e.target.value === 'active' }))}>

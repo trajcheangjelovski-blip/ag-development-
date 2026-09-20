@@ -387,3 +387,24 @@ DROP POLICY IF EXISTS "Admins manage email attachments" ON storage.objects;
 CREATE POLICY "Admins manage email attachments" ON storage.objects FOR ALL
   USING (bucket_id = 'email-attachments' AND get_user_role() = 'admin')
   WITH CHECK (bucket_id = 'email-attachments' AND get_user_role() = 'admin');
+
+-- ─── CLIENT MARKET / REGION (MK vs US) ───────────────────────────────────────
+-- Lets an admin assign each client to the Macedonian or US market. Drives the
+-- client portal language (mk/en), the displayed currency (MKD/USD) and which
+-- support packages are offered. Currency is derived from region (mk→MKD).
+ALTER TABLE clients          ADD COLUMN IF NOT EXISTS region TEXT NOT NULL DEFAULT 'us' CHECK (region IN ('us','mk'));
+ALTER TABLE support_packages ADD COLUMN IF NOT EXISTS region TEXT NOT NULL DEFAULT 'us' CHECK (region IN ('us','mk'));
+
+-- Seed default IT-support packages for both markets (idempotent on name+region).
+-- Prices are canonical (US catalog / plans_mk). MK hours_per_month, response_time
+-- and extra_hourly_rate are sensible defaults and remain editable in the admin.
+INSERT INTO support_packages (name, price, requests_per_month, hours_per_month, response_time, extra_hourly_rate, region, is_active)
+SELECT * FROM (VALUES
+  ('L1 Basic Support',    49,   3,  2,  '24 hours', 10,  'us', true),
+  ('L1 Team Support',     99,   8,  5,  '8 hours',  10,  'us', true),
+  ('L1 Office Support',   179,  15, 12, '4 hours',  10,  'us', true),
+  ('L1 Basic Support',    3000, 3,  2,  '24 часа',  600, 'mk', true),
+  ('L1 Team Support',     5000, 8,  5,  '8 часа',   600, 'mk', true),
+  ('L1 Office Support',   18000,15, 12, '4 часа',   600, 'mk', true)
+) AS v(name, price, requests_per_month, hours_per_month, response_time, extra_hourly_rate, region, is_active)
+WHERE NOT EXISTS (SELECT 1 FROM support_packages sp WHERE sp.name = v.name AND sp.region = v.region);

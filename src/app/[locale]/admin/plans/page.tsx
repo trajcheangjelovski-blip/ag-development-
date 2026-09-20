@@ -43,6 +43,7 @@ type SupportPackage = {
   hours_per_month: number
   response_time: string
   extra_hourly_rate: number
+  region?: 'us' | 'mk'
 }
 
 export default function AdminPlans() {
@@ -145,7 +146,7 @@ export default function AdminPlans() {
       hours_per_month: String(hours),
       description: [
         parts.length ? `Includes: ${parts.join(', ')}` : '',
-        oneTime > 0 ? `One-time setup: $${oneTime} (invoice separately)` : '',
+        oneTime > 0 ? `One-time setup: ${cur(oneTime)} (invoice separately)` : '',
       ].filter(Boolean).join('\n'),
     }))
   }
@@ -287,6 +288,7 @@ export default function AdminPlans() {
         team_enabled: pkgForm.team_enabled,
         team_seats: pkgForm.team_seats,
         setup_fee: pkgForm.setup_fee,
+        region: planRegion,
         extras: buildExtrasPayload(),
       }),
     })
@@ -623,7 +625,7 @@ export default function AdminPlans() {
                       <option value="">— None —</option>
                       {plans.filter(p => p.category === category && p.is_active).map(p => (
                         <option key={p.id} value={p.id}>
-                          {p.name} (${p.sale_active && p.sale_price != null ? p.sale_price : p.price}{p.billing_interval ? '/mo' : ''})
+                          {p.name} ({cur(p.sale_active && p.sale_price != null ? p.sale_price : p.price)}{p.billing_interval ? '/mo' : ''})
                         </option>
                       ))}
                     </select>
@@ -640,7 +642,7 @@ export default function AdminPlans() {
                     <div key={p.id} className="flex items-center gap-3 bg-white border border-slate-200 rounded-lg px-3 py-2">
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-slate-700 truncate">{p.name}</div>
-                        <div className="text-xs text-slate-400">${p.sale_active && p.sale_price != null ? p.sale_price : p.price}{p.billing_interval ? '/mo' : ' each'}</div>
+                        <div className="text-xs text-slate-400">{cur(p.sale_active && p.sale_price != null ? p.sale_price : p.price)}{p.billing_interval ? '/mo' : ' each'}</div>
                       </div>
                       <div className="flex items-center gap-2 flex-shrink-0">
                         <button type="button" className="w-6 h-6 rounded bg-slate-100 text-slate-600 font-bold text-sm" onClick={() => applyCombo(combo, { ...extraQty, [p.id]: Math.max(0, qty - 1) })}>−</button>
@@ -713,8 +715,8 @@ export default function AdminPlans() {
               </div>
               {/* Live price summary */}
               <div className="flex flex-wrap items-center gap-x-6 gap-y-1 rounded-lg bg-white border border-slate-200 px-4 py-3 mb-3 text-sm">
-                <span className="font-bold text-slate-800">${Number(pkgForm.price) || 0}<span className="text-xs font-normal text-slate-400">/mo</span></span>
-                {oneTime > 0 && <span className="text-slate-600">+ ${oneTime} <span className="text-xs text-slate-400">one-time</span></span>}
+                <span className="font-bold text-slate-800">{cur(Number(pkgForm.price) || 0)}<span className="text-xs font-normal text-slate-400">/mo</span></span>
+                {oneTime > 0 && <span className="text-slate-600">+ {cur(oneTime)} <span className="text-xs text-slate-400">one-time</span></span>}
                 <span className="text-xs text-slate-400">{pkgForm.requests_per_month || 0} requests/mo · {pkgForm.hours_per_month || 0}h/mo</span>
                 {pkgForm.team_enabled && <span className="text-xs text-slate-400">· team: {pkgForm.team_seats || '∞'} seats</span>}
               </div>
@@ -769,14 +771,17 @@ export default function AdminPlans() {
                   })
                   .map(p => (
                   <tr key={p.id} className="hover:bg-slate-50">
-                    <td className="table-td font-semibold text-slate-800">{p.name}</td>
+                    <td className="table-td font-semibold text-slate-800">
+                      {p.name}
+                      <span className="ml-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">{p.region === 'mk' ? 'МК' : 'US'}</span>
+                    </td>
                     <td className="table-td">
-                      ${p.price}{(p.hours_per_month > 0 || p.requests_per_month > 0) ? '/mo' : ' one-time'}
+                      {formatPrice(p.price, p.region === 'mk' ? 'MKD' : 'USD', p.region === 'mk' ? 'mk' : 'en')}{(p.hours_per_month > 0 || p.requests_per_month > 0) ? '/mo' : ' one-time'}
                     </td>
                     <td className="table-td text-slate-500">{p.requests_per_month}</td>
                     <td className="table-td text-slate-500">{p.hours_per_month}h</td>
                     <td className="table-td text-slate-500 text-xs">{p.response_time}</td>
-                    <td className="table-td text-slate-500">${p.extra_hourly_rate}/hr</td>
+                    <td className="table-td text-slate-500">{formatPrice(p.extra_hourly_rate, p.region === 'mk' ? 'MKD' : 'USD', p.region === 'mk' ? 'mk' : 'en')}/hr</td>
                     <td className="table-td">
                       <div className="flex items-center gap-2">
                         <label className="flex items-center gap-1.5 text-xs cursor-pointer">

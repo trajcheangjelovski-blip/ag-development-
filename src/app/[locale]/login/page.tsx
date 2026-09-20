@@ -25,14 +25,24 @@ export default function LoginPage() {
       return
     }
 
-    // Get role to redirect correctly
+    // Get role (and, for clients, their market) to redirect correctly.
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, client_id')
       .eq('id', data.user.id)
       .single()
 
-    router.push(profile?.role === 'admin' ? '/admin/dashboard' : '/portal/dashboard')
+    if (profile?.role === 'admin') {
+      router.push('/admin/dashboard')
+    } else {
+      // Macedonian-market clients get the portal in Macedonian (/mk); US clients stay on /en.
+      let region = 'us'
+      if (profile?.client_id) {
+        const { data: client } = await supabase.from('clients').select('region').eq('id', profile.client_id).single()
+        if (client?.region === 'mk') region = 'mk'
+      }
+      router.push('/portal/dashboard', { locale: region === 'mk' ? 'mk' : 'en' })
+    }
     router.refresh()
   }
 

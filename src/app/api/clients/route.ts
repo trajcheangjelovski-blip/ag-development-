@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
   if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
 
   const body = await request.json()
-  const { business_name, contact_name, email, phone, website, package_id, notes } = body
+  const { business_name, contact_name, email, phone, website, package_id, notes, region } = body
 
   if (!business_name || !contact_name || !email) {
     return NextResponse.json({ error: 'business_name, contact_name, and email are required' }, { status: 400 })
@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       website: website || null,
       package_id: package_id || null,
       notes: notes || null,
+      region: region === 'mk' ? 'mk' : 'us',
     })
     .select()
     .single()
