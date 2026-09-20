@@ -201,8 +201,12 @@ export async function POST(request: NextRequest) {
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 500,
+        // Sonnet 5 produces markedly more natural Macedonian than Haiku, which
+        // the language rules in the prompt alone could not fix. Thinking is
+        // disabled to keep the widget snappy (short customer-chat replies).
+        model: 'claude-sonnet-5',
+        max_tokens: 600,
+        thinking: { type: 'disabled' },
         system: await buildSystemPrompt(locale),
         messages,
       }),
