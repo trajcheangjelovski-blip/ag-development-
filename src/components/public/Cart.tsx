@@ -108,11 +108,12 @@ export function AddToCartButton({ id, className }: { id: string; className?: str
 
 export function CartButton() {
   const { items } = useCart()
+  const t = useTranslations('cart')
   return (
     <Link
       href="/cart"
       className="relative p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
-      aria-label={`Cart (${items.length} items)`}
+      aria-label={t('ariaCart', { count: items.length })}
     >
       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="9" cy="21" r="1" />

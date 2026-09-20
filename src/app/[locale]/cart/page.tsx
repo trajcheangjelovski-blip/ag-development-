@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { Link } from '@/i18n/navigation'
-import { useLocale } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { PublicHeader } from '@/components/public/Header'
 import { PublicFooter } from '@/components/public/Footer'
 import { useCart } from '@/components/public/Cart'
@@ -27,6 +27,7 @@ type AppliedCoupon = { code: string; percent_off: number | null; amount_off: num
 export default function CartPage() {
   const { items, remove } = useCart()
   const locale = useLocale()
+  const t = useTranslations('cart')
   const region = regionFromLocale(locale)
   const displayCurrency = region === 'mk' ? 'MKD' : 'USD'
   const fmt = (n: number) => formatPrice(n, displayCurrency, locale)
@@ -68,14 +69,14 @@ export default function CartPage() {
       const res = await fetch('/api/coupons/validate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: couponInput }),
+        body: JSON.stringify({ code: couponInput, locale }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Invalid coupon')
+      if (!res.ok) throw new Error(data?.error || t('invalidCoupon'))
       setCoupon(data)
       setCouponInput('')
     } catch (e) {
-      setCouponError(e instanceof Error ? e.message : 'Invalid coupon')
+      setCouponError(e instanceof Error ? e.message : t('invalidCoupon'))
     } finally {
       setCouponBusy(false)
     }
@@ -98,13 +99,13 @@ export default function CartPage() {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, region, ...(coupon ? { coupon_code: coupon.code } : {}) }),
+        body: JSON.stringify({ items, region, locale, ...(coupon ? { coupon_code: coupon.code } : {}) }),
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data?.error || 'Checkout failed')
+      if (!res.ok) throw new Error(data?.error || t('checkoutFailed'))
       window.location.href = data.url
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      setError(e instanceof Error ? e.message : t('checkoutFailed'))
       setLoading(false)
     }
   }
@@ -114,8 +115,8 @@ export default function CartPage() {
       <PublicHeader />
       <section className="text-white py-14 px-6" style={{ background: 'linear-gradient(135deg, #0f1f3d 0%, #162b52 100%)' }}>
         <div className="max-w-3xl mx-auto">
-          <h1 className="font-display text-3xl font-extrabold">Your Cart</h1>
-          <p className="text-white/65 mt-2">Review your services, then pay securely with Stripe.</p>
+          <h1 className="font-display text-3xl font-extrabold">{t('title')}</h1>
+          <p className="text-white/65 mt-2">{t('subtitle')}</p>
         </div>
       </section>
 
@@ -126,9 +127,9 @@ export default function CartPage() {
           ) : !cartItems.length ? (
             <div className="card p-12 text-center">
               <div className="text-5xl mb-4">🛒</div>
-              <h2 className="font-display text-xl font-extrabold text-slate-800 mb-2">Your cart is empty</h2>
-              <p className="text-slate-500 text-sm mb-6">Browse our packages and add the services your business needs.</p>
-              <Link href="/pricing" className="btn-primary">View Pricing →</Link>
+              <h2 className="font-display text-xl font-extrabold text-slate-800 mb-2">{t('emptyTitle')}</h2>
+              <p className="text-slate-500 text-sm mb-6">{t('emptyDesc')}</p>
+              <Link href="/pricing" className="btn-primary">{t('emptyCta')}</Link>
             </div>
           ) : (
             <div className="space-y-5">
@@ -139,7 +140,7 @@ export default function CartPage() {
                       <div className="font-semibold text-slate-800 flex items-center gap-2">
                         {item.name}
                         {item.sale_active && item.effective_price < item.price && (
-                          <span className="discount-badge">Sale</span>
+                          <span className="discount-badge">{t('sale')}</span>
                         )}
                       </div>
                       <div className="text-xs text-slate-400">{item.category} · {item.description}</div>
@@ -149,14 +150,14 @@ export default function CartPage() {
                         {item.sale_active && item.effective_price < item.price && (
                           <span className="text-xs font-medium text-slate-400 line-through mr-1.5">{fmt(item.price)}</span>
                         )}
-                        {fmt(item.effective_price)}{item.billing_interval && <span className="text-xs font-medium text-slate-400">/mo</span>}
+                        {fmt(item.effective_price)}{item.billing_interval && <span className="text-xs font-medium text-slate-400">{t('perMonth')}</span>}
                       </div>
-                      <div className="text-[11px] text-slate-400">{item.billing_interval ? 'Monthly subscription' : 'One-time'}</div>
+                      <div className="text-[11px] text-slate-400">{item.billing_interval ? t('monthlySubscription') : t('oneTime')}</div>
                     </div>
                     <button
                       onClick={() => remove(item.id)}
                       className="text-slate-300 hover:text-red-500 transition-colors p-1.5 flex-shrink-0"
-                      aria-label={`Remove ${item.name}`}
+                      aria-label={t('ariaRemove', { name: item.name })}
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                         <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
@@ -173,23 +174,25 @@ export default function CartPage() {
                     <div className="text-sm">
                       <span className="font-bold text-green-700">🎟️ {coupon.code}</span>
                       <span className="text-slate-500 ml-2">
-                        {coupon.percent_off ? `${coupon.percent_off}% off` : `${fmt(coupon.amount_off || 0)} off`} applied
+                        {coupon.percent_off
+                          ? t('discountPercentApplied', { percent: coupon.percent_off })
+                          : t('discountAmountApplied', { amount: fmt(coupon.amount_off || 0) })}
                       </span>
                     </div>
-                    <button onClick={() => setCoupon(null)} className="text-xs font-semibold text-red-500 hover:text-red-600">Remove</button>
+                    <button onClick={() => setCoupon(null)} className="text-xs font-semibold text-red-500 hover:text-red-600">{t('remove')}</button>
                   </div>
                 ) : (
                   <>
                     <div className="flex gap-2">
                       <input
                         className="form-input flex-1"
-                        placeholder="Coupon code"
+                        placeholder={t('couponPlaceholder')}
                         value={couponInput}
                         onChange={e => { setCouponInput(e.target.value.toUpperCase()); setCouponError('') }}
                         onKeyDown={e => e.key === 'Enter' && applyCoupon()}
                       />
                       <button onClick={applyCoupon} disabled={couponBusy || !couponInput.trim()} className="btn-ghost px-5 flex-shrink-0">
-                        {couponBusy ? 'Checking…' : 'Apply'}
+                        {couponBusy ? t('checking') : t('apply')}
                       </button>
                     </div>
                     {couponError && <p className="text-xs text-red-500 mt-2">{couponError}</p>}
@@ -201,24 +204,24 @@ export default function CartPage() {
                 <div className="space-y-2 mb-5">
                   {oneTimeTotal > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">One-time total</span>
+                      <span className="text-slate-500">{t('oneTimeTotal')}</span>
                       <span className="font-bold text-slate-800">{fmt(oneTimeTotal)}</span>
                     </div>
                   )}
                   {monthlyTotal > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-500">Monthly subscription total</span>
-                      <span className="font-bold text-slate-800">{fmt(monthlyTotal)}/mo</span>
+                      <span className="text-slate-500">{t('monthlyTotal')}</span>
+                      <span className="font-bold text-slate-800">{fmt(monthlyTotal)}{t('perMonth')}</span>
                     </div>
                   )}
                   {coupon && discountAmount > 0 && (
                     <div className="flex justify-between text-sm">
-                      <span className="text-green-600 font-medium">Coupon discount ({coupon.code})</span>
+                      <span className="text-green-600 font-medium">{t('couponDiscount', { code: coupon.code })}</span>
                       <span className="font-bold text-green-600">−{fmt(discountAmount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between pt-3 border-t border-slate-100">
-                    <span className="font-display font-bold text-slate-800">Due today</span>
+                    <span className="font-display font-bold text-slate-800">{t('dueToday')}</span>
                     <span className="font-display text-xl font-extrabold text-slate-800">
                       {fmt(Math.max(0, dueToday - discountAmount))}
                     </span>
@@ -230,7 +233,7 @@ export default function CartPage() {
                   )}
                   {monthlyTotal > 0 && (
                     <p className="text-xs text-slate-400">
-                      Subscriptions renew automatically at {fmt(monthlyTotal)}/month{coupon ? ' (coupon applies to the first payment)' : ''}. Cancel per our terms (6-month minimum on care plans).
+                      {t('renewNote', { total: fmt(monthlyTotal), couponNote: coupon ? t('couponFirstPayment') : '' })}
                     </p>
                   )}
                 </div>
@@ -247,10 +250,10 @@ export default function CartPage() {
                   className="w-full flex items-center justify-center gap-2 py-3.5 font-bold text-sm text-white rounded-xl transition-all disabled:opacity-60"
                   style={{ background: '#2563eb', boxShadow: '0 8px 24px rgba(37,99,235,0.3)' }}
                 >
-                  {loading ? <><Spinner size="sm" /> Redirecting to Stripe...</> : '🔒 Pay Securely with Stripe →'}
+                  {loading ? <><Spinner size="sm" /> {t('redirecting')}</> : t('checkoutBtn')}
                 </button>
                 <p className="text-xs text-slate-400 text-center mt-3">
-                  You&apos;ll be redirected to Stripe&apos;s secure checkout. We never see or store your card details.
+                  {t('checkoutNote')}
                 </p>
               </div>
             </div>

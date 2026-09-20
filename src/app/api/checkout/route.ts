@@ -7,15 +7,33 @@ import { rateLimit, clientIp } from '@/lib/rateLimit'
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
+// Localized user-facing error messages for the public cart flow (message-only;
+// does not affect Stripe logic, pricing, or currency).
+const STR = {
+  en: {
+    rateLimit: 'Too many attempts. Please wait a moment and try again.',
+    emptyCart: 'Your cart is empty',
+    couponInvalid: 'Coupon is invalid or expired',
+    checkoutFailed: 'Checkout failed',
+  },
+  mk: {
+    rateLimit: 'Премногу обиди. Ве молиме почекајте момент и обидете се повторно.',
+    emptyCart: 'Вашата кошничка е празна',
+    couponInvalid: 'Кодот за попуст е неважечки или истечен',
+    checkoutFailed: 'Плаќањето не успеа',
+  },
+} as const
+
 // Creates a Stripe Checkout session.
 // Two modes:
 //  - Cart checkout (public): body { items: string[] } of catalog IDs.
 //  - Invoice payment (logged-in client): body { invoice_id: string }.
 export async function POST(request: NextRequest) {
+  const body = await request.json().catch(() => ({}))
+  const str = STR[body?.locale === 'mk' ? 'mk' : 'en']
   if (!rateLimit(`checkout:${clientIp(request)}`, 12, 60_000)) {
-    return NextResponse.json({ error: 'Too many attempts. Please wait a moment and try again.' }, { status: 429 })
+    return NextResponse.json({ error: str.rateLimit }, { status: 429 })
   }
-  const body = await request.json()
 
   try {
     // ── Invoice payment (client portal) ──
@@ -66,7 +84,7 @@ export async function POST(request: NextRequest) {
       .map(id => plans.find(p => p.id === id && p.is_active))
       .filter(Boolean) as Plan[]
     if (!items.length) {
-      return NextResponse.json({ error: 'Your cart is empty' }, { status: 400 })
+      return NextResponse.json({ error: str.emptyCart }, { status: 400 })
     }
 
     const hasRecurring = items.some(i => i.billing_interval === 'month')
@@ -92,7 +110,7 @@ export async function POST(request: NextRequest) {
         && (!coupon.max_redemptions || coupon.redemptions < coupon.max_redemptions)
 
       if (!valid) {
-        return NextResponse.json({ error: 'Coupon is invalid or expired' }, { status: 400 })
+        return NextResponse.json({ error: str.couponInvalid }, { status: 400 })
       }
 
       const stripeCoupon = await stripeRequest('coupons', {
@@ -127,7 +145,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url })
   } catch (e) {
-    const msg = e instanceof Error ? e.message : 'Checkout failed'
+    const msg = e instanceof Error ? e.message : str.checkoutFailed
     return NextResponse.json({ error: msg }, { status: 502 })
   }
 }
