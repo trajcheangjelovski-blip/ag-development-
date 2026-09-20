@@ -1007,5 +1007,31 @@
       "primary": "See a Demo of Your Website for Your Business →",
       "secondary": "Start Your Website Project"
     }
+  },
+  "chat": {
+    "greeting": "Hi! 👋 I'm the AG Development assistant. Ask me anything about our websites, care plans, IT support, or prices — or get a free website design at /review.",
+    "quickQuestions": [
+      "How much does a website cost?",
+      "What does the free business demo include?",
+      "Do your plans include hosting?"
+    ],
+    "headerTitle": "AG Development",
+    "statusOnline": "AI assistant — instant answers",
+    "statusOffline": "Leave a message",
+    "offlineMessage": "Live chat is offline right now — leave us a message below and we'll reply within 1 business day!",
+    "leaveMessageTitle": "Leave us a message",
+    "formName": "Your name",
+    "formEmail": "you@business.com",
+    "formMessage": "How can we help?",
+    "formSend": "Send Message",
+    "formSending": "Sending…",
+    "sentTitle": "Message sent!",
+    "sentBody": "We'll reply to your email within 1 business day.",
+    "inputPlaceholder": "Ask about our services…",
+    "inputPlaceholderOffline": "Chat offline — use the form above",
+    "leaveMessageToggle": "💬 Leave a message for the team",
+    "hideForm": "Hide form",
+    "disclaimer": "AI answers may contain mistakes",
+    "errorGeneric": "Sorry, something went wrong. Try again or use \"Leave a message\"."
   }
 }

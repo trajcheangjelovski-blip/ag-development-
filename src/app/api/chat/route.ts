@@ -21,7 +21,28 @@ function rateLimited(ip: string): boolean {
   return h.count > 20
 }
 
-async function buildSystemPrompt(): Promise<string> {
+// Localized user-facing strings returned by this endpoint.
+const STR = {
+  en: {
+    rateLimited: 'Too many messages — please slow down a little.',
+    unavailable: 'The assistant is unavailable right now. Please use "Leave a message" instead.',
+    replyFallback: 'Sorry, I had trouble answering that. Could you rephrase?',
+    noMessage: 'No message provided',
+  },
+  mk: {
+    rateLimited: 'Премногу пораки — ве молиме забавете малку.',
+    unavailable: 'Асистентот моментално не е достапен. Ве молиме користете „Оставете порака“.',
+    replyFallback: 'Извинете, имав проблем да одговорам на тоа. Може ли да го преформулирате?',
+    noMessage: 'Нема испратена порака',
+  },
+} as const
+
+type Locale = keyof typeof STR
+function pickLocale(v: unknown): Locale {
+  return v === 'mk' ? 'mk' : 'en'
+}
+
+async function buildSystemPrompt(locale: Locale): Promise<string> {
   const { plans } = await getPlans()
   const planLines = plans
     .filter(p => p.is_active)
@@ -32,7 +53,13 @@ async function buildSystemPrompt(): Promise<string> {
     })
     .join('\n')
 
-  return `You are the friendly assistant on the AG Development website. AG Development provides websites, remote IT support, and digital services for small businesses in the US.
+  const languageRule = locale === 'mk'
+    ? `\n\nLANGUAGE:
+- The visitor is on the Macedonian version of the site. ALWAYS reply in Macedonian (Македонски), even if the visitor writes in another language, unless they explicitly ask you to switch to English.
+- Write naturally and correctly in Macedonian. Keep brand names, URLs/paths, and email addresses unchanged.`
+    : ''
+
+  return `You are the friendly assistant on the AG Development website. AG Development provides websites, remote IT support, and digital services for small businesses in the US.${languageRule}
 
 CURRENT SERVICES AND PRICES (always use these, never invent others):
 ${planLines}
@@ -57,8 +84,13 @@ RULES:
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+  const body = await request.json()
+  const locale = pickLocale(body.locale)
+  const str = STR[locale]
+
   if (rateLimited(ip)) {
-    return NextResponse.json({ error: 'Too many messages — please slow down a little.' }, { status: 429 })
+    return NextResponse.json({ error: str.rateLimited }, { status: 429 })
   }
 
   const settings = await getAppSettings()
@@ -67,7 +99,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'not_configured' }, { status: 503 })
   }
 
-  const body = await request.json()
   const incoming = Array.isArray(body.messages) ? body.messages : []
   const messages = incoming
     .filter((m: any) => (m?.role === 'user' || m?.role === 'assistant') && typeof m?.content === 'string' && m.content.trim())
@@ -75,7 +106,7 @@ export async function POST(request: NextRequest) {
     .map((m: any) => ({ role: m.role, content: String(m.content).slice(0, MAX_MESSAGE_CHARS) }))
 
   if (!messages.length || messages[messages.length - 1].role !== 'user') {
-    return NextResponse.json({ error: 'No message provided' }, { status: 400 })
+    return NextResponse.json({ error: str.noMessage }, { status: 400 })
   }
 
   try {
@@ -89,7 +120,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 500,
-        system: await buildSystemPrompt(),
+        system: await buildSystemPrompt(locale),
         messages,
       }),
     })
@@ -97,7 +128,7 @@ export async function POST(request: NextRequest) {
     const data = await res.json()
     if (!res.ok) {
       console.error('Chat API error:', data?.error?.message)
-      return NextResponse.json({ error: 'The assistant is unavailable right now. Please use "Leave a message" instead.' }, { status: 502 })
+      return NextResponse.json({ error: str.unavailable }, { status: 502 })
     }
 
     const reply = (data.content || [])
@@ -106,9 +137,9 @@ export async function POST(request: NextRequest) {
       .join('\n')
       .trim()
 
-    return NextResponse.json({ reply: reply || 'Sorry, I had trouble answering that. Could you rephrase?' })
+    return NextResponse.json({ reply: reply || str.replyFallback })
   } catch (e) {
     console.error('Chat error:', e)
-    return NextResponse.json({ error: 'The assistant is unavailable right now. Please use "Leave a message" instead.' }, { status: 502 })
+    return NextResponse.json({ error: str.unavailable }, { status: 502 })
   }
 }

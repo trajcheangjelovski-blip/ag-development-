@@ -1,19 +1,9 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { usePathname } from '@/i18n/navigation'
 
 type Msg = { role: 'user' | 'assistant'; content: string }
-
-const GREETING: Msg = {
-  role: 'assistant',
-  content: "Hi! 👋 I'm the AG Development assistant. Ask me anything about our websites, care plans, IT support, or prices — or get a free website design at /review.",
-}
-
-const QUICK_QUESTIONS = [
-  'How much does a website cost?',
-  'What does the free business demo include?',
-  'Do your plans include hosting?',
-]
 
 // Renders /paths and full URLs as links
 function ChatText({ text }: { text: string }) {
@@ -35,8 +25,12 @@ function ChatText({ text }: { text: string }) {
 
 export function ChatWidget() {
   const pathname = usePathname()
+  const locale = useLocale()
+  const t = useTranslations('chat')
+  const greeting: Msg = { role: 'assistant', content: t('greeting') }
+  const quickQuestions = t.raw('quickQuestions') as string[]
   const [open, setOpen] = useState(false)
-  const [messages, setMessages] = useState<Msg[]>([GREETING])
+  const [messages, setMessages] = useState<Msg[]>([greeting])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
   const [unavailable, setUnavailable] = useState(false)
@@ -77,21 +71,21 @@ export function ChatWidget() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: next.slice(-12) }),
+        body: JSON.stringify({ messages: next.slice(-12), locale }),
       })
       const data = await res.json()
       if (res.status === 503 && data?.error === 'not_configured') {
         setUnavailable(true)
         setShowForm(true)
-        setMessages(m => [...m, { role: 'assistant', content: 'Live chat is offline right now — leave us a message below and we\'ll reply within 1 business day!' }])
+        setMessages(m => [...m, { role: 'assistant', content: t('offlineMessage') }])
         return
       }
-      if (!res.ok) throw new Error(data?.error || 'Something went wrong')
+      if (!res.ok) throw new Error(data?.error || t('errorGeneric'))
       setMessages(m => [...m, { role: 'assistant', content: data.reply }])
     } catch (e) {
       setMessages(m => [...m, {
         role: 'assistant',
-        content: e instanceof Error ? e.message : 'Sorry, something went wrong. Try again or use "Leave a message".',
+        content: e instanceof Error ? e.message : t('errorGeneric'),
       }])
     } finally {
       setTyping(false)
@@ -147,9 +141,9 @@ export function ChatWidget() {
               AG
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white font-bold text-sm">AG Development</div>
+              <div className="text-white font-bold text-sm">{t('headerTitle')}</div>
               <div className="text-white/50 text-xs flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {unavailable ? 'Leave a message' : 'AI assistant — instant answers'}
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {unavailable ? t('statusOffline') : t('statusOnline')}
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/50 hover:text-white p-1 text-lg leading-none" aria-label="Close chat">×</button>
@@ -185,7 +179,7 @@ export function ChatWidget() {
             {/* Quick questions (start of conversation) */}
             {messages.length <= 1 && !typing && !showForm && (
               <div className="space-y-2 pt-1">
-                {QUICK_QUESTIONS.map(q => (
+                {quickQuestions.map(q => (
                   <button
                     key={q}
                     onClick={() => send(q)}
@@ -203,18 +197,18 @@ export function ChatWidget() {
                 {formSent ? (
                   <div className="text-center py-3">
                     <div className="text-2xl mb-2">📬</div>
-                    <p className="text-sm font-semibold text-slate-800 mb-1">Message sent!</p>
-                    <p className="text-xs text-slate-500">We&apos;ll reply to your email within 1 business day.</p>
+                    <p className="text-sm font-semibold text-slate-800 mb-1">{t('sentTitle')}</p>
+                    <p className="text-xs text-slate-500">{t('sentBody')}</p>
                   </div>
                 ) : (
                   <form onSubmit={submitForm} className="space-y-2.5">
-                    <p className="text-xs font-bold text-slate-700">Leave us a message</p>
+                    <p className="text-xs font-bold text-slate-700">{t('leaveMessageTitle')}</p>
                     {formError && <p className="text-xs text-red-500">{formError}</p>}
-                    <input className="form-input text-sm py-2" placeholder="Your name" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
-                    <input type="email" className="form-input text-sm py-2" placeholder="you@business.com" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required />
-                    <textarea className="form-input text-sm py-2 min-h-16 resize-none" placeholder="How can we help?" value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} required />
+                    <input className="form-input text-sm py-2" placeholder={t('formName')} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} required />
+                    <input type="email" className="form-input text-sm py-2" placeholder={t('formEmail')} value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required />
+                    <textarea className="form-input text-sm py-2 min-h-16 resize-none" placeholder={t('formMessage')} value={form.message} onChange={e => setForm(p => ({ ...p, message: e.target.value }))} required />
                     <button type="submit" disabled={formBusy} className="w-full py-2.5 rounded-lg text-xs font-bold text-white transition-all disabled:opacity-60" style={{ background: '#2563eb' }}>
-                      {formBusy ? 'Sending…' : 'Send Message'}
+                      {formBusy ? t('formSending') : t('formSend')}
                     </button>
                   </form>
                 )}
@@ -229,7 +223,7 @@ export function ChatWidget() {
             <div className="flex gap-2">
               <input
                 className="form-input text-sm py-2.5 flex-1"
-                placeholder={unavailable ? 'Chat offline — use the form above' : 'Ask about our services…'}
+                placeholder={unavailable ? t('inputPlaceholderOffline') : t('inputPlaceholder')}
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && !e.shiftKey && send()}
@@ -250,9 +244,9 @@ export function ChatWidget() {
             </div>
             <div className="flex items-center justify-between mt-2 px-0.5">
               <button onClick={() => { setShowForm(v => !v); setFormSent(false) }} className="text-[11px] text-slate-400 hover:text-blue-600 font-medium">
-                {showForm ? 'Hide form' : '💬 Leave a message for the team'}
+                {showForm ? t('hideForm') : t('leaveMessageToggle')}
               </button>
-              <span className="text-[10px] text-slate-300">AI answers may contain mistakes</span>
+              <span className="text-[10px] text-slate-300">{t('disclaimer')}</span>
             </div>
           </div>
         </div>
