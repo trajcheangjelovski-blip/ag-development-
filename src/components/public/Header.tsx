@@ -246,9 +246,11 @@ export function PublicHeader() {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 12,
                 }}
               >
-                <span style={{ fontSize: 13, color: '#94a3b8' }}>{tm('notSure')}</span>
+                <span style={{ fontSize: 13, color: '#94a3b8', flex: '1 1 auto', minWidth: 0 }}>{tm('notSure')}</span>
                 <Link
                   href="/review"
                   onClick={closeAll}
@@ -263,6 +265,7 @@ export function PublicHeader() {
                     fontSize: 13,
                     fontWeight: 600,
                     textDecoration: 'none',
+                    flexShrink: 0,
                   }}
                 >
                   {tm('demoCta')} →
