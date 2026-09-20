@@ -58,6 +58,8 @@ export default function AdminPlans() {
   // (denars, `plans_mk`). Coupons and custom packages are region-agnostic.
   const [planRegion, setPlanRegion] = useState<'us' | 'mk'>('us')
   const cur = (n: number) => formatPrice(n, planRegion === 'mk' ? 'MKD' : 'USD', planRegion === 'mk' ? 'mk' : 'en')
+  // Currency unit label for form fields, following the active pricing region.
+  const unit = planRegion === 'mk' ? 'мкд' : '$'
 
   // Plan edit modal
   const [editPlan, setEditPlan] = useState<Plan | null>(null)
@@ -556,6 +558,21 @@ export default function AdminPlans() {
               <p className="text-xs text-slate-400 mt-0.5">Create a tailored support package, then assign it on the client&apos;s page via Edit Client.</p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              {/* Currency for the custom package — same source (planRegion) as the sellable plans toggle above */}
+              <div className="flex items-center gap-1 mr-1">
+                {(['us', 'mk'] as const).map(r => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setPlanRegion(r)}
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-bold border transition-all ${
+                      planRegion === r ? 'border-blue-600 bg-blue-50 text-blue-700' : 'border-slate-200 bg-white text-slate-400 hover:border-slate-300'
+                    }`}
+                  >
+                    {r === 'us' ? '$ USD' : 'мкд MKD'}
+                  </button>
+                ))}
+              </div>
               <button onClick={() => setShowExtraForm(v => !v)} className="btn-ghost text-xs px-3 py-1.5">
                 {showExtraForm ? 'Cancel Extra' : '+ New Extra'}
               </button>
@@ -574,7 +591,7 @@ export default function AdminPlans() {
                   <input className="form-input" placeholder="e.g. Extra Website Page" value={extraForm.name} onChange={e => setExtraForm(p => ({ ...p, name: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">Price ($)</label>
+                  <label className="form-label">Price ({unit})</label>
                   <input type="number" min="1" className="form-input" placeholder="79" value={extraForm.price} onChange={e => setExtraForm(p => ({ ...p, price: e.target.value }))} />
                 </div>
                 <div>
@@ -673,11 +690,11 @@ export default function AdminPlans() {
                   <input className="form-input" placeholder="e.g. Mcash Custom Care" value={pkgForm.name} onChange={e => { setNameTouched(true); setPkgForm(p => ({ ...p, name: e.target.value })) }} />
                 </div>
                 <div>
-                  <label className="form-label">Price ($/month)</label>
+                  <label className="form-label">Price ({unit}/month)</label>
                   <input type="number" min="0" className="form-input" placeholder="199" value={pkgForm.price} onChange={e => setPkgForm(p => ({ ...p, price: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">One-time setup ($)</label>
+                  <label className="form-label">One-time setup ({unit})</label>
                   <input type="number" min="0" className="form-input" placeholder="0" value={pkgForm.setup_fee} onChange={e => setPkgForm(p => ({ ...p, setup_fee: e.target.value }))} />
                 </div>
                 <div>
@@ -693,7 +710,7 @@ export default function AdminPlans() {
                   <input className="form-input" placeholder="24 hours" value={pkgForm.response_time} onChange={e => setPkgForm(p => ({ ...p, response_time: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">Extra rate ($/hr)</label>
+                  <label className="form-label">Extra rate ({unit}/hr)</label>
                   <input type="number" min="0" className="form-input" placeholder="10" value={pkgForm.extra_hourly_rate} onChange={e => setPkgForm(p => ({ ...p, extra_hourly_rate: e.target.value }))} />
                 </div>
                 <div className="col-span-2 md:col-span-3">
@@ -948,15 +965,15 @@ export default function AdminPlans() {
                   <input className="form-input" value={editPkg.name || ''} onChange={e => setEditPkg((p: any) => ({ ...p, name: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">Price ($/month)</label>
+                  <label className="form-label">Price ({editPkg.region === 'mk' ? 'мкд' : '$'}/month)</label>
                   <input type="number" min="0" className="form-input" value={editPkg.price ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, price: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">One-time setup ($)</label>
+                  <label className="form-label">One-time setup ({editPkg.region === 'mk' ? 'мкд' : '$'})</label>
                   <input type="number" min="0" className="form-input" value={editPkg.setup_fee ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, setup_fee: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="form-label">Extra rate ($/hr)</label>
+                  <label className="form-label">Extra rate ({editPkg.region === 'mk' ? 'мкд' : '$'}/hr)</label>
                   <input type="number" min="0" className="form-input" value={editPkg.extra_hourly_rate ?? ''} onChange={e => setEditPkg((p: any) => ({ ...p, extra_hourly_rate: e.target.value }))} />
                 </div>
                 <div>
