@@ -298,11 +298,13 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 animate-scroll-bounce">
-          <span className="text-xs text-white/30 font-medium tracking-widest uppercase">{t('scroll')}</span>
-          <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-max max-w-[calc(100vw-2rem)]">
+          <div className="flex flex-col items-center gap-1.5 animate-scroll-bounce">
+            <span className="text-xs text-white/30 font-medium tracking-widest uppercase text-center">{t('scroll')}</span>
+            <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
       </section>
 
