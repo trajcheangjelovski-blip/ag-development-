@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>План Дизајн — Архитектонско студио</title>
+<meta name="description" content="Архитектонско студио од Скопје. Проектирање на семејни куќи, деловни и индустриски објекти, урбанистичко планирање и 3D визуелизации.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=Manrope:wght@300;400;500;600;700&display=swap">
+<style>
+  :root{
+    --ink:#14130e;--ink-2:#1b1a14;--ink-3:#232219;
+    --paper:#f3efe7;--muted:#9c978b;
+    --line:rgba(243,239,231,.12);--line-soft:rgba(243,239,231,.07);
+    --wood:#c79256;--wood-soft:#e2b684;
+    --serif:"Playfair Display",Georgia,"Times New Roman",serif;
+    --sans:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --maxw:1180px;--bar:38px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--sans);
+    font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3{font-family:var(--serif);font-weight:400;margin:0;text-wrap:balance;letter-spacing:.005em}
+  p{margin:0}
+  ::selection{background:var(--wood);color:var(--ink)}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px;width:100%}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--wood-soft);display:inline-flex;align-items:center;gap:12px}
+  .eyebrow::before{content:"";width:28px;height:1px;background:var(--wood)}
+  .btn{display:inline-flex;align-items:center;gap:10px;font-family:var(--sans);font-size:13.5px;
+    font-weight:600;letter-spacing:.04em;cursor:pointer;padding:14px 26px;border-radius:2px;
+    border:1px solid var(--wood);background:var(--wood);color:#1a140c;
+    transition:background .3s,color .3s,transform .2s;min-height:48px}
+  .btn:hover{background:transparent;color:var(--wood-soft);transform:translateY(-1px)}
+  .btn.ghost{background:transparent;color:var(--paper);border-color:var(--line)}
+  .btn.ghost:hover{border-color:var(--wood);color:var(--wood-soft)}
+
+  /* ---- Demo banner (AG Development convention) ---- */
+  .demobar{background:#0f1420;color:#fff;font-size:13px;position:relative;z-index:60}
+  .demobar-in{max-width:var(--maxw);margin:0 auto;padding:9px 24px;display:flex;flex-wrap:wrap;
+    align-items:center;justify-content:space-between;gap:8px}
+  .demobar .tag{display:inline-block;background:rgba(199,146,86,.18);color:var(--wood-soft);
+    font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:10px;
+    padding:3px 8px;border-radius:3px;margin-right:10px}
+  .demobar .lbl{color:rgba(255,255,255,.9);font-weight:500}
+  .demobar a{color:#fff;font-weight:600;transition:color .25s}
+  .demobar a:hover{color:var(--wood-soft)}
+  .demobar .sep{color:rgba(255,255,255,.35);margin:0 12px}
+
+  /* ---- Nav ---- */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(20,19,14,.86);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;height:72px;padding:0 24px;display:flex;
+    align-items:center;justify-content:space-between;gap:20px}
+  .brand{font-family:var(--serif);font-size:1.15rem;letter-spacing:.3em;text-transform:uppercase;
+    font-weight:500;white-space:nowrap}
+  .brand small{display:block;font-family:var(--sans);font-size:8.5px;letter-spacing:.34em;
+    color:var(--muted);margin-top:3px;font-weight:600}
+  .nav-links{display:flex;align-items:center;gap:32px;font-size:14px;font-weight:500}
+  .nav-links a{position:relative;padding:6px 0;color:rgba(243,239,231,.82);transition:color .25s}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;
+    background:var(--wood);transition:width .3s}
+  .nav-links a:hover{color:var(--paper)}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta{padding:11px 22px;min-height:0}
+  .burger{display:none;background:none;border:0;color:var(--paper);cursor:pointer;padding:10px;margin:-10px}
+  .burger span{display:block;width:24px;height:2px;background:var(--paper);margin:5px 0;transition:.3s}
+
+  /* ---- Hero ---- */
+  .hero{position:relative;min-height:calc(100svh - 110px);display:flex;align-items:flex-end;overflow:hidden}
+  .hero-bg{position:absolute;inset:0;z-index:0}
+  .hero-bg img{width:100%;height:100%;object-fit:cover;animation:zoom 18s ease-out forwards}
+  @keyframes zoom{from{transform:scale(1.08)}to{transform:scale(1)}}
+  .hero-bg::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(20,19,14,.5) 0%,rgba(20,19,14,.12) 32%,rgba(20,19,14,.72) 78%,var(--ink) 100%)}
+  .hero-in{position:relative;z-index:2;width:100%;padding-bottom:70px;padding-top:60px}
+  .hero h1{font-size:clamp(2.7rem,7vw,6rem);line-height:1.03;margin:22px 0 0;font-weight:500}
+  .hero h1 em{font-style:italic;color:var(--wood-soft)}
+  .hero .lede{max-width:44ch;margin-top:24px;font-size:clamp(1rem,1.6vw,1.18rem);
+    color:rgba(243,239,231,.82);font-weight:300}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:36px}
+
+  .reveal>*{opacity:0;transform:translateY(18px);animation:rise .9s cubic-bezier(.2,.7,.2,1) forwards}
+  .reveal>*:nth-child(1){animation-delay:.1s}.reveal>*:nth-child(2){animation-delay:.24s}
+  .reveal>*:nth-child(3){animation-delay:.38s}.reveal>*:nth-child(4){animation-delay:.52s}
+  @keyframes rise{to{opacity:1;transform:none}}
+
+  .band{padding-block:clamp(64px,10vw,128px)}
+  .sec-head{max-width:640px}
+  .sec-head h2{font-size:clamp(2rem,4.4vw,3.3rem);line-height:1.08;margin-top:18px}
+  .sec-head p{margin-top:18px;color:var(--muted);font-size:1.02rem}
+
+  /* ---- About ---- */
+  .about{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(28px,5vw,72px);align-items:center}
+  .about h2{font-size:clamp(2rem,4.2vw,3.2rem);line-height:1.1;margin-top:18px}
+  .about p{color:rgba(243,239,231,.74);margin-top:20px;max-width:52ch;font-weight:300;font-size:1.05rem}
+  .fig{position:relative}
+  .fig img{width:100%;aspect-ratio:4/5;object-fit:cover}
+  .fig .frame{position:absolute;inset:16px;border:1px solid var(--wood);pointer-events:none;
+    mix-blend-mode:screen;opacity:.6}
+  .stats{display:flex;gap:40px;flex-wrap:wrap;margin-top:38px;padding-top:32px;border-top:1px solid var(--line)}
+  .stat .n{font-family:var(--serif);font-size:2.6rem;color:var(--wood-soft);line-height:1}
+  .stat .l{font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+
+  /* ---- Services ---- */
+  .svc-band{background:var(--ink-2);border-block:1px solid var(--line-soft)}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:52px}
+  .svc{background:linear-gradient(180deg,var(--ink-3),rgba(35,34,25,.35));border:1px solid var(--line);
+    padding:36px 30px 38px;position:relative;overflow:hidden;
+    transition:transform .4s cubic-bezier(.2,.7,.2,1),border-color .4s}
+  .svc::before{content:"";position:absolute;left:0;top:0;height:2px;width:0;background:var(--wood);transition:width .5s}
+  .svc:hover{transform:translateY(-6px);border-color:rgba(199,146,86,.5)}
+  .svc:hover::before{width:100%}
+  .svc .ico{width:44px;height:44px;color:var(--wood);margin-bottom:24px}
+  .svc h3{font-size:1.5rem;margin-bottom:14px}
+  .svc p{color:var(--muted);font-size:.96rem;font-weight:300;line-height:1.7}
+
+  /* ---- Portfolio ---- */
+  .pf-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .pf-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:50px}
+  .pf{position:relative;overflow:hidden;background:var(--ink-2);border:1px solid var(--line-soft);
+    cursor:pointer;text-align:left;padding:0;font-family:inherit;color:inherit;display:block}
+  .pf img{width:100%;height:100%;object-fit:cover;
+    transition:transform .8s cubic-bezier(.2,.7,.2,1),filter .6s;filter:grayscale(.14)}
+  .pf::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(20,19,14,0) 38%,rgba(20,19,14,.9) 100%)}
+  .pf:hover img{transform:scale(1.06);filter:grayscale(0)}
+  .pf:focus-visible{outline:2px solid var(--wood);outline-offset:3px}
+  .pf .cap{position:absolute;left:0;bottom:0;z-index:2;padding:24px;transform:translateY(6px);
+    transition:transform .5s;width:100%}
+  .pf:hover .cap{transform:translateY(0)}
+  .pf .loc{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--wood-soft)}
+  .pf .cap h3{font-size:1.45rem;margin-top:8px}
+  .pf .count{position:absolute;top:16px;right:16px;z-index:2;display:inline-flex;align-items:center;
+    gap:7px;background:rgba(20,19,14,.62);backdrop-filter:blur(6px);border:1px solid var(--line);
+    border-radius:100px;padding:6px 12px;font-size:11.5px;font-weight:600;letter-spacing:.03em}
+  .pf .count svg{width:14px;height:14px;color:var(--wood-soft)}
+  .pf.big{grid-column:span 4;aspect-ratio:16/10}
+  .pf.tall{grid-column:span 2}
+  .pf.half{grid-column:span 3;aspect-ratio:16/11}
+  .pf.third{grid-column:span 2;aspect-ratio:4/5}
+
+  /* ---- Process ---- */
+  .proc-band{background:var(--ink-2);border-block:1px solid var(--line-soft)}
+  .proc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:52px;
+    background:var(--line-soft);border:1px solid var(--line-soft)}
+  .step{background:var(--ink);padding:42px 32px 46px}
+  .step .num{font-family:var(--serif);font-size:3rem;color:rgba(199,146,86,.35);line-height:1}
+  .step h3{font-size:1.35rem;margin:18px 0 12px}
+  .step p{color:var(--muted);font-size:.95rem;font-weight:300}
+
+  /* ---- Quote ---- */
+  .quote{position:relative;overflow:hidden}
+  .quote-bg{position:absolute;inset:0;z-index:0}
+  .quote-bg img{width:100%;height:100%;object-fit:cover;opacity:.2;filter:grayscale(.4)}
+  .quote-bg::after{content:"";position:absolute;inset:0;
+    background:linear-gradient(var(--ink),rgba(20,19,14,.72),var(--ink))}
+  .quote-in{position:relative;z-index:2;max-width:900px;margin:0 auto;text-align:center}
+  .quote-in .mk{font-family:var(--serif);font-size:5rem;color:var(--wood);line-height:.6;height:.5em}
+  .quote-in blockquote{margin:0;font-family:var(--serif);font-style:italic;
+    font-size:clamp(1.5rem,3.6vw,2.7rem);line-height:1.3}
+  .quote-in .by{margin-top:28px;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--wood-soft)}
+
+  /* ---- Contact ---- */
+  .ct{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,88px)}
+  .ct h2{font-size:clamp(2rem,4.4vw,3.3rem);line-height:1.08;margin-top:18px}
+  .ct-info>p{color:var(--muted);margin-top:18px;max-width:42ch;font-weight:300}
+  .ct-list{margin-top:38px;display:flex;flex-direction:column}
+  .ct-row{display:flex;gap:20px;align-items:flex-start;padding:22px 0;border-top:1px solid var(--line)}
+  .ct-row:last-child{border-bottom:1px solid var(--line)}
+  .ct-row .ci{width:22px;height:22px;color:var(--wood);flex:0 0 22px;margin-top:3px}
+  .ct-row .k{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .ct-row .v{font-size:1.05rem;margin-top:5px}
+  .ct-row .v a:hover{color:var(--wood-soft)}
+  form{display:flex;flex-direction:column;gap:18px;background:var(--ink-2);border:1px solid var(--line);
+    padding:clamp(24px,4vw,40px)}
+  .field label{display:block;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:9px}
+  .field input,.field textarea{width:100%;background:var(--ink);border:1px solid var(--line);
+    color:var(--paper);font-family:var(--sans);font-size:16px;padding:14px 16px;border-radius:2px;
+    transition:border-color .25s}
+  .field input:focus,.field textarea:focus{outline:none;border-color:var(--wood)}
+  .field textarea{resize:vertical;min-height:116px}
+  form .btn{justify-content:center;margin-top:4px}
+
+  /* ---- Footer ---- */
+  .ft{background:var(--ink);border-top:1px solid var(--line);padding-block:60px 28px}
+  .ft-top{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;padding-bottom:42px;
+    border-bottom:1px solid var(--line-soft)}
+  .ft-brand{max-width:34ch}
+  .ft-brand .brand{margin-bottom:16px}
+  .ft-brand p{color:var(--muted);font-size:.95rem;font-weight:300}
+  .ft-cols{display:flex;gap:64px;flex-wrap:wrap}
+  .ft-col h4{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--wood-soft);
+    margin:0 0 18px;font-weight:600}
+  .ft-col a,.ft-col p{display:block;color:var(--muted);font-size:.95rem;margin-bottom:11px;
+    font-weight:300;transition:color .25s}
+  .ft-col a:hover{color:var(--paper)}
+  .ft-bot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;
+    font-size:12.5px;color:var(--muted);align-items:center}
+  .ag{display:inline-flex;align-items:center;gap:9px;color:var(--wood-soft);border:1px solid var(--line);
+    padding:7px 14px;border-radius:2px}
+  .ag .dot{width:7px;height:7px;border-radius:50%;background:var(--wood);box-shadow:0 0 0 4px rgba(199,146,86,.16)}
+
+  /* ---- Mobile menu ---- */
+  .mnav{position:fixed;inset:0;z-index:80;background:rgba(20,19,14,.98);backdrop-filter:blur(6px);
+    display:flex;flex-direction:column;justify-content:center;gap:6px;padding:40px;
+    transform:translateY(-100%);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+  .mnav.open{transform:none}
+  .mnav a{font-family:var(--serif);font-size:2rem;padding:14px 0;border-bottom:1px solid var(--line-soft)}
+  .mnav .x{position:absolute;top:22px;right:22px;background:none;border:0;color:var(--paper);
+    font-size:34px;cursor:pointer;line-height:1}
+
+  /* ---- Lightbox ---- */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(11,10,7,.97);display:none;
+    flex-direction:column;padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+  .lb.open{display:flex}
+  .lb-top{display:flex;align-items:center;justify-content:space-between;gap:16px;
+    color:var(--paper);padding:6px 4px 12px}
+  .lb-title{font-family:var(--serif);font-size:1.15rem}
+  .lb-title span{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--wood-soft);margin-top:4px}
+  .lb-count{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+  .lb-x{background:none;border:0;color:var(--paper);font-size:32px;line-height:1;cursor:pointer;padding:4px 10px}
+  .lb-stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;
+    touch-action:pan-y}
+  .lb-stage img{max-width:100%;max-height:100%;object-fit:contain;border-radius:2px;
+    box-shadow:0 30px 80px rgba(0,0,0,.6);user-select:none}
+  .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(20,19,14,.55);
+    border:1px solid var(--line);color:var(--paper);width:52px;height:52px;border-radius:50%;
+    cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;
+    transition:background .25s,border-color .25s;z-index:2}
+  .lb-nav:hover{background:var(--wood);color:var(--ink);border-color:var(--wood)}
+  .lb-prev{left:6px}.lb-next{right:6px}
+  .lb-thumbs{display:flex;gap:8px;overflow-x:auto;padding:14px 4px 4px;scrollbar-width:thin}
+  .lb-thumbs img{height:58px;width:88px;object-fit:cover;border-radius:2px;opacity:.45;cursor:pointer;
+    border:1px solid transparent;transition:opacity .25s,border-color .25s;flex:0 0 auto}
+  .lb-thumbs img.on{opacity:1;border-color:var(--wood)}
+
+  @media (max-width:900px){
+    .about,.ct{grid-template-columns:1fr}
+    .fig{order:-1;max-width:460px}
+    .svc-grid,.proc-grid{grid-template-columns:1fr}
+    .pf-grid{grid-template-columns:1fr 1fr}
+    .pf.big,.pf.tall,.pf.half,.pf.third{grid-column:span 2;aspect-ratio:16/11}
+    .nav-links,.nav .nav-cta{display:none}
+    .burger{display:block}
+    .demobar .hide-sm{display:none}
+  }
+  @media (max-width:560px){
+    .wrap{padding-inline:18px}
+    .demobar-in{padding-inline:18px;font-size:12px}
+    .nav-in{padding-inline:18px}
+    .brand{font-size:1rem;letter-spacing:.22em}
+    .hero{min-height:calc(100svh - 120px)}
+    .pf-grid{grid-template-columns:1fr}
+    .pf.big,.pf.tall,.pf.half,.pf.third{grid-column:span 1;aspect-ratio:16/11}
+    .stats{gap:26px}
+    .lb-nav{width:44px;height:44px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    .reveal>*{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- Demo banner -->
+<div class="demobar">
+  <div class="demobar-in">
+    <span class="lbl"><span class="tag">Демо</span>Примерок изработен од <strong>AG&nbsp;Development</strong></span>
+    <span>
+      <a href="/review">Сакате ваша ваква страна? →</a>
+      <span class="sep hide-sm">·</span>
+      <a class="hide-sm" href="https://ag-development.dev" style="color:rgba(255,255,255,.55)">ag-development.dev</a>
+    </span>
+  </div>
+</div>
+
+<!-- Nav -->
+<header class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top">План&nbsp;Дизајн<small>Архитектонско студио</small></a>
+    <nav class="nav-links">
+      <a href="#about">За нас</a>
+      <a href="#services">Услуги</a>
+      <a href="#portfolio">Портфолио</a>
+      <a href="#process">Процес</a>
+    </nav>
+    <a href="#contact" class="btn nav-cta">Контактирај нè</a>
+    <button class="burger" id="burger" aria-label="Мени" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mnav" id="mnav">
+  <button class="x" id="mx" aria-label="Затвори">×</button>
+  <a href="#about">За нас</a>
+  <a href="#services">Услуги</a>
+  <a href="#portfolio">Портфолио</a>
+  <a href="#process">Процес</a>
+  <a href="#contact">Контакт</a>
+</div>
+
+<!-- Hero -->
+<section class="hero" id="top">
+  <div class="hero-bg"><img src="img/g-1.webp" alt="Модерна семејна куќа — архитектонски проект на План Дизајн" fetchpriority="high"></div>
+  <div class="wrap hero-in">
+    <div class="reveal">
+      <span class="eyebrow">Архитектонско студио · Скопје · од 2008</span>
+      <h1>Простори што го<br>одразуваат вашиот <em>начин на живот</em></h1>
+      <p class="lede">Проектираме семејни куќи, деловни и индустриски објекти — од првата идеја до фотореалистична визуелизација и финален проект.</p>
+      <div class="hero-actions">
+        <a href="#portfolio" class="btn">Погледни ги проектите</a>
+        <a href="#contact" class="btn ghost">Започни соработка</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- About -->
+<section class="band" id="about">
+  <div class="wrap about">
+    <div>
+      <span class="eyebrow">За нас</span>
+      <h2>Архитектура водена од идеја, детаљ и доверба</h2>
+      <p>ПЛАН ДИЗАЈН е архитектонско студио активно на македонскиот пазар од 2008 година. Специјализирани сме за проектирање на семејни куќи, деловни објекти, урбанистичко планирање, архитектура и 3D визуелизации.</p>
+      <p>Нашиот стручен тим секогаш работи заедно со вас, со цел да се пронајде оптималното архитектонско решение — без разлика дали градите дом или деловен простор.</p>
+      <div class="stats">
+        <div class="stat"><div class="n">2008</div><div class="l">Активни од</div></div>
+        <div class="stat"><div class="n">16+</div><div class="l">Години искуство</div></div>
+        <div class="stat"><div class="n">5</div><div class="l">Области на работа</div></div>
+      </div>
+    </div>
+    <div class="fig">
+      <img src="img/gb-1.webp" alt="Реализиран архитектонски проект во Сопиште" loading="lazy">
+      <span class="frame"></span>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="band svc-band" id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Нашите услуги</span>
+      <h2>Комплетна услуга под еден покрив</h2>
+      <p>Од концепт до реализација — водиме грижа за секој чекор од вашиот проект.</p>
+    </div>
+    <div class="svc-grid">
+      <article class="svc">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01"/></svg>
+        <h3>Архитектонски проектирања</h3>
+        <p>Со креативен пристап и внимание на секој детаљ изработуваме комплетни архитектонски решенија — од иницијална идеја до финален проект. Секој објект го третираме со уникатен пристап и високо ниво на професионализам.</p>
+      </article>
+      <article class="svc">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg>
+        <h3>Урбанистичко планирање</h3>
+        <p>Стручни услуги во урбанистичко планирање и разработка на планска документација. Соработуваме со општини, инвеститори и индивидуални клиенти за одржливи и функционални решенија што ја подобруваат урбаната средина.</p>
+      </article>
+      <article class="svc">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h3>Визуелизации и рендери</h3>
+        <p>Претворете ја идејата во реална слика со фотореалистични 3D визуелизации. Висококвалитетни рендери што ви помагаат да го видите проектот пред да започне изградбата — идеално за презентации, дозволи или продажба.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Portfolio -->
+<section class="band" id="portfolio">
+  <div class="wrap">
+    <div class="pf-head">
+      <div class="sec-head">
+        <span class="eyebrow">Портфолио</span>
+        <h2>Проекти создадени со<br>љубов и внимание кон деталите</h2>
+      </div>
+      <a href="#contact" class="btn ghost">Вашиот проект е следен</a>
+    </div>
+    <div class="pf-grid" id="pfGrid"><!-- built by JS --></div>
+  </div>
+</section>
+
+<!-- Process -->
+<section class="band proc-band" id="process">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Како работиме</span>
+      <h2>Јасен процес, без изненадувања</h2>
+    </div>
+    <div class="proc-grid">
+      <div class="step"><div class="num">01</div><h3>Консултација</h3><p>Слушаме што ви треба — потреби, буџет, локација и стил на живеење. Заедно ја дефинираме визијата на проектот.</p></div>
+      <div class="step"><div class="num">02</div><h3>Проектирање</h3><p>Изработуваме архитектонско решение и комплетна проектна документација, усогласени со вашите желби и прописите.</p></div>
+      <div class="step"><div class="num">03</div><h3>Визуелизација</h3><p>Го гледате домот пред да е изграден преку фотореалистични рендери — спремни за дозволи, презентации или продажба.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- Quote -->
+<section class="band quote">
+  <div class="quote-bg"><img src="img/sb-2.webp" alt="" loading="lazy"></div>
+  <div class="wrap quote-in">
+    <div class="mk">“</div>
+    <blockquote>Професионален тим со одлични идеи — проектот ни го претворија во совршен простор за живеење.</blockquote>
+    <div class="by">Задоволен клиент на План Дизајн</div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="band" id="contact">
+  <div class="wrap ct">
+    <div class="ct-info">
+      <span class="eyebrow">Контакт</span>
+      <h2>Заедно градиме визија</h2>
+      <p>Контактирајте нè за консултација. Ќе ви одговориме со предлог за следните чекори на вашиот проект.</p>
+      <div class="ct-list">
+        <div class="ct-row">
+          <svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <div><div class="k">Адреса</div><div class="v">ул. Скупи 5а, бр. 24 — Скопје</div></div>
+        </div>
+        <div class="ct-row">
+          <svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg>
+          <div><div class="k">Телефон</div><div class="v"><a href="tel:+38978332062">+389 78 332 062</a></div></div>
+        </div>
+        <div class="ct-row">
+          <svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 6 10 7 10-7"/></svg>
+          <div><div class="k">Е-пошта</div><div class="v"><a href="mailto:kontakt@plandizajn.mk">kontakt@plandizajn.mk</a></div></div>
+        </div>
+        <div class="ct-row">
+          <svg class="ci" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          <div><div class="k">Студио</div><div class="v">ПЛАН ДИЗАЈН ДОО Скопје</div></div>
+        </div>
+      </div>
+    </div>
+    <form id="ctform" novalidate>
+      <div class="field"><label for="name">Име и презиме</label><input id="name" name="name" type="text" placeholder="Вашето име" required></div>
+      <div class="field"><label for="email">Е-пошта</label><input id="email" name="email" type="email" placeholder="ime@primer.mk" required></div>
+      <div class="field"><label for="msg">Опис на проектот</label><textarea id="msg" name="msg" placeholder="Кажете ни накратко што планирате да градите…"></textarea></div>
+      <button type="submit" class="btn">Испрати барање</button>
+    </form>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft-top">
+      <div class="ft-brand">
+        <a class="brand" href="#top">План&nbsp;Дизајн<small>Архитектонско студио</small></a>
+        <p>Проектираме простори што траат — со идеја, детаљ и доверба, од 2008 година. Скопје, Северна Македонија.</p>
+      </div>
+      <div class="ft-cols">
+        <div class="ft-col">
+          <h4>Навигација</h4>
+          <a href="#about">За нас</a><a href="#services">Услуги</a><a href="#portfolio">Портфолио</a><a href="#process">Процес</a>
+        </div>
+        <div class="ft-col">
+          <h4>Контакт</h4>
+          <a href="tel:+38978332062">+389 78 332 062</a>
+          <a href="mailto:kontakt@plandizajn.mk">kontakt@plandizajn.mk</a>
+          <a href="mailto:plandizajn@gmail.com">plandizajn@gmail.com</a>
+          <p>ул. Скупи 5а, бр. 24 — Скопје</p>
+        </div>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <span>© 2026 ПЛАН ДИЗАЈН ДОО Скопје. Сите права задржани.</span>
+      <a class="ag" href="https://ag-development.dev"><span class="dot"></span>Демо · предлог редизајн од <strong>AG&nbsp;Development</strong></a>
+    </div>
+  </div>
+</footer>
+
+<!-- Lightbox -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Галерија на проектот">
+  <div class="lb-top">
+    <div class="lb-title" id="lbTitle">—<span id="lbLoc"></span></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="lb-count" id="lbCount"></span>
+      <button class="lb-x" id="lbX" aria-label="Затвори">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lbStage">
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Претходна">‹</button>
+    <img id="lbImg" src="" alt="">
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Следна">›</button>
+  </div>
+  <div class="lb-thumbs" id="lbThumbs"></div>
+</div>
+
+<script>
+  // ---- Project data (renders are Plan Dizajn's own) ----
+  var PROJECTS=[
+    {t:'Семејна куќа „Г“', loc:'Катланово', imgs:['g-1','g-2','g-3','g-4','g-5'], cls:'big'},
+    {t:'Семејна куќа „БА“', loc:'Горно Соње, Скопје', imgs:['ba-1','ba-2','ba-3','ba-4','ba-5'], cls:'tall'},
+    {t:'Семејна куќа „СБ“', loc:'Горно Соње, Скопје', imgs:['sb-1','sb-2','sb-3','sb-4','sb-5'], cls:'half'},
+    {t:'Семејна куќа „ЃБ“', loc:'Сопиште', imgs:['gb-1','gb-2','gb-3','gb-4','gb-5'], cls:'third'},
+    {t:'Индустриски објект „Вент“', loc:'Драчево, Скопје', imgs:['vent-1','vent-2','vent-3','vent-4','vent-5'], cls:'third'}
+  ];
+  var IMG=function(n){return 'img/'+n+'.webp'};
+
+  // ---- Build portfolio grid ----
+  var grid=document.getElementById('pfGrid');
+  PROJECTS.forEach(function(p,i){
+    var b=document.createElement('button');
+    b.className='pf '+p.cls; b.type='button'; b.setAttribute('data-i',i);
+    b.setAttribute('aria-label',p.t+' — отвори галерија');
+    b.innerHTML='<span class="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>'+p.imgs.length+'</span>'+
+      '<img src="'+IMG(p.imgs[0])+'" alt="'+p.t+'" loading="lazy">'+
+      '<span class="cap"><span class="loc">'+p.loc+'</span><h3>'+p.t+'</h3></span>';
+    b.addEventListener('click',function(){openLB(i,0)});
+    grid.appendChild(b);
+  });
+
+  // ---- Lightbox ----
+  var lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),
+      lbTitle=document.getElementById('lbTitle'),lbLoc=document.getElementById('lbLoc'),
+      lbCount=document.getElementById('lbCount'),lbThumbs=document.getElementById('lbThumbs');
+  var curP=0,curI=0;
+  function preload(src){var im=new Image();im.src=src}
+  function render(){
+    var p=PROJECTS[curP];
+    lbImg.src=IMG(p.imgs[curI]); lbImg.alt=p.t+' — рендер '+(curI+1);
+    lbTitle.childNodes[0].nodeValue=p.t; lbLoc.textContent=p.loc;
+    lbCount.textContent=(curI+1)+' / '+p.imgs.length;
+    Array.prototype.forEach.call(lbThumbs.children,function(th,j){th.classList.toggle('on',j===curI)});
+    var on=lbThumbs.children[curI]; if(on&&on.scrollIntoView)on.scrollIntoView({inline:'center',block:'nearest'});
+    preload(IMG(p.imgs[(curI+1)%p.imgs.length])); preload(IMG(p.imgs[(curI-1+p.imgs.length)%p.imgs.length]));
+  }
+  function buildThumbs(){
+    var p=PROJECTS[curP]; lbThumbs.innerHTML='';
+    p.imgs.forEach(function(n,j){
+      var t=new Image(); t.src=IMG(n); t.alt=''; t.loading='lazy';
+      t.addEventListener('click',function(){curI=j;render()});
+      lbThumbs.appendChild(t);
+    });
+  }
+  function openLB(pi,ii){curP=pi;curI=ii;buildThumbs();render();lb.classList.add('open');
+    document.body.style.overflow='hidden';document.getElementById('lbX').focus()}
+  function closeLB(){lb.classList.remove('open');document.body.style.overflow=''}
+  function next(){var p=PROJECTS[curP];curI=(curI+1)%p.imgs.length;render()}
+  function prev(){var p=PROJECTS[curP];curI=(curI-1+p.imgs.length)%p.imgs.length;render()}
+  document.getElementById('lbNext').addEventListener('click',next);
+  document.getElementById('lbPrev').addEventListener('click',prev);
+  document.getElementById('lbX').addEventListener('click',closeLB);
+  lb.addEventListener('click',function(e){if(e.target===lb||e.target.classList.contains('lb-stage'))closeLB()});
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')closeLB(); else if(e.key==='ArrowRight')next(); else if(e.key==='ArrowLeft')prev();
+  });
+  // swipe
+  var sx=0,sy=0;
+  var stage=document.getElementById('lbStage');
+  stage.addEventListener('touchstart',function(e){sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+  stage.addEventListener('touchend',function(e){
+    var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>45&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev()}
+  },{passive:true});
+
+  // ---- Mobile menu ----
+  var mnav=document.getElementById('mnav');
+  document.getElementById('burger').addEventListener('click',function(){mnav.classList.add('open');document.body.style.overflow='hidden'});
+  function closeMenu(){mnav.classList.remove('open');document.body.style.overflow=''}
+  document.getElementById('mx').addEventListener('click',closeMenu);
+  mnav.querySelectorAll('a').forEach(function(a){a.addEventListener('click',closeMenu)});
+
+  // ---- Contact form -> mailto (demo, no backend) ----
+  document.getElementById('ctform').addEventListener('submit',function(e){
+    e.preventDefault();
+    var n=document.getElementById('name').value||'', em=document.getElementById('email').value||'', m=document.getElementById('msg').value||'';
+    var body='Име: '+n+'\r\nЕ-пошта: '+em+'\r\n\r\n'+m;
+    window.location.href='mailto:kontakt@plandizajn.mk?subject='+encodeURIComponent('Ново барање од веб страна')+'&body='+encodeURIComponent(body);
+  });
+</script>
+</body>
+</html>
