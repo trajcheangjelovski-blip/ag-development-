@@ -2,7 +2,36 @@
 # DNS: point A records for both domains at your server IP before deploying.
 
 ag-development.dev {
-        reverse_proxy agdev_app:3000
+        # Client pitch demos (/demos/<name>/) are served straight from the
+        # .demos-live folder that deploy.sh syncs from git's demos/ folder.
+        # Admin → Demo Offers can delete them live; no-store keeps Cloudflare
+        # and browsers from holding on to deleted demos.
+        @demoDir {
+                path_regexp ^/demos/[a-z0-9_-]+$
+                file {
+                        root /srv/site
+                        try_files {path}/index.html
+                }
+        }
+        redir @demoDir {path}/ 308
+
+        @demo {
+                path /demos/*
+                file {
+                        root /srv/site
+                        try_files {path}index.html {path}
+                }
+        }
+        handle @demo {
+                root * /srv/site
+                rewrite * {file_match.relative}
+                header Cache-Control "no-store"
+                file_server
+        }
+
+        handle {
+                reverse_proxy agdev_app:3000
+        }
 }
 
 www.ag-development.dev {

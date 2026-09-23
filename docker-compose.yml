@@ -11,6 +11,9 @@ services:
       - .env.production
     environment:
       - NODE_ENV=production
+      - DEMOS_DIR=/app/demos-data
+    volumes:
+      - ./.demos-live:/app/demos-data
 
   caddy:
     image: caddy:2-alpine
@@ -23,6 +26,7 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./.demos-live:/srv/site/demos:ro
       - caddy_data:/data
       - caddy_config:/config
 

@@ -14,6 +14,7 @@ const adminLinks: { href: string; labelKey: string; icon: string; perm?: string 
   { href: '/admin/leads', labelKey: 'leads', icon: '📋', perm: 'leads.view' },
   { href: '/admin/emails', labelKey: 'email', icon: '✉️', perm: 'emails.send' },
   { href: '/admin/outreach', labelKey: 'outreach', icon: '💬', perm: 'outreach.send' },
+  { href: '/admin/demos', labelKey: 'demos', icon: '🖼️', perm: 'demos.view' },
   { href: '/admin/reports', labelKey: 'adminReports', icon: '📊', perm: 'reports.view' },
   { href: '/admin/stats', labelKey: 'statistics', icon: '📈', perm: 'reports.view' },
   { href: '/admin/invoices', labelKey: 'adminInvoices', icon: '💳', perm: 'invoices.view' },
