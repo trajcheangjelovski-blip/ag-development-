@@ -13,6 +13,16 @@ create table if not exists plans_mk (like plans including all);
 insert into plans_mk
 select * from plans
 on conflict (id) do nothing;
+
+-- 3. Row-Level Security. `create table ... (like plans including all)` copies
+--    columns/defaults/indexes but NOT RLS, so plans_mk shipped with RLS OFF —
+--    which Supabase flags as rls_disabled_in_public (publicly readable/writable).
+--    Mirror the `plans` table exactly: anyone may read, only admins may write.
+alter table plans_mk enable row level security;
+drop policy if exists "Anyone can view mk plans" on plans_mk;
+create policy "Anyone can view mk plans" on plans_mk for select using (true);
+drop policy if exists "Admins manage mk plans" on plans_mk;
+create policy "Admins manage mk plans" on plans_mk for all using (get_user_role() = 'admin');
 -- ============================================================================
 -- DATA API GRANTS (required for tables created on/after 2026-10-30)
 -- Supabase stopped auto-granting Data API access to new public tables. Without
