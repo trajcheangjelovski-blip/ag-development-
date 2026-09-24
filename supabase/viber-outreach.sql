@@ -62,3 +62,17 @@ create index if not exists outreach_contacts_optout_idx    on public.outreach_co
 alter table public.outreach_contacts  enable row level security;
 alter table public.outreach_campaigns enable row level security;
 alter table public.outreach_messages  enable row level security;
+-- ============================================================================
+-- DATA API GRANTS (required for tables created on/after 2026-10-30)
+-- Supabase stopped auto-granting Data API access to new public tables. Without
+-- these, a table returns "permission denied" through supabase-js/PostgREST.
+-- authenticated + service_role get full CRUD (RLS still gates rows); anon is
+-- read-only. Idempotent — safe to re-run. Also in supabase/data-api-grants.sql.
+-- ============================================================================
+grant usage on schema public to anon, authenticated, service_role;
+grant select on all tables in schema public to anon;
+grant select, insert, update, delete on all tables in schema public to authenticated, service_role;
+grant usage, select on all sequences in schema public to authenticated, service_role;
+alter default privileges in schema public grant select on tables to anon;
+alter default privileges in schema public grant select, insert, update, delete on tables to authenticated, service_role;
+alter default privileges in schema public grant usage, select on sequences to authenticated, service_role;
