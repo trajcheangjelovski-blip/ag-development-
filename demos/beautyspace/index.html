@@ -1,0 +1,1006 @@
+<!doctype html>
+<html lang="mk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Beauty Space — Студио за убавина | Лаш лифт, веѓи, нокти, депилација</title>
+<meta name="description" content="Beauty Space — студио за убавина. Лифтинг на трепки, ламинирање на веѓи, маникир и педикир, депилација, масажа, третмани за тело и spray tan. Закажете термин.">
+<meta name="theme-color" content="#f7f2ec">
+<meta name="author" content="AG Development">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:locale" content="mk_MK">
+<meta property="og:title" content="Beauty Space — Студио за убавина">
+<meta property="og:description" content="Лаш лифт, веѓи, маникир, депилација, масажа и третмани за тело — со врвна прецизност и внимание на секој детаљ.">
+<meta property="og:image" content="img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="img/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600;700&display=swap">
+
+<style>
+  :root{
+    /* ---- Colours: derived from the Beauty Space Instagram identity ---- */
+    --cream:#f7f2ec;          /* warm off-white page background       */
+    --cream-2:#efe6db;        /* alternate band                       */
+    --sand:#e9ddce;           /* soft nude                            */
+    --ink:#2a1c2e;            /* deep plum — primary text             */
+    --ink-soft:#584c58;       /* muted plum-grey                      */
+    --muted:#8c8088;          /* secondary text                       */
+    --plum:#3a2140;           /* aubergine (dark sections)            */
+    --plum-2:#4e2c53;
+    --wine:#7c3d63;
+    --magenta:#c72b74;        /* accent — used sparingly              */
+    --gold:#bf9d55;           /* champagne — primary luxe accent      */
+    --gold-soft:#d8bd85;
+    --gold-deep:#9a7d3d;
+    --blush:#ecd7cf;
+    --white:#ffffff;
+    --line:rgba(42,28,46,.13);
+    --line-soft:rgba(42,28,46,.07);
+    --shadow:0 24px 60px -28px rgba(58,33,64,.34);
+    --shadow-sm:0 12px 30px -18px rgba(58,33,64,.3);
+
+    --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+    --sans:"Manrope",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --maxw:1180px;
+    --r:14px;--r-sm:10px;--r-lg:22px;
+    --ease:cubic-bezier(.22,.7,.2,1);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+  body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);
+    font-size:16.5px;line-height:1.68;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  h1,h2,h3,h4{font-family:var(--serif);font-weight:500;margin:0;text-wrap:balance;letter-spacing:.005em}
+  p{margin:0}
+  ::selection{background:var(--gold);color:#fff}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:4px}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-inline:24px;width:100%}
+  .eyebrow{font-size:11.5px;font-weight:700;letter-spacing:.26em;text-transform:uppercase;
+    color:var(--gold-deep);display:inline-flex;align-items:center;gap:12px}
+  .eyebrow::before{content:"";width:26px;height:1px;background:var(--gold)}
+  .eyebrow.center{justify-content:center}
+  .eyebrow.center::after{content:"";width:26px;height:1px;background:var(--gold)}
+
+  /* ---- Buttons ---- */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;font-family:var(--sans);
+    font-size:13.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;cursor:pointer;
+    padding:15px 30px;border-radius:100px;border:1px solid var(--plum);
+    background:var(--plum);color:var(--cream);transition:background .35s var(--ease),
+    color .35s var(--ease),transform .25s var(--ease),box-shadow .35s var(--ease);
+    min-height:50px;position:relative;overflow:hidden}
+  .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent,
+    rgba(255,255,255,.28),transparent);transform:translateX(-130%) skewX(-18deg);transition:transform .7s var(--ease)}
+  .btn:hover{background:var(--wine);border-color:var(--wine);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+  .btn:hover::after{transform:translateX(130%) skewX(-18deg)}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+  .btn.ghost:hover{background:transparent;color:var(--gold-deep);border-color:var(--gold)}
+  .btn.gold{background:var(--gold);border-color:var(--gold);color:#2a1c2e}
+  .btn.gold:hover{background:var(--gold-deep);border-color:var(--gold-deep);color:#fff}
+  .btn.sm{padding:11px 22px;min-height:0;font-size:12px}
+  .btn.lg{padding:17px 36px;font-size:14px}
+
+  /* ---- Demo banner (AG Development convention) ---- */
+  .demobar{background:#211326;color:#fff;font-size:13px;position:relative;z-index:60}
+  .demobar-in{max-width:var(--maxw);margin:0 auto;padding:9px 24px;display:flex;flex-wrap:wrap;
+    align-items:center;justify-content:space-between;gap:8px}
+  .demobar .tag{display:inline-block;background:rgba(191,157,85,.2);color:var(--gold-soft);
+    font-weight:700;text-transform:uppercase;letter-spacing:.14em;font-size:10px;
+    padding:3px 8px;border-radius:3px;margin-right:10px}
+  .demobar .lbl{color:rgba(255,255,255,.9);font-weight:500}
+  .demobar a{color:#fff;font-weight:600;transition:color .25s}
+  .demobar a:hover{color:var(--gold-soft)}
+  .demobar .sep{color:rgba(255,255,255,.35);margin:0 12px}
+
+  /* ---- Nav ---- */
+  .nav{position:sticky;top:0;z-index:50;background:rgba(247,242,236,.72);backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:box-shadow .4s,
+    background .4s,border-color .4s}
+  .nav.scrolled{background:rgba(247,242,236,.92);border-bottom-color:var(--line-soft);box-shadow:0 8px 30px -22px rgba(58,33,64,.5)}
+  .nav-in{max-width:var(--maxw);margin:0 auto;height:82px;padding:0 24px;display:flex;
+    align-items:center;justify-content:space-between;gap:20px;transition:height .4s var(--ease)}
+  .nav.scrolled .nav-in{height:68px}
+  .brand{display:flex;align-items:center;gap:13px;white-space:nowrap}
+  .brand .mark{width:42px;height:42px;border-radius:50%;flex:0 0 42px;display:grid;place-items:center;
+    background:radial-gradient(circle at 30% 28%,#fff,var(--cream) 60%);border:1px solid var(--gold);
+    overflow:hidden;transition:width .4s,height .4s}
+  .brand .mark img{width:100%;height:100%;object-fit:cover}
+  .brand .mark .mono{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--plum);letter-spacing:.02em}
+  .brand .name{font-family:var(--serif);font-size:1.32rem;letter-spacing:.2em;text-transform:uppercase;
+    font-weight:600;line-height:1}
+  .brand .name small{display:block;font-family:var(--sans);font-size:8.5px;letter-spacing:.34em;
+    color:var(--muted);margin-top:4px;font-weight:600}
+  .nav-links{display:flex;align-items:center;gap:30px;font-size:14px;font-weight:500}
+  .nav-links a{position:relative;padding:6px 0;color:var(--ink-soft);transition:color .25s}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1.5px;
+    background:var(--gold);transition:width .3s var(--ease)}
+  .nav-links a:hover{color:var(--ink)}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta{padding:12px 24px;min-height:0}
+  .burger{display:none;background:none;border:0;color:var(--ink);cursor:pointer;padding:10px;margin:-10px}
+  .burger span{display:block;width:24px;height:2px;background:var(--ink);margin:5px 0;border-radius:2px;transition:.3s var(--ease)}
+
+  /* ---- Image placeholder system (elegant gradient + monogram until a real photo is dropped in /img) ---- */
+  .ph{position:relative;overflow:hidden;background:
+    linear-gradient(150deg,#efe4d6,#e7d4cf 46%,#d9bcd0);isolation:isolate}
+  .ph::after{content:"BS";position:absolute;inset:0;display:grid;place-items:center;
+    font-family:var(--serif);font-size:clamp(2rem,6vw,3.4rem);letter-spacing:.14em;font-weight:500;
+    color:rgba(58,33,64,.22);z-index:0}
+  .ph.dark{background:linear-gradient(150deg,#3a2140,#54325a 55%,#7c3d63)}
+  .ph.dark::after{color:rgba(255,255,255,.16)}
+  .ph>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;
+    transition:opacity .6s var(--ease),transform .9s var(--ease)}
+  .ph.off>img{opacity:0}      /* JS adds .off when a photo file is missing → gradient shows */
+
+  /* ---- Hero ---- */
+  .hero{position:relative;min-height:calc(100svh - 132px);display:flex;align-items:flex-end;overflow:hidden}
+  .hero .ph{position:absolute;inset:0;z-index:0}
+  .hero .ph>img{animation:zoom 20s var(--ease) forwards}
+  @keyframes zoom{from{transform:scale(1.1)}to{transform:scale(1)}}
+  .hero .veil{position:absolute;inset:0;z-index:1;background:
+    linear-gradient(95deg,rgba(30,17,33,.72) 0%,rgba(30,17,33,.38) 42%,rgba(30,17,33,.05) 72%),
+    linear-gradient(180deg,rgba(30,17,33,.38) 0%,rgba(30,17,33,.12) 28%,rgba(30,17,33,.5) 72%,rgba(30,17,33,.88) 100%)}
+  .hero-in{position:relative;z-index:2;width:100%;padding-bottom:74px;padding-top:60px;color:var(--cream)}
+  .hero .eyebrow{color:var(--gold-soft)}
+  .hero .eyebrow::before{background:var(--gold-soft)}
+  .hero h1{font-size:clamp(2.7rem,7.4vw,6rem);line-height:1.02;margin:22px 0 0;font-weight:500;color:#fff}
+  .hero h1 em{font-style:italic;color:var(--gold-soft)}
+  .hero .lede{max-width:46ch;margin-top:24px;font-size:clamp(1.02rem,1.6vw,1.2rem);
+    color:rgba(255,255,255,.9);font-weight:300}
+  .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
+  .hero-actions .btn{border-color:transparent}
+  .hero-actions .btn.gold{color:#2a1c2e}
+  .hero-actions .ghost{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.4)}
+  .hero-actions .ghost:hover{background:rgba(255,255,255,.16);color:#fff;border-color:#fff}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:26px 40px;margin-top:44px;padding-top:26px;
+    border-top:1px solid rgba(255,255,255,.2);max-width:640px}
+  .hero-meta .hm{display:flex;flex-direction:column;gap:2px}
+  .hero-meta .hm b{font-family:var(--serif);font-size:1.7rem;color:var(--gold-soft);line-height:1}
+  .hero-meta .hm span{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.72)}
+
+  /* ---- Section shells ---- */
+  .band{padding-block:clamp(64px,10vw,124px)}
+  .band.tint{background:var(--cream-2)}
+  .band.plum{background:var(--plum);color:var(--cream)}
+  .sec-head{max-width:640px}
+  .sec-head.center{margin-inline:auto;text-align:center}
+  .sec-head h2{font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.08;margin-top:18px}
+  .sec-head p{margin-top:18px;color:var(--muted);font-size:1.04rem}
+  .band.plum .sec-head p{color:rgba(247,242,236,.72)}
+
+  /* reveal on scroll */
+  [data-rise]{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  [data-rise].in{opacity:1;transform:none}
+  [data-rise].d1{transition-delay:.08s}[data-rise].d2{transition-delay:.16s}
+  [data-rise].d3{transition-delay:.24s}[data-rise].d4{transition-delay:.32s}
+
+  /* ---- About ---- */
+  .about{display:grid;grid-template-columns:.95fr 1.05fr;gap:clamp(30px,5vw,74px);align-items:center}
+  .about h2{font-size:clamp(2.1rem,4.4vw,3.3rem);line-height:1.1;margin-top:18px}
+  .about p{color:var(--ink-soft);margin-top:20px;max-width:54ch;font-size:1.05rem}
+  .about .sig{margin-top:26px;font-family:var(--serif);font-style:italic;font-size:1.5rem;color:var(--wine)}
+  .about-fig{position:relative}
+  .about-fig .ph{aspect-ratio:4/5;border-radius:var(--r-lg)}
+  .about-fig .ph.small{position:absolute;right:-6%;bottom:-9%;width:46%;aspect-ratio:1;
+    border-radius:var(--r);box-shadow:var(--shadow);border:6px solid var(--cream)}
+  .about-fig .frame{position:absolute;inset:16px;border:1px solid var(--gold);border-radius:var(--r-lg);
+    pointer-events:none;z-index:2}
+  .about .stats{display:flex;gap:36px;flex-wrap:wrap;margin-top:36px;padding-top:30px;border-top:1px solid var(--line)}
+  .stat .n{font-family:var(--serif);font-size:2.5rem;color:var(--wine);line-height:1}
+  .stat .l{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:8px}
+
+  /* ---- Services ---- */
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:52px}
+  .svc{background:var(--white);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;
+    display:flex;flex-direction:column;transition:transform .45s var(--ease),box-shadow .45s var(--ease);
+    box-shadow:0 1px 0 rgba(42,28,46,.03)}
+  .svc:hover{transform:translateY(-8px);box-shadow:var(--shadow)}
+  .svc .media{aspect-ratio:16/11;position:relative}
+  .svc .media .ph{position:absolute;inset:0}
+  .svc:hover .media .ph>img{transform:scale(1.07)}
+  .svc .media .num{position:absolute;top:14px;left:14px;z-index:2;width:34px;height:34px;border-radius:50%;
+    background:rgba(247,242,236,.9);backdrop-filter:blur(4px);display:grid;place-items:center;
+    font-family:var(--serif);font-size:15px;color:var(--wine)}
+  .svc .body{padding:26px 26px 28px;display:flex;flex-direction:column;flex:1}
+  .svc h3{font-size:1.55rem;line-height:1.1}
+  .svc .body p{color:var(--muted);font-size:.97rem;margin-top:10px;flex:1}
+  .svc .go{margin-top:20px;display:inline-flex;align-items:center;gap:9px;font-size:12px;font-weight:700;
+    letter-spacing:.12em;text-transform:uppercase;color:var(--gold-deep);transition:gap .3s}
+  .svc .go svg{width:15px;height:15px;transition:transform .3s}
+  .svc:hover .go{gap:14px}
+  .svc:hover .go svg{transform:translateX(3px)}
+
+  /* ---- Portfolio ---- */
+  .pf-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .pf-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-top:50px}
+  .pf{position:relative;overflow:hidden;border-radius:var(--r);cursor:pointer;padding:0;border:0;
+    font-family:inherit;color:inherit;display:block;background:none}
+  .pf .ph{position:absolute;inset:0}
+  .pf .ph>img{filter:saturate(1.02)}
+  .pf::after{content:"";position:absolute;inset:0;z-index:2;
+    background:linear-gradient(180deg,rgba(35,20,38,0) 42%,rgba(35,20,38,.82) 100%);
+    opacity:.85;transition:opacity .4s}
+  .pf:hover .ph>img{transform:scale(1.07)}
+  .pf:hover::after{opacity:1}
+  .pf:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+  .pf .cap{position:absolute;left:0;bottom:0;z-index:3;padding:22px;transform:translateY(6px);
+    transition:transform .5s var(--ease);width:100%;color:#fff;text-align:left}
+  .pf:hover .cap{transform:translateY(0)}
+  .pf .cap .k{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--gold-soft)}
+  .pf .cap h3{font-size:1.4rem;margin-top:6px;color:#fff}
+  .pf .count{position:absolute;top:14px;right:14px;z-index:3;display:inline-flex;align-items:center;gap:6px;
+    background:rgba(35,20,38,.5);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.22);
+    border-radius:100px;padding:5px 11px;font-size:11px;font-weight:600;color:#fff}
+  .pf .count svg{width:13px;height:13px;color:var(--gold-soft)}
+  .pf.big{grid-column:span 4;aspect-ratio:16/10}
+  .pf.tall{grid-column:span 2;aspect-ratio:auto}
+  .pf.half{grid-column:span 3;aspect-ratio:16/11}
+  .pf.third{grid-column:span 2;aspect-ratio:4/5}
+
+  /* ---- Before / After ---- */
+  .ba-wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,5vw,72px);align-items:center}
+  .ba{position:relative;aspect-ratio:4/3;border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow);
+    user-select:none;touch-action:pan-y}
+  .ba .layer{position:absolute;inset:0}
+  .ba .layer .ph{position:absolute;inset:0;border-radius:0}
+  .ba .after{clip-path:inset(0 0 0 50%)}
+  .ba .lbl{position:absolute;top:14px;z-index:4;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:700;background:rgba(247,242,236,.9);color:var(--plum);padding:5px 12px;border-radius:100px}
+  .ba .lbl.b{left:14px}.ba .lbl.a{right:14px}
+  .ba-line{position:absolute;top:0;bottom:0;left:50%;width:2px;background:#fff;z-index:5;transform:translateX(-50%);
+    box-shadow:0 0 0 1px rgba(58,33,64,.12)}
+  .ba-handle{position:absolute;top:50%;left:50%;z-index:6;width:46px;height:46px;border-radius:50%;
+    transform:translate(-50%,-50%);background:#fff;box-shadow:var(--shadow-sm);display:grid;place-items:center;
+    color:var(--plum);cursor:ew-resize}
+  .ba-handle svg{width:22px;height:22px}
+  .ba input[type=range]{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize;z-index:7}
+  .ba-copy h2{font-size:clamp(2rem,4.2vw,3.1rem);line-height:1.1;margin-top:18px}
+  .ba-copy p{color:var(--ink-soft);margin-top:18px;max-width:46ch}
+  .ba-copy ul{list-style:none;padding:0;margin:26px 0 0;display:flex;flex-direction:column;gap:14px}
+  .ba-copy li{display:flex;gap:13px;align-items:flex-start;font-size:1rem}
+  .ba-copy li svg{width:20px;height:20px;color:var(--gold-deep);flex:0 0 20px;margin-top:2px}
+
+  /* ---- Why us ---- */
+  .why-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin-top:52px;
+    background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);border-radius:var(--r);overflow:hidden}
+  .why{background:var(--plum);padding:40px 30px 44px}
+  .why .ico{width:46px;height:46px;color:var(--gold-soft);margin-bottom:22px}
+  .why h3{font-size:1.4rem;color:#fff}
+  .why p{color:rgba(247,242,236,.7);font-size:.96rem;margin-top:12px;font-weight:300}
+
+  /* ---- Gallery ---- */
+  .gal-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:48px}
+  .gal{position:relative;aspect-ratio:1;overflow:hidden;border-radius:var(--r-sm);display:block}
+  .gal .ph{position:absolute;inset:0}
+  .gal::after{content:"";position:absolute;inset:0;z-index:2;background:rgba(58,33,64,.32);opacity:0;
+    transition:opacity .35s;display:grid;place-items:center}
+  .gal .ig{position:absolute;inset:0;z-index:3;display:grid;place-items:center;opacity:0;transition:opacity .35s;color:#fff}
+  .gal .ig svg{width:28px;height:28px}
+  .gal:hover .ph>img{transform:scale(1.08)}
+  .gal:hover::after{opacity:1}
+  .gal:hover .ig{opacity:1}
+  .gal-foot{margin-top:40px;text-align:center}
+  .gal-foot .ig-handle{display:inline-flex;align-items:center;gap:10px;font-weight:600;color:var(--wine);
+    margin-bottom:20px}
+  .gal-foot .ig-handle svg{width:22px;height:22px}
+
+  /* ---- Testimonials ---- */
+  .tst-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:52px}
+  .tst{background:var(--white);border:1px solid var(--line-soft);border-radius:var(--r);padding:34px 30px;
+    display:flex;flex-direction:column;box-shadow:0 1px 0 rgba(42,28,46,.03)}
+  .tst .stars{display:flex;gap:3px;color:var(--gold);margin-bottom:16px}
+  .tst .stars svg{width:17px;height:17px}
+  .tst blockquote{margin:0;font-family:var(--serif);font-size:1.28rem;font-style:italic;line-height:1.45;flex:1}
+  .tst .who{display:flex;align-items:center;gap:13px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line-soft)}
+  .tst .av{width:44px;height:44px;border-radius:50%;flex:0 0 44px;display:grid;place-items:center;
+    background:var(--sand);color:var(--wine);font-family:var(--serif);font-size:18px}
+  .tst .who b{font-size:.98rem;font-weight:700}
+  .tst .who span{display:block;font-size:12px;color:var(--muted)}
+  .demo-note{margin-top:26px;font-size:12.5px;color:var(--muted);text-align:center;font-style:italic}
+
+  /* ---- Contact ---- */
+  .ct{display:grid;grid-template-columns:1fr 1fr;gap:clamp(32px,6vw,80px)}
+  .ct h2{font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.08;margin-top:18px}
+  .ct-info>p{color:var(--muted);margin-top:18px;max-width:42ch}
+  .ct-list{margin-top:34px;display:flex;flex-direction:column}
+  .ct-row{display:flex;gap:18px;align-items:flex-start;padding:20px 0;border-top:1px solid var(--line)}
+  .ct-row:last-child{border-bottom:1px solid var(--line)}
+  .ct-row .ci{width:38px;height:38px;border-radius:50%;background:var(--sand);display:grid;place-items:center;
+    color:var(--wine);flex:0 0 38px}
+  .ct-row .ci svg{width:18px;height:18px}
+  .ct-row .k{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .ct-row .v{font-size:1.04rem;margin-top:4px}
+  .ct-row .v a:hover{color:var(--gold-deep)}
+  .ct-row .v .demo{font-size:11px;color:var(--gold-deep);font-style:italic;margin-left:6px}
+  .hours{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+  .hours .hr{display:flex;justify-content:space-between;gap:16px;font-size:.95rem;
+    padding-bottom:8px;border-bottom:1px dashed var(--line-soft)}
+  .hours .hr span:first-child{color:var(--ink-soft)}
+  .hours .hr span:last-child{color:var(--ink);font-weight:600}
+  form{display:flex;flex-direction:column;gap:16px;background:var(--white);border:1px solid var(--line-soft);
+    border-radius:var(--r);padding:clamp(24px,4vw,38px);box-shadow:var(--shadow-sm)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--muted);margin-bottom:8px}
+  .field input,.field textarea,.field select{width:100%;background:var(--cream);border:1px solid var(--line);
+    color:var(--ink);font-family:var(--sans);font-size:16px;padding:13px 15px;border-radius:var(--r-sm);
+    transition:border-color .25s,box-shadow .25s}
+  .field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--gold);
+    box-shadow:0 0 0 3px rgba(191,157,85,.16)}
+  .field textarea{resize:vertical;min-height:104px}
+  .field input::placeholder,.field textarea::placeholder{color:#a99ea6}
+  form .btn{justify-content:center;margin-top:4px}
+  .form-note{font-size:12px;color:var(--muted);text-align:center}
+  .mapfig{margin-top:22px;border-radius:var(--r);overflow:hidden;aspect-ratio:16/7;position:relative}
+  .mapfig .ph{position:absolute;inset:0}
+  .mapfig .pin{position:absolute;inset:0;z-index:2;display:flex;align-items:center;justify-content:center;
+    gap:9px;background:rgba(58,33,64,.28);color:#fff;font-size:13px;font-weight:600;letter-spacing:.02em}
+  .mapfig .pin svg{width:20px;height:20px}
+
+  /* ---- Footer ---- */
+  .ft{background:var(--plum);color:var(--cream);padding-block:60px 26px}
+  .ft-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;padding-bottom:42px;
+    border-bottom:1px solid rgba(247,242,236,.12)}
+  .ft .brand .name{color:#fff}
+  .ft .brand .mark{background:rgba(255,255,255,.06);border-color:rgba(216,189,133,.5)}
+  .ft .brand .mark .mono{color:var(--gold-soft)}
+  .ft-brand p{color:rgba(247,242,236,.62);font-size:.95rem;margin-top:18px;max-width:36ch;font-weight:300}
+  .ft-social{display:flex;gap:10px;margin-top:22px}
+  .ft-social a{width:40px;height:40px;border-radius:50%;border:1px solid rgba(247,242,236,.2);
+    display:grid;place-items:center;color:var(--cream);transition:background .3s,color .3s,border-color .3s}
+  .ft-social a svg{width:18px;height:18px}
+  .ft-social a:hover{background:var(--gold);border-color:var(--gold);color:var(--plum)}
+  .ft-col h4{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-soft);
+    margin:0 0 18px;font-weight:700;font-family:var(--sans)}
+  .ft-col a,.ft-col p{display:block;color:rgba(247,242,236,.66);font-size:.95rem;margin-bottom:11px;
+    font-weight:300;transition:color .25s}
+  .ft-col a:hover{color:#fff}
+  .ft-bot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:24px;
+    font-size:12.5px;color:rgba(247,242,236,.5);align-items:center}
+  .ag{display:inline-flex;align-items:center;gap:9px;color:var(--gold-soft);border:1px solid rgba(247,242,236,.16);
+    padding:7px 14px;border-radius:100px}
+  .ag .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px rgba(191,157,85,.2)}
+
+  /* ---- Mobile menu ---- */
+  .mnav{position:fixed;inset:0;z-index:80;background:rgba(247,242,236,.98);backdrop-filter:blur(8px);
+    display:flex;flex-direction:column;justify-content:center;gap:4px;padding:40px;
+    transform:translateY(-100%);transition:transform .5s var(--ease)}
+  .mnav.open{transform:none}
+  .mnav a{font-family:var(--serif);font-size:2rem;padding:14px 0;border-bottom:1px solid var(--line-soft);color:var(--ink)}
+  .mnav a.btn{color:var(--cream);border-bottom:0;font-family:var(--sans)}
+  .mnav .mcta{margin-top:26px}
+  .mnav .x{position:absolute;top:22px;right:22px;background:none;border:0;color:var(--ink);
+    font-size:34px;cursor:pointer;line-height:1}
+
+  /* ---- Lightbox ---- */
+  .lb{position:fixed;inset:0;z-index:100;background:rgba(28,16,30,.96);display:none;flex-direction:column;
+    padding:16px;padding-top:max(16px,env(safe-area-inset-top))}
+  .lb.open{display:flex}
+  .lb-top{display:flex;align-items:center;justify-content:space-between;gap:16px;color:var(--cream);padding:6px 4px 12px}
+  .lb-title{font-family:var(--serif);font-size:1.2rem}
+  .lb-title span{display:block;font-family:var(--sans);font-size:11px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--gold-soft);margin-top:4px}
+  .lb-count{font-variant-numeric:tabular-nums;color:rgba(247,242,236,.6);font-size:14px}
+  .lb-x{background:none;border:0;color:var(--cream);font-size:32px;line-height:1;cursor:pointer;padding:4px 10px}
+  .lb-stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;touch-action:pan-y}
+  .lb-stage .ph{max-width:100%;max-height:100%;aspect-ratio:4/5;width:auto;height:100%;border-radius:var(--r);
+    box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .lb-stage .ph>img{position:static;width:auto;height:100%;max-width:100%;object-fit:contain}
+  .lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(247,242,236,.12);
+    border:1px solid rgba(247,242,236,.25);color:var(--cream);width:52px;height:52px;border-radius:50%;
+    cursor:pointer;font-size:22px;display:flex;align-items:center;justify-content:center;
+    transition:background .25s,color .25s;z-index:2}
+  .lb-nav:hover{background:var(--gold);color:var(--plum);border-color:var(--gold)}
+  .lb-prev{left:6px}.lb-next{right:6px}
+  .lb-thumbs{display:flex;gap:8px;overflow-x:auto;padding:14px 4px 4px;scrollbar-width:thin;justify-content:center}
+  .lb-thumbs .th{height:58px;width:46px;border-radius:6px;opacity:.45;cursor:pointer;border:1px solid transparent;
+    transition:opacity .25s,border-color .25s;flex:0 0 auto;overflow:hidden;position:relative}
+  .lb-thumbs .th.on{opacity:1;border-color:var(--gold)}
+
+  /* ---- Floating decor ---- */
+  .decor{position:absolute;pointer-events:none;z-index:0;border-radius:50%;filter:blur(2px);opacity:.5}
+  .decor.d-a{width:120px;height:120px;background:radial-gradient(circle,rgba(199,43,116,.18),transparent 70%);
+    animation:float 9s ease-in-out infinite}
+  .decor.d-b{width:170px;height:170px;background:radial-gradient(circle,rgba(191,157,85,.2),transparent 70%);
+    animation:float 12s ease-in-out infinite reverse}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+
+  /* toast */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,120%);z-index:120;
+    background:var(--plum);color:var(--cream);padding:14px 22px;border-radius:100px;font-size:14px;
+    box-shadow:var(--shadow);transition:transform .5s var(--ease);display:flex;align-items:center;gap:10px}
+  .toast svg{width:18px;height:18px;color:var(--gold-soft)}
+  .toast.show{transform:translate(-50%,0)}
+
+  /* ---- Responsive ---- */
+  @media (max-width:980px){
+    .about,.ct,.ba-wrap{grid-template-columns:1fr}
+    .about-fig{order:-1;max-width:460px;margin-inline:auto}
+    .svc-grid,.tst-grid{grid-template-columns:1fr 1fr}
+    .why-grid{grid-template-columns:1fr 1fr}
+    .pf-grid{grid-template-columns:1fr 1fr}
+    .pf.big,.pf.tall,.pf.half,.pf.third{grid-column:span 2;aspect-ratio:16/11}
+    .gal-grid{grid-template-columns:repeat(4,1fr)}
+    .ft-top{grid-template-columns:1fr 1fr}
+    .nav-links,.nav .nav-cta{display:none}
+    .burger{display:block}
+    .demobar .hide-sm{display:none}
+  }
+  @media (max-width:600px){
+    .wrap{padding-inline:18px}
+    .demobar-in,.nav-in{padding-inline:18px}
+    .brand .name{font-size:1.12rem;letter-spacing:.14em}
+    .hero{min-height:calc(100svh - 120px)}
+    .svc-grid,.tst-grid{grid-template-columns:1fr}
+    .why-grid{grid-template-columns:1fr}
+    .pf-grid{grid-template-columns:1fr}
+    .pf.big,.pf.tall,.pf.half,.pf.third{grid-column:span 1;aspect-ratio:16/11}
+    .gal-grid{grid-template-columns:repeat(3,1fr)}
+    .form-row{grid-template-columns:1fr}
+    .ft-top{grid-template-columns:1fr}
+    .lb-nav{width:44px;height:44px}
+    .about-fig .ph.small{width:44%}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition-duration:.001s!important;scroll-behavior:auto!important}
+    [data-rise]{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body id="top">
+
+<!-- ============ Demo banner ============ -->
+<div class="demobar">
+  <div class="demobar-in">
+    <span class="lbl"><span class="tag">Демо</span>Примерок изработен од <strong>AG&nbsp;Development</strong></span>
+    <span>
+      <a href="/review">Сакате ваша ваква страна? →</a>
+      <span class="sep hide-sm">·</span>
+      <a class="hide-sm" href="https://ag-development.dev" style="color:rgba(255,255,255,.55)">ag-development.dev</a>
+    </span>
+  </div>
+</div>
+
+<!-- ============ Nav ============ -->
+<header class="nav" id="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top" aria-label="Beauty Space — почетна">
+      <span class="mark"><img src="img/logo.png" alt="" onerror="this.parentNode.innerHTML='<span class=&quot;mono&quot;>BS</span>'"></span>
+      <span class="name">Beauty&nbsp;Space<small>Студио за убавина</small></span>
+    </a>
+    <nav class="nav-links" aria-label="Главна навигација">
+      <a href="#about">За нас</a>
+      <a href="#services">Услуги</a>
+      <a href="#portfolio">Работа</a>
+      <a href="#gallery">Галерија</a>
+      <a href="#contact">Контакт</a>
+    </nav>
+    <a href="#contact" class="btn nav-cta">Закажи термин</a>
+    <button class="burger" id="burger" aria-label="Отвори мени" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<div class="mnav" id="mnav" aria-hidden="true">
+  <button class="x" id="mx" aria-label="Затвори мени">×</button>
+  <a href="#about">За нас</a>
+  <a href="#services">Услуги</a>
+  <a href="#portfolio">Нашата работа</a>
+  <a href="#gallery">Галерија</a>
+  <a href="#contact">Контакт</a>
+  <a href="#contact" class="btn mcta">Закажи термин</a>
+</div>
+
+<!-- ============ Hero ============ -->
+<section class="hero">
+  <div class="ph dark"><img src="img/hero.jpg" alt="Внатрешност на студиото за убавина Beauty Space" fetchpriority="high"></div>
+  <div class="veil"></div>
+  <div class="wrap hero-in">
+    <div data-rise>
+      <span class="eyebrow">Beauty Space · Студио за убавина</span>
+    </div>
+    <h1 data-rise class="d1">Вашето место за<br><em>убавина</em>, нега и самодоверба</h1>
+    <p class="lede" data-rise>Лаш лифт, веѓи, маникир, депилација, масажа и третмани за тело — со врвна прецизност и внимание на секој детаљ.</p>
+    <div class="hero-actions d2" data-rise>
+      <a href="#contact" class="btn gold lg">Закажи термин</a>
+      <a href="#services" class="btn ghost lg">Погледни услуги</a>
+    </div>
+    <div class="hero-meta" data-rise>
+      <div class="hm"><b>5.5K+</b><span>Следбеници</span></div>
+      <div class="hm"><b>7</b><span>Категории услуги</span></div>
+      <div class="hm"><b>100%</b><span>Посветеност на детал</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ About ============ -->
+<section class="band" id="about">
+  <div class="wrap about">
+    <div>
+      <span class="eyebrow" data-rise>За нас</span>
+      <h2 data-rise class="d1">Простор создаден за<br>вашата убавина</h2>
+      <p data-rise>Beauty Space е студио за убавина каде што секој третман е замислен како момент само за вас. Од трепки и веѓи, преку нокти и депилација, до релаксирачки масажи и третмани за обликување на телото — сè на едно место, во елегантен и опуштен амбиент.</p>
+      <p data-rise>Работиме со внимание, топлина и професионализам, за да си заминете со чувство на освеженост и самодоверба. Затоа нашите клиентки постојано се враќаат.</p>
+      <div class="sig" data-rise>Убавината е чувство — ние го негуваме.</div>
+      <div class="stats" data-rise>
+        <div class="stat"><div class="n">5.5K+</div><div class="l">Следбеници</div></div>
+        <div class="stat"><div class="n">7+</div><div class="l">Услуги</div></div>
+        <div class="stat"><div class="n">★ 5.0</div><div class="l">Оценка од клиенти</div></div>
+      </div>
+    </div>
+    <div class="about-fig d1" data-rise>
+      <div class="ph"><img src="img/about.jpg" alt="Специјалист на Beauty Space при третман"></div>
+      <div class="ph small"><img src="img/about-2.jpg" alt="Детаљ од третман во Beauty Space"></div>
+      <span class="frame"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Services ============ -->
+<section class="band tint" id="services">
+  <div class="wrap">
+    <div class="sec-head center">
+      <span class="eyebrow center" data-rise>Нашите услуги</span>
+      <h2 data-rise class="d1">Сè што ви треба за да<br>изгледате и се чувствувате прекрасно</h2>
+      <p data-rise>Комплетна нега на едно место — секој третман изведен со врвни производи и максимална прецизност.</p>
+    </div>
+    <div class="svc-grid">
+      <article class="svc" data-rise>
+        <div class="media"><span class="num">01</span><div class="ph"><img src="img/service-lashes.jpg" alt="Лифтинг на трепки во Beauty Space"></div></div>
+        <div class="body">
+          <h3>Лифтинг на трепки</h3>
+          <p>Природно подигнати и извиткани трепки со траен ефект — изразен поглед без маскара, за неколку недели.</p>
+          <a href="#contact" class="go">Закажи <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </article>
+      <article class="svc d1" data-rise>
+        <div class="media"><span class="num">02</span><div class="ph"><img src="img/service-brows.jpg" alt="Ламинирање на веѓи во Beauty Space"></div></div>
+        <div class="body">
+          <h3>Ламинирање на веѓи</h3>
+          <p>Обликувани, полни и уредни веѓи што ја врамуваат целата линија на лицето — за совршен изглед секој ден.</p>
+          <a href="#contact" class="go">Закажи <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </article>
+      <article class="svc d2" data-rise>
+        <div class="media"><span class="num">03</span><div class="ph"><img src="img/service-nails.jpg" alt="Маникир и педикир во Beauty Space"></div></div>
+        <div class="body">
+          <h3>Маникир и педикир</h3>
+          <p>Негувани раце и стапала со прецизна изведба и долготраен резултат — од класика до модерни дизајни.</p>
+          <a href="#contact" class="go">Закажи <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </article>
+      <article class="svc" data-rise>
+        <div class="media"><span class="num">04</span><div class="ph"><img src="img/service-wax.jpg" alt="Депилација во Beauty Space"></div></div>
+        <div class="body">
+          <h3>Депилација</h3>
+          <p>Мазна и негувана кожа со внимателна и хигиенска изведба — пријатно искуство и долготраен ефект.</p>
+          <a href="#contact" class="go">Закажи <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </article>
+      <article class="svc d1" data-rise>
+        <div class="media"><span class="num">05</span><div class="ph"><img src="img/service-massage.jpg" alt="Масажа во Beauty Space"></div></div>
+        <div class="body">
+          <h3>Масажа</h3>
+          <p>Опуштање за тело и ум — релаксирачки и стимулативни масажи што ја враќаат енергијата и рамнотежата.</p>
+          <a href="#contact" class="go">Закажи <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </article>
+      <article class="svc d2" data-rise>
+        <div class="media"><span class="num">06</span><div class="ph"><img src="img/service-body.jpg" alt="Третмани за обликување на тело во Beauty Space"></div></div>
+        <div class="body">
+          <h3>Третмани за тело</h3>
+          <p>Третмани за обликување и затегнување — насочена нега што помага да се чувствувате пожелно во својата кожа.</p>
+          <a href="#contact" class="go">Закажи <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </article>
+    </div>
+    <div style="text-align:center;margin-top:44px" data-rise>
+      <a href="#contact" class="btn">Побарај цена и термин</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Portfolio ============ -->
+<section class="band" id="portfolio">
+  <div class="wrap">
+    <div class="pf-head">
+      <div class="sec-head">
+        <span class="eyebrow" data-rise>Нашата работа</span>
+        <h2 data-rise class="d1">Резултати што<br>зборуваат сами за себе</h2>
+      </div>
+      <a href="#gallery" class="btn ghost" data-rise>Погледни ја галеријата</a>
+    </div>
+    <div class="pf-grid" id="pfGrid"><!-- built by JS --></div>
+  </div>
+</section>
+
+<!-- ============ Before / After ============ -->
+<section class="band tint">
+  <div class="wrap ba-wrap">
+    <div class="ba" id="ba" data-rise>
+      <div class="layer before"><div class="ph"><img src="img/ba-before.jpg" alt="Пред третманот"></div></div>
+      <div class="layer after" id="baAfter"><div class="ph"><img src="img/ba-after.jpg" alt="По третманот"></div></div>
+      <span class="lbl b">Пред</span>
+      <span class="lbl a">Потоа</span>
+      <div class="ba-line" id="baLine"></div>
+      <div class="ba-handle" id="baHandle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5"/></svg></div>
+      <input type="range" min="0" max="100" value="50" id="baRange" aria-label="Повлечи за споредба пред и потоа">
+    </div>
+    <div class="ba-copy">
+      <span class="eyebrow" data-rise>Пред / Потоа</span>
+      <h2 data-rise class="d1">Разликата е видлива<br>уште од првиот третман</h2>
+      <p data-rise>Повлечете го лизгачот и погледнете ја трансформацијата. Секој детаљ е обмислен — за резултат што изгледа природно и трае.</p>
+      <ul data-rise>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Прецизна и внимателна изведба</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Врвни, испроверени производи</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Природен и долготраен резултат</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Why us ============ -->
+<section class="band plum" style="position:relative">
+  <span class="decor d-a" style="top:12%;left:6%"></span>
+  <span class="decor d-b" style="bottom:8%;right:8%"></span>
+  <div class="wrap" style="position:relative">
+    <div class="sec-head center">
+      <span class="eyebrow center" data-rise style="color:var(--gold-soft)">Зошто Beauty Space</span>
+      <h2 data-rise class="d1">Искуство создадено околу вас</h2>
+    </div>
+    <div class="why-grid">
+      <div class="why" data-rise>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg>
+        <h3>Професионален пристап</h3>
+        <p>Секој третман е изведен стручно, со внимание кон хигиената и вашата удобност.</p>
+      </div>
+      <div class="why d1" data-rise>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        <h3>Внимание на детал</h3>
+        <p>Прецизноста прави разлика — затоа не брзаме и работиме до совршен резултат.</p>
+      </div>
+      <div class="why d2" data-rise>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2"/></svg>
+        <h3>Врвни производи</h3>
+        <p>Користиме квалитетни, испроверени материјали за здрав и долготраен ефект.</p>
+      </div>
+      <div class="why d3" data-rise>
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 1 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <h3>Персонализирано</h3>
+        <p>Секоја клиентка е единствена — третманот го приспособуваме на вашите потреби.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Gallery ============ -->
+<section class="band" id="gallery">
+  <div class="wrap">
+    <div class="sec-head center">
+      <span class="eyebrow center" data-rise>Галерија</span>
+      <h2 data-rise class="d1">Моменти од Beauty Space</h2>
+      <p data-rise>Дел од нашата секојдневна работа и атмосфера. За повеќе — следете нè на Instagram.</p>
+    </div>
+    <div class="gal-grid" id="galGrid"><!-- built by JS --></div>
+    <div class="gal-foot" data-rise>
+      <div class="ig-handle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+        @beauty._space._
+      </div>
+      <div>
+        <a href="https://www.instagram.com/beauty._space._/" target="_blank" rel="noopener" class="btn gold">Следете нè на Instagram</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Testimonials ============ -->
+<section class="band tint" id="reviews">
+  <div class="wrap">
+    <div class="sec-head center">
+      <span class="eyebrow center" data-rise>Впечатоци</span>
+      <h2 data-rise class="d1">Што велат нашите клиентки</h2>
+    </div>
+    <div class="tst-grid">
+      <figure class="tst" data-rise>
+        <div class="stars" aria-label="5 од 5">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg>
+        </div>
+        <blockquote>„Прекрасен амбиент и уште поубав резултат. Трепките ми изгледаат неверојатно природно.“</blockquote>
+        <div class="who"><span class="av">А</span><div><b>Ана М.</b><span>Лаш лифт</span></div></div>
+      </figure>
+      <figure class="tst d1" data-rise>
+        <div class="stars" aria-label="5 од 5">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg>
+        </div>
+        <blockquote>„Внимателен пристап и совршена хигиена. Секогаш си заминувам задоволна и опуштена.“</blockquote>
+        <div class="who"><span class="av">Е</span><div><b>Елена К.</b><span>Депилација</span></div></div>
+      </figure>
+      <figure class="tst d2" data-rise>
+        <div class="stars" aria-label="5 од 5">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 15 9l7 .5-5.5 4.5L18 21l-6-4-6 4 1.5-7L2 9.5 9 9z"/></svg>
+        </div>
+        <blockquote>„Веѓите први пат ми изгледаат целосно обликувани. Препорачувам од сѐ срце!“</blockquote>
+        <div class="who"><span class="av">М</span><div><b>Марија С.</b><span>Ламинирање веѓи</span></div></div>
+      </figure>
+    </div>
+    <p class="demo-note">* Прикажаните впечатоци се демонстративни и служат за приказ на изгледот — лесно се заменуваат со ваши вистински рецензии.</p>
+  </div>
+</section>
+
+<!-- ============ Contact / Booking ============ -->
+<section class="band" id="contact">
+  <div class="wrap ct">
+    <div class="ct-info">
+      <span class="eyebrow" data-rise>Контакт и термини</span>
+      <h2 data-rise class="d1">Закажете го вашиот<br>момент за убавина</h2>
+      <p data-rise>Пишете ни или закажете термин — со задоволство ќе ви помогнеме да го изберете вистинскиот третман за вас.</p>
+      <div class="ct-list" data-rise>
+        <div class="ct-row">
+          <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3.1-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.3 1.8.6 2.7a2 2 0 0 1-.5 2.1L8 9.6a16 16 0 0 0 6 6l1.1-1.1a2 2 0 0 1 2.1-.5c.9.3 1.8.5 2.7.6a2 2 0 0 1 1.7 2z"/></svg></span>
+          <div><div class="k">Телефон</div><div class="v"><a href="tel:+38970000000">+389 7X XXX XXX</a><span class="demo">демо</span></div></div>
+        </div>
+        <div class="ct-row">
+          <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></span>
+          <div><div class="k">Instagram</div><div class="v"><a href="https://www.instagram.com/beauty._space._/" target="_blank" rel="noopener">@beauty._space._</a></div></div>
+        </div>
+        <div class="ct-row">
+          <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <div><div class="k">Адреса</div><div class="v">ул. Пример бр. 00, Скопје <span class="demo">демо</span></div></div>
+        </div>
+        <div class="ct-row">
+          <span class="ci"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+          <div style="flex:1">
+            <div class="k">Работно време <span class="demo">демо</span></div>
+            <div class="hours">
+              <div class="hr"><span>Понеделник – Петок</span><span>09:00 – 20:00</span></div>
+              <div class="hr"><span>Сабота</span><span>09:00 – 16:00</span></div>
+              <div class="hr"><span>Недела</span><span>Затворено</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mapfig" data-rise>
+        <div class="ph"><img src="img/map.jpg" alt="Локација на Beauty Space"></div>
+        <div class="pin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 12-9 12s-9-5-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Локација на карта · демо</div>
+      </div>
+    </div>
+
+    <form id="ctform" novalidate data-rise class="d1">
+      <div class="form-row">
+        <div class="field"><label for="name">Име и презиме</label><input id="name" name="name" type="text" placeholder="Вашето име" autocomplete="name" required></div>
+        <div class="field"><label for="phone">Телефон</label><input id="phone" name="phone" type="tel" placeholder="07X XXX XXX" autocomplete="tel" required></div>
+      </div>
+      <div class="field"><label for="service">Услуга</label>
+        <select id="service" name="service">
+          <option>Лифтинг на трепки</option>
+          <option>Ламинирање на веѓи</option>
+          <option>Маникир и педикир</option>
+          <option>Депилација</option>
+          <option>Масажа</option>
+          <option>Третмани за тело</option>
+          <option>Друго / не сум сигурна</option>
+        </select>
+      </div>
+      <div class="field"><label for="msg">Порака (опционално)</label><textarea id="msg" name="msg" placeholder="Кажете ни кога би сакале термин или што ве интересира…"></textarea></div>
+      <button type="submit" class="btn lg">Испрати барање за термин</button>
+      <p class="form-note">Ќе ви одговориме во најкус можен рок за да го потврдиме терминот.</p>
+    </form>
+  </div>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft-top">
+      <div class="ft-brand">
+        <a class="brand" href="#top">
+          <span class="mark"><img src="img/logo.png" alt="" onerror="this.parentNode.innerHTML='<span class=&quot;mono&quot;>BS</span>'"></span>
+          <span class="name">Beauty&nbsp;Space<small>Студио за убавина</small></span>
+        </a>
+        <p>Студио за убавина — трепки, веѓи, нокти, депилација, масажа и третмани за тело. Вашето место за нега и самодоверба.</p>
+        <div class="ft-social">
+          <a href="https://www.instagram.com/beauty._space._/" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://www.threads.com/@beauty._space._" target="_blank" rel="noopener" aria-label="Threads"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.2 22C6.6 22 3 18.2 3 12S6.7 2 12.3 2c4 0 6.9 1.7 8.4 5l-2 .9c-1.1-2.4-3.1-3.6-6.4-3.6-4.3 0-6.9 2.9-6.9 7.7s2.6 7.8 6.7 7.8c3 0 4.9-1.2 5.4-3.4-1 .4-2.1.6-3.3.6-2.9 0-4.8-1.4-4.8-3.7 0-2.1 1.9-3.6 4.6-3.6 2.9 0 4.7 1.6 4.9 4.4 1-.8 1.6-2 1.6-3.6l2 .2c-.1 4.6-3 7.6-8 7.6zm.3-8.6c-1.5 0-2.5.6-2.5 1.6 0 1 .9 1.6 2.4 1.6 1.8 0 2.9-.9 3-2.7-.8-.3-1.7-.5-2.9-.5z"/></svg></a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h4>Навигација</h4>
+        <a href="#about">За нас</a>
+        <a href="#services">Услуги</a>
+        <a href="#portfolio">Нашата работа</a>
+        <a href="#gallery">Галерија</a>
+        <a href="#reviews">Впечатоци</a>
+      </div>
+      <div class="ft-col">
+        <h4>Контакт</h4>
+        <a href="tel:+38970000000">+389 7X XXX XXX</a>
+        <a href="https://www.instagram.com/beauty._space._/" target="_blank" rel="noopener">@beauty._space._</a>
+        <p>ул. Пример бр. 00, Скопје</p>
+        <a href="#contact">Закажи термин →</a>
+      </div>
+    </div>
+    <div class="ft-bot">
+      <span>© <span id="yr"></span> Beauty Space. Сите права задржани.</span>
+      <a class="ag" href="https://ag-development.dev"><span class="dot"></span>Демо · предлог веб страна од <strong>AG&nbsp;Development</strong></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ Lightbox ============ -->
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Галерија">
+  <div class="lb-top">
+    <div class="lb-title" id="lbTitle">—<span id="lbCat"></span></div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <span class="lb-count" id="lbCount"></span>
+      <button class="lb-x" id="lbX" aria-label="Затвори">×</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lbStage">
+    <button class="lb-nav lb-prev" id="lbPrev" aria-label="Претходна">‹</button>
+    <div class="ph" id="lbFig"><img id="lbImg" src="" alt=""></div>
+    <button class="lb-nav lb-next" id="lbNext" aria-label="Следна">›</button>
+  </div>
+  <div class="lb-thumbs" id="lbThumbs"></div>
+</div>
+
+<!-- ============ Toast ============ -->
+<div class="toast" id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---- Graceful image fallback: if a photo file is missing, show the branded gradient ---- */
+  function markPh(img){
+    var ph=img.closest('.ph'); if(!ph) return;
+    ph.classList.toggle('off', img.complete && img.naturalWidth===0);
+  }
+  function watchImg(img){
+    if(img.complete){ markPh(img); }               // already loaded/failed during parse
+    img.addEventListener('load', function(){ markPh(img); });
+    img.addEventListener('error', function(){ markPh(img); });
+  }
+  function scanImgs(root){ (root||document).querySelectorAll('.ph > img').forEach(watchImg); }
+  scanImgs();                                        // static images (hero, about, services…)
+
+  /* ---- Year ---- */
+  var yr=document.getElementById('yr'); if(yr) yr.textContent=new Date().getFullYear();
+
+  /* ---- Sticky nav shrink ---- */
+  var nav=document.getElementById('nav');
+  var onScroll=function(){ nav.classList.toggle('scrolled', window.scrollY>24); };
+  onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+  /* ---- Mobile menu ---- */
+  var mnav=document.getElementById('mnav'), burger=document.getElementById('burger');
+  function openMenu(){mnav.classList.add('open');mnav.setAttribute('aria-hidden','false');burger.setAttribute('aria-expanded','true');document.body.style.overflow='hidden';}
+  function closeMenu(){mnav.classList.remove('open');mnav.setAttribute('aria-hidden','true');burger.setAttribute('aria-expanded','false');document.body.style.overflow='';}
+  burger.addEventListener('click', openMenu);
+  document.getElementById('mx').addEventListener('click', closeMenu);
+  mnav.querySelectorAll('a').forEach(function(a){a.addEventListener('click', closeMenu);});
+
+  /* ---- Scroll reveal ---- */
+  var rises=document.querySelectorAll('[data-rise]');
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(en){
+      en.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add('in'); io.unobserve(x.target); } });
+    }, {threshold:.12, rootMargin:'0px 0px -8% 0px'});
+    rises.forEach(function(el){io.observe(el);});
+  } else { rises.forEach(function(el){el.classList.add('in');}); }
+
+  /* ---- Portfolio + Gallery data (image files live in /img) ---- */
+  var WORK=[
+    {t:'Лаш лифт', cat:'Трепки', imgs:['work-lashes-1','work-lashes-2','work-lashes-3'], cls:'big'},
+    {t:'Ламинирање веѓи', cat:'Веѓи', imgs:['work-brows-1','work-brows-2'], cls:'tall'},
+    {t:'Маникир', cat:'Нокти', imgs:['work-nails-1','work-nails-2','work-nails-3'], cls:'half'},
+    {t:'Педикир', cat:'Нокти', imgs:['work-pedi-1','work-pedi-2'], cls:'third'},
+    {t:'Spray Tan', cat:'Тен', imgs:['work-tan-1','work-tan-2'], cls:'third'}
+  ];
+  var IMG=function(n){return 'img/'+n+'.jpg';};
+
+  /* build portfolio grid */
+  var grid=document.getElementById('pfGrid');
+  WORK.forEach(function(p,i){
+    var b=document.createElement('button');
+    b.className='pf '+p.cls; b.type='button';
+    b.setAttribute('aria-label', p.t+' — отвори галерија');
+    b.innerHTML='<div class="ph"><img src="'+IMG(p.imgs[0])+'" alt="'+p.t+' — Beauty Space" loading="lazy"></div>'+
+      '<span class="count"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="m21 15-5-5L5 21"/></svg>'+p.imgs.length+'</span>'+
+      '<span class="cap"><span class="k">'+p.cat+'</span><h3>'+p.t+'</h3></span>';
+    b.addEventListener('click', function(){ openLB(i,0); });
+    grid.appendChild(b);
+  });
+
+  /* build gallery grid (12 tiles) */
+  var galGrid=document.getElementById('galGrid');
+  for(var g=1; g<=12; g++){
+    var a=document.createElement('a');
+    a.href='https://www.instagram.com/beauty._space._/'; a.target='_blank'; a.rel='noopener';
+    a.className='gal'; a.setAttribute('aria-label','Instagram објава '+g);
+    a.innerHTML='<div class="ph"><img src="'+IMG('gallery-'+(g<10?'0':'')+g)+'" alt="Момент од Beauty Space" loading="lazy"></div>'+
+      '<span class="ig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></span>';
+    galGrid.appendChild(a);
+  }
+  scanImgs(grid); scanImgs(galGrid);                 // JS-injected images
+
+  /* ---- Lightbox ---- */
+  var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'),
+      lbFig=document.getElementById('lbFig'),
+      lbTitle=document.getElementById('lbTitle'), lbCat=document.getElementById('lbCat'),
+      lbCount=document.getElementById('lbCount'), lbThumbs=document.getElementById('lbThumbs');
+  var curP=0, curI=0;
+  function preload(src){var im=new Image();im.src=src;}
+  function render(){
+    var p=WORK[curP];
+    lbFig.classList.remove('off');
+    lbImg.onerror=function(){ lbFig.classList.add('off'); };
+    lbImg.src=IMG(p.imgs[curI]); lbImg.alt=p.t+' — фотографија '+(curI+1);
+    lbTitle.childNodes[0].nodeValue=p.t; lbCat.textContent=p.cat;
+    lbCount.textContent=(curI+1)+' / '+p.imgs.length;
+    Array.prototype.forEach.call(lbThumbs.children, function(th,j){ th.classList.toggle('on', j===curI); });
+    var on=lbThumbs.children[curI]; if(on&&on.scrollIntoView) on.scrollIntoView({inline:'center',block:'nearest'});
+    preload(IMG(p.imgs[(curI+1)%p.imgs.length])); preload(IMG(p.imgs[(curI-1+p.imgs.length)%p.imgs.length]));
+  }
+  function buildThumbs(){
+    var p=WORK[curP]; lbThumbs.innerHTML='';
+    p.imgs.forEach(function(n,j){
+      var th=document.createElement('div'); th.className='th';
+      th.innerHTML='<div class="ph"><img src="'+IMG(n)+'" alt="" loading="lazy"></div>';
+      th.addEventListener('click', function(){ curI=j; render(); });
+      lbThumbs.appendChild(th);
+    });
+    scanImgs(lbThumbs);
+  }
+  function openLB(pi,ii){ curP=pi; curI=ii; buildThumbs(); render(); lb.classList.add('open');
+    document.body.style.overflow='hidden'; document.getElementById('lbX').focus(); }
+  function closeLB(){ lb.classList.remove('open'); document.body.style.overflow=''; }
+  function next(){ var p=WORK[curP]; curI=(curI+1)%p.imgs.length; render(); }
+  function prev(){ var p=WORK[curP]; curI=(curI-1+p.imgs.length)%p.imgs.length; render(); }
+  document.getElementById('lbNext').addEventListener('click', next);
+  document.getElementById('lbPrev').addEventListener('click', prev);
+  document.getElementById('lbX').addEventListener('click', closeLB);
+  lb.addEventListener('click', function(e){ if(e.target===lb || e.target.classList.contains('lb-stage')) closeLB(); });
+  document.addEventListener('keydown', function(e){
+    if(!lb.classList.contains('open')) return;
+    if(e.key==='Escape') closeLB(); else if(e.key==='ArrowRight') next(); else if(e.key==='ArrowLeft') prev();
+  });
+  /* swipe */
+  var sx=0, sy=0, stage=document.getElementById('lbStage');
+  stage.addEventListener('touchstart', function(e){ sx=e.touches[0].clientX; sy=e.touches[0].clientY; }, {passive:true});
+  stage.addEventListener('touchend', function(e){
+    var dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+    if(Math.abs(dx)>45 && Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); }
+  }, {passive:true});
+
+  /* ---- Before / After slider ---- */
+  var baRange=document.getElementById('baRange'), baAfter=document.getElementById('baAfter'),
+      baLine=document.getElementById('baLine'), baHandle=document.getElementById('baHandle');
+  function baSet(v){
+    baAfter.style.clipPath='inset(0 0 0 '+v+'%)';
+    baLine.style.left=v+'%'; baHandle.style.left=v+'%';
+  }
+  if(baRange){ baRange.addEventListener('input', function(){ baSet(this.value); }); baSet(50); }
+
+  /* ---- Contact form (demo: no backend) ---- */
+  var toast=document.getElementById('toast'), toastMsg=document.getElementById('toastMsg'), toastT;
+  function showToast(m){ toastMsg.textContent=m; toast.classList.add('show');
+    clearTimeout(toastT); toastT=setTimeout(function(){ toast.classList.remove('show'); }, 4200); }
+  document.getElementById('ctform').addEventListener('submit', function(e){
+    e.preventDefault();
+    var f=e.target;
+    if(!f.name.value.trim() || !f.phone.value.trim()){ showToast('Внесете име и телефон за да продолжиме.'); return; }
+    showToast('Ви благодариме! Вашето барање е примено (демо).');
+    f.reset();
+  });
+})();
+</script>
+</body>
+</html>
