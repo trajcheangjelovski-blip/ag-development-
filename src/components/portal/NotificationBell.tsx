@@ -61,6 +61,11 @@ export function NotificationBell({ userId }: { userId: string }) {
           prev.map(n => n.id === (payload.new as Notification).id ? payload.new as Notification : n)
         )
       )
+      .on(
+        'postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'notifications' },
+        payload => setNotifications(prev => prev.filter(n => n.id !== (payload.old as { id: string }).id))
+      )
       .subscribe()
 
     return () => { supabase.removeChannel(channel) }
@@ -82,6 +87,19 @@ export function NotificationBell({ userId }: { userId: string }) {
     const supabase = createClient()
     await supabase.from('notifications').update({ is_read: true }).eq('user_id', userId).eq('is_read', false)
     setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+  }
+
+  async function deleteOne(e: React.MouseEvent, id: string) {
+    e.stopPropagation()
+    setNotifications(prev => prev.filter(n => n.id !== id)) // optimistic
+    const supabase = createClient()
+    await supabase.from('notifications').delete().eq('id', id)
+  }
+
+  async function clearAll() {
+    setNotifications([]) // optimistic
+    const supabase = createClient()
+    await supabase.from('notifications').delete().eq('user_id', userId)
   }
 
   return (
@@ -115,11 +133,18 @@ export function NotificationBell({ userId }: { userId: string }) {
                 <span className="text-xs bg-red-100 text-red-600 font-bold px-1.5 py-0.5 rounded-full">{unread}</span>
               )}
             </div>
-            {unread > 0 && (
-              <button onClick={markAllRead} className="text-xs text-blue-600 hover:underline font-medium">
-                {t('markAllRead')}
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {unread > 0 && (
+                <button onClick={markAllRead} className="text-xs text-blue-600 hover:underline font-medium">
+                  {t('markAllRead')}
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button onClick={clearAll} className="text-xs text-slate-500 hover:text-red-600 hover:underline font-medium">
+                  {t('clearAll')}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* List */}
@@ -136,25 +161,38 @@ export function NotificationBell({ userId }: { userId: string }) {
               </div>
             ) : (
               notifications.map(n => (
-                <button
+                <div
                   key={n.id}
-                  onClick={() => handleClick(n)}
-                  className={`w-full text-left flex items-start gap-3 px-4 py-3.5 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-blue-50/50' : ''}`}
+                  className={`group relative flex items-start gap-3 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-blue-50/50' : ''}`}
                 >
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${TYPE_DOT[n.type] || 'bg-blue-500'}`} />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm leading-snug ${!n.is_read ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}>
-                      {n.title}
-                    </p>
-                    {n.body && (
-                      <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.body}</p>
+                  <button
+                    onClick={() => handleClick(n)}
+                    className="flex-1 min-w-0 text-left flex items-start gap-3 pl-4 pr-9 py-3.5"
+                  >
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 mt-1.5 ${TYPE_DOT[n.type] || 'bg-blue-500'}`} />
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-sm leading-snug ${!n.is_read ? 'font-semibold text-slate-800' : 'font-medium text-slate-600'}`}>
+                        {n.title}
+                      </p>
+                      {n.body && (
+                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{n.body}</p>
+                      )}
+                      <p className="text-xs text-slate-400 mt-1">{formatRelativeTime(n.created_at)}</p>
+                    </div>
+                    {!n.is_read && (
+                      <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
                     )}
-                    <p className="text-xs text-slate-400 mt-1">{formatRelativeTime(n.created_at)}</p>
-                  </div>
-                  {!n.is_read && (
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0 mt-1.5" />
-                  )}
-                </button>
+                  </button>
+                  <button
+                    onClick={e => deleteOne(e, n.id)}
+                    aria-label={t('deleteOne')}
+                    className="absolute top-2.5 right-2 p-1 rounded-md text-slate-300 hover:text-red-600 hover:bg-red-50 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               ))
             )}
           </div>

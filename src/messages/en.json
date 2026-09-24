@@ -1463,6 +1463,8 @@
       "ariaButton": "Notifications",
       "label": "Notifications",
       "markAllRead": "Mark all read",
+      "clearAll": "Clear all",
+      "deleteOne": "Delete notification",
       "none": "No notifications yet"
     },
     "reopen": {
