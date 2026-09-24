@@ -107,3 +107,36 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
   return NextResponse.json(data)
 }
+
+// DELETE /api/clients/:id
+// Permanently removes a client: their record (which cascades tickets, invoices,
+// time entries, activity, reports, extras, chat, etc.) and their login account.
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const supabase = await createClient()
+  const admin = await createAdminClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
+  if (profile?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+  // Look up the client's email so we can remove their auth login afterwards.
+  const { data: client } = await admin.from('clients').select('email').eq('id', id).single()
+  if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 })
+
+  // Delete the client record. FK cascades handle all client-owned rows.
+  const { error: delError } = await admin.from('clients').delete().eq('id', id)
+  if (delError) return NextResponse.json({ error: delError.message }, { status: 500 })
+
+  // Remove the linked auth user (cascades their profile row). Best-effort:
+  // the client record is already gone, so we don't fail the request over this.
+  const { data: authUsers } = await admin.auth.admin.listUsers()
+  const authUser = authUsers?.users?.find(u => u.email === client.email)
+  if (authUser) {
+    const { error: authError } = await admin.auth.admin.deleteUser(authUser.id)
+    if (authError) console.error('Client deleted, but removing login failed:', authError.message)
+  }
+
+  return NextResponse.json({ success: true })
+}

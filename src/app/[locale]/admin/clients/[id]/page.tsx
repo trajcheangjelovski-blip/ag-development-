@@ -22,6 +22,8 @@ export default function AdminClientDetail() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [deleting, setDeleting] = useState(false)
+  const [confirmText, setConfirmText] = useState('')
 
   const month = currentBillingMonth()
 
@@ -62,6 +64,18 @@ export default function AdminClientDetail() {
     setSaving(false)
   }
 
+  async function deleteClient() {
+    setDeleting(true); setError('')
+    const res = await fetch(`/api/clients/${id}`, { method: 'DELETE' })
+    if (res.ok) {
+      router.push('/admin/clients')
+    } else {
+      const d = await res.json().catch(() => ({}))
+      setError(d.error || 'Could not delete this client.')
+      setDeleting(false)
+    }
+  }
+
   if (loading) return <PortalLayout><div className="flex justify-center py-20"><Spinner size="lg" /></div></PortalLayout>
   if (!client) return <PortalLayout><div className="p-8 text-slate-500">Client not found.</div></PortalLayout>
 
@@ -90,7 +104,7 @@ export default function AdminClientDetail() {
           </div>
           <div className="flex items-center gap-2">
             <ResetClientPasswordButton clientId={String(id)} clientEmail={client.email} />
-            <button className="btn-ghost text-sm" onClick={() => setShowEdit(true)}>✏️ Edit Client</button>
+            <button className="btn-ghost text-sm" onClick={() => { setConfirmText(''); setError(''); setShowEdit(true) }}>✏️ Edit Client</button>
           </div>
         </div>
 
@@ -205,6 +219,29 @@ export default function AdminClientDetail() {
                 <button className="btn-ghost" onClick={() => setShowEdit(false)}>Cancel</button>
                 <button className="btn-secondary flex items-center gap-2" onClick={saveClient} disabled={saving}>
                   {saving ? <><Spinner size="sm" />Saving...</> : 'Save Changes'}
+                </button>
+              </div>
+
+              {/* Danger zone */}
+              <div className="mt-6 pt-5 border-t border-slate-200">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-red-500 mb-1">Danger Zone</h3>
+                <p className="text-sm text-slate-500 mb-3">
+                  Permanently delete this client and everything tied to them — tickets, invoices, time entries,
+                  reports, chat and their login. This cannot be undone.
+                </p>
+                <label className="form-label">Type <span className="font-mono font-bold">DELETE</span> to confirm</label>
+                <input
+                  className="form-input"
+                  value={confirmText}
+                  onChange={e => setConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                />
+                <button
+                  className="mt-3 w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  onClick={deleteClient}
+                  disabled={deleting || confirmText !== 'DELETE'}
+                >
+                  {deleting ? <><Spinner size="sm" />Deleting...</> : '🗑️ Delete This Client'}
                 </button>
               </div>
             </div>
