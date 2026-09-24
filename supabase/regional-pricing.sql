@@ -22,7 +22,7 @@ alter table plans_mk enable row level security;
 drop policy if exists "Anyone can view mk plans" on plans_mk;
 create policy "Anyone can view mk plans" on plans_mk for select using (true);
 drop policy if exists "Admins manage mk plans" on plans_mk;
-create policy "Admins manage mk plans" on plans_mk for all using (get_user_role() = 'admin');
+create policy "Admins manage mk plans" on plans_mk for all using (private.get_user_role() = 'admin');
 -- ============================================================================
 -- DATA API GRANTS (required for tables created on/after 2026-10-30)
 -- Supabase stopped auto-granting Data API access to new public tables. Without

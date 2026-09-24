@@ -195,79 +195,99 @@ ALTER TABLE monthly_reports ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invoices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE support_packages ENABLE ROW LEVEL SECURITY;
 
+-- Helper functions live in a `private` schema that the Data API does NOT expose,
+-- so they can't be called as REST RPCs (fixes anon/authenticated_security_definer
+-- _function_executable) while RLS policies still call them normally.
+-- SET search_path = '' pins resolution (fixes function_search_path_mutable);
+-- table refs are schema-qualified so they still resolve, and auth.uid() already is.
+CREATE SCHEMA IF NOT EXISTS private;
+GRANT USAGE ON SCHEMA private TO anon, authenticated, service_role;
+
 -- Helper function: get current user role
-CREATE OR REPLACE FUNCTION get_user_role()
-RETURNS TEXT AS $$
-  SELECT role FROM profiles WHERE id = auth.uid();
-$$ LANGUAGE SQL SECURITY DEFINER;
+CREATE OR REPLACE FUNCTION private.get_user_role()
+RETURNS TEXT
+LANGUAGE SQL SECURITY DEFINER SET search_path = ''
+AS $$
+  SELECT role FROM public.profiles WHERE id = auth.uid();
+$$;
 
 -- Helper function: get current user client_id
-CREATE OR REPLACE FUNCTION get_user_client_id()
-RETURNS UUID AS $$
-  SELECT client_id FROM profiles WHERE id = auth.uid();
-$$ LANGUAGE SQL SECURITY DEFINER;
+CREATE OR REPLACE FUNCTION private.get_user_client_id()
+RETURNS UUID
+LANGUAGE SQL SECURITY DEFINER SET search_path = ''
+AS $$
+  SELECT client_id FROM public.profiles WHERE id = auth.uid();
+$$;
+
+-- Policy evaluation runs these as the querying role, so it needs EXECUTE.
+GRANT EXECUTE ON FUNCTION private.get_user_role()      TO anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION private.get_user_client_id() TO anon, authenticated, service_role;
 
 -- PROFILES
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (id = auth.uid());
 CREATE POLICY "Authenticated users can view admin names" ON profiles FOR SELECT USING (role = 'admin');
-CREATE POLICY "Admins can view all profiles" ON profiles FOR SELECT USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can view all profiles" ON profiles FOR SELECT USING (private.get_user_role() = 'admin');
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (id = auth.uid());
-CREATE POLICY "Admins can manage profiles" ON profiles FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can manage profiles" ON profiles FOR ALL USING (private.get_user_role() = 'admin');
 
 -- SUPPORT PACKAGES (public read)
 CREATE POLICY "Anyone can view packages" ON support_packages FOR SELECT USING (TRUE);
-CREATE POLICY "Admins can manage packages" ON support_packages FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can manage packages" ON support_packages FOR ALL USING (private.get_user_role() = 'admin');
 
 -- CLIENTS
-CREATE POLICY "Admins can manage clients" ON clients FOR ALL USING (get_user_role() = 'admin');
-CREATE POLICY "Clients can view own record" ON clients FOR SELECT USING (id = get_user_client_id());
+CREATE POLICY "Admins can manage clients" ON clients FOR ALL USING (private.get_user_role() = 'admin');
+CREATE POLICY "Clients can view own record" ON clients FOR SELECT USING (id = private.get_user_client_id());
 
 -- LEADS
-CREATE POLICY "Anyone can insert leads" ON leads FOR INSERT WITH CHECK (TRUE);
-CREATE POLICY "Admins can manage leads" ON leads FOR ALL USING (get_user_role() = 'admin');
+-- Leads are inserted only via the service role (contact form, admin, review,
+-- Stripe webhook), which bypasses RLS — so no public INSERT policy is needed.
+-- A `WITH CHECK (TRUE)` insert policy would trip the rls_policy_always_true lint.
+CREATE POLICY "Admins can manage leads" ON leads FOR ALL USING (private.get_user_role() = 'admin');
 
 -- TICKETS
-CREATE POLICY "Admins can manage all tickets" ON tickets FOR ALL USING (get_user_role() = 'admin');
-CREATE POLICY "Clients can view own tickets" ON tickets FOR SELECT USING (client_id = get_user_client_id());
-CREATE POLICY "Clients can create tickets" ON tickets FOR INSERT WITH CHECK (client_id = get_user_client_id());
+CREATE POLICY "Admins can manage all tickets" ON tickets FOR ALL USING (private.get_user_role() = 'admin');
+CREATE POLICY "Clients can view own tickets" ON tickets FOR SELECT USING (client_id = private.get_user_client_id());
+CREATE POLICY "Clients can create tickets" ON tickets FOR INSERT WITH CHECK (client_id = private.get_user_client_id());
 
 -- TICKET COMMENTS
-CREATE POLICY "Admins can manage all comments" ON ticket_comments FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can manage all comments" ON ticket_comments FOR ALL USING (private.get_user_role() = 'admin');
 CREATE POLICY "Clients can view public comments on own tickets" ON ticket_comments FOR SELECT
   USING (comment_type = 'public' AND ticket_id IN (
-    SELECT id FROM tickets WHERE client_id = get_user_client_id()
+    SELECT id FROM tickets WHERE client_id = private.get_user_client_id()
   ));
 CREATE POLICY "Clients can add comments to own tickets" ON ticket_comments FOR INSERT
-  WITH CHECK (ticket_id IN (SELECT id FROM tickets WHERE client_id = get_user_client_id()));
+  WITH CHECK (ticket_id IN (SELECT id FROM tickets WHERE client_id = private.get_user_client_id()));
 
 -- TIME ENTRIES
-CREATE POLICY "Admins can manage time entries" ON time_entries FOR ALL USING (get_user_role() = 'admin');
-CREATE POLICY "Clients can view own time entries" ON time_entries FOR SELECT USING (client_id = get_user_client_id());
+CREATE POLICY "Admins can manage time entries" ON time_entries FOR ALL USING (private.get_user_role() = 'admin');
+CREATE POLICY "Clients can view own time entries" ON time_entries FOR SELECT USING (client_id = private.get_user_client_id());
 
 -- PROOF UPLOADS
-CREATE POLICY "Admins can manage proof uploads" ON proof_uploads FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can manage proof uploads" ON proof_uploads FOR ALL USING (private.get_user_role() = 'admin');
 CREATE POLICY "Clients can view proof on own tickets" ON proof_uploads FOR SELECT
-  USING (ticket_id IN (SELECT id FROM tickets WHERE client_id = get_user_client_id()));
+  USING (ticket_id IN (SELECT id FROM tickets WHERE client_id = private.get_user_client_id()));
 
 -- ACTIVITY LOGS
-CREATE POLICY "Admins can view all activity" ON activity_logs FOR ALL USING (get_user_role() = 'admin');
-CREATE POLICY "Clients can view own activity" ON activity_logs FOR SELECT USING (client_id = get_user_client_id());
+CREATE POLICY "Admins can view all activity" ON activity_logs FOR ALL USING (private.get_user_role() = 'admin');
+CREATE POLICY "Clients can view own activity" ON activity_logs FOR SELECT USING (client_id = private.get_user_client_id());
 
 -- MONTHLY REPORTS
-CREATE POLICY "Admins can manage reports" ON monthly_reports FOR ALL USING (get_user_role() = 'admin');
-CREATE POLICY "Clients can view own reports" ON monthly_reports FOR SELECT USING (client_id = get_user_client_id());
+CREATE POLICY "Admins can manage reports" ON monthly_reports FOR ALL USING (private.get_user_role() = 'admin');
+CREATE POLICY "Clients can view own reports" ON monthly_reports FOR SELECT USING (client_id = private.get_user_client_id());
 
 -- INVOICES
-CREATE POLICY "Admins can manage invoices" ON invoices FOR ALL USING (get_user_role() = 'admin');
-CREATE POLICY "Clients can view own invoices" ON invoices FOR SELECT USING (client_id = get_user_client_id());
+CREATE POLICY "Admins can manage invoices" ON invoices FOR ALL USING (private.get_user_role() = 'admin');
+CREATE POLICY "Clients can view own invoices" ON invoices FOR SELECT USING (client_id = private.get_user_client_id());
 
 -- ============================================================
 -- TRIGGERS — auto-update updated_at
 -- ============================================================
 CREATE OR REPLACE FUNCTION update_updated_at()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql SET search_path = ''
+AS $$
 BEGIN NEW.updated_at = NOW(); RETURN NEW; END;
-$$ LANGUAGE plpgsql;
+$$;
 
 CREATE TRIGGER update_profiles_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients FOR EACH ROW EXECUTE FUNCTION update_updated_at();
@@ -294,7 +314,7 @@ CREATE TABLE IF NOT EXISTS plans (
 );
 ALTER TABLE plans ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can view plans" ON plans FOR SELECT USING (TRUE);
-CREATE POLICY "Admins manage plans" ON plans FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage plans" ON plans FOR ALL USING (private.get_user_role() = 'admin');
 CREATE TRIGGER update_plans_updated_at BEFORE UPDATE ON plans FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- Seed from the current site catalog (prices = what is charged today)
@@ -346,7 +366,7 @@ CREATE TABLE IF NOT EXISTS coupons (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admins manage coupons" ON coupons FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage coupons" ON coupons FOR ALL USING (private.get_user_role() = 'admin');
 
 -- ============================================================
 -- APP SETTINGS (admin-configurable, e.g. email/Resend config)
@@ -357,16 +377,18 @@ CREATE TABLE IF NOT EXISTS app_settings (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admins can manage settings" ON app_settings FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can manage settings" ON app_settings FOR ALL USING (private.get_user_role() = 'admin');
 CREATE TRIGGER update_app_settings_updated_at BEFORE UPDATE ON app_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- ============================================================
 -- AUTO-CREATE PROFILE ON SIGNUP
 -- ============================================================
 CREATE OR REPLACE FUNCTION handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = ''
+AS $$
 BEGIN
-  INSERT INTO profiles (id, email, full_name, role)
+  INSERT INTO public.profiles (id, email, full_name, role)
   VALUES (
     NEW.id,
     NEW.email,
@@ -375,11 +397,15 @@ BEGIN
   );
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+
+-- handle_new_user runs only via the trigger above, never as an API RPC. Drop the
+-- default EXECUTE for the exposed roles (fixes anon/authenticated definer-exec lints).
+REVOKE EXECUTE ON FUNCTION handle_new_user() FROM PUBLIC, anon, authenticated;
 
 -- ============================================================
 -- STORAGE BUCKET for proof screenshots

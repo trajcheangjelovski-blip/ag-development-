@@ -3,9 +3,9 @@
 -- Paste this entire file into Supabase → SQL Editor → Run
 -- ============================================================
 
--- 1) Public lead form inserts (fixes "violates row-level security")
+-- 1) Lead inserts run through the service role (bypasses RLS), so the old
+--    public INSERT policy is unnecessary and tripped rls_policy_always_true.
 DROP POLICY IF EXISTS "Anyone can insert leads" ON leads;
-CREATE POLICY "Anyone can insert leads" ON leads FOR INSERT WITH CHECK (TRUE);
 
 -- 2) Clients can see admin names/avatars in tickets & activity
 DROP POLICY IF EXISTS "Authenticated users can view admin names" ON profiles;
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS app_settings (
 );
 ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins can manage settings" ON app_settings;
-CREATE POLICY "Admins can manage settings" ON app_settings FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins can manage settings" ON app_settings FOR ALL USING (private.get_user_role() = 'admin');
 DROP TRIGGER IF EXISTS update_app_settings_updated_at ON app_settings;
 CREATE TRIGGER update_app_settings_updated_at BEFORE UPDATE ON app_settings FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
@@ -46,7 +46,7 @@ ALTER TABLE plans ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Anyone can view plans" ON plans;
 CREATE POLICY "Anyone can view plans" ON plans FOR SELECT USING (TRUE);
 DROP POLICY IF EXISTS "Admins manage plans" ON plans;
-CREATE POLICY "Admins manage plans" ON plans FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage plans" ON plans FOR ALL USING (private.get_user_role() = 'admin');
 DROP TRIGGER IF EXISTS update_plans_updated_at ON plans;
 CREATE TRIGGER update_plans_updated_at BEFORE UPDATE ON plans FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
@@ -136,9 +136,9 @@ CREATE TABLE IF NOT EXISTS client_extras (
 );
 ALTER TABLE client_extras ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins manage client extras" ON client_extras;
-CREATE POLICY "Admins manage client extras" ON client_extras FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage client extras" ON client_extras FOR ALL USING (private.get_user_role() = 'admin');
 DROP POLICY IF EXISTS "Clients view own extras" ON client_extras;
-CREATE POLICY "Clients view own extras" ON client_extras FOR SELECT USING (client_id = get_user_client_id());
+CREATE POLICY "Clients view own extras" ON client_extras FOR SELECT USING (client_id = private.get_user_client_id());
 
 -- 4j) Default extra-work rate is $10/hr (was $39/hr)
 UPDATE support_packages SET extra_hourly_rate = 10 WHERE extra_hourly_rate = 39;
@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS coupons (
 );
 ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins manage coupons" ON coupons;
-CREATE POLICY "Admins manage coupons" ON coupons FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage coupons" ON coupons FOR ALL USING (private.get_user_role() = 'admin');
 
 -- 6) Direct messages: allow a "Message" ticket category so clients (even with an
 -- expired plan) and admins can message each other. Free, doesn't use credits.
@@ -223,7 +223,7 @@ CREATE TABLE IF NOT EXISTS admin_client_assignments (
 );
 ALTER TABLE admin_client_assignments ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins manage assignments" ON admin_client_assignments;
-CREATE POLICY "Admins manage assignments" ON admin_client_assignments FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage assignments" ON admin_client_assignments FOR ALL USING (private.get_user_role() = 'admin');
 
 -- Safety: make every CURRENT admin a Master so nobody is locked out.
 -- After running, open Team and demote everyone except yourself.
@@ -245,7 +245,7 @@ UPDATE profiles SET client_role = 'leader' WHERE role = 'client' AND client_role
 -- Let team members read each other's profile (names/avatars) within the same client.
 DROP POLICY IF EXISTS "Team can view teammates" ON profiles;
 CREATE POLICY "Team can view teammates" ON profiles FOR SELECT
-  USING (role = 'client' AND client_id = get_user_client_id());
+  USING (role = 'client' AND client_id = private.get_user_client_id());
 
 -- 11) Teams are a plan feature: only clients whose package allows it can build a team.
 --   team_enabled: package includes multi-user teams
@@ -279,11 +279,11 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 CREATE INDEX IF NOT EXISTS chat_messages_client_idx ON chat_messages(client_id, created_at);
 ALTER TABLE chat_messages ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins manage chat" ON chat_messages;
-CREATE POLICY "Admins manage chat" ON chat_messages FOR ALL USING (get_user_role() = 'admin');
+CREATE POLICY "Admins manage chat" ON chat_messages FOR ALL USING (private.get_user_role() = 'admin');
 DROP POLICY IF EXISTS "Clients view own chat" ON chat_messages;
-CREATE POLICY "Clients view own chat" ON chat_messages FOR SELECT USING (client_id = get_user_client_id());
+CREATE POLICY "Clients view own chat" ON chat_messages FOR SELECT USING (client_id = private.get_user_client_id());
 DROP POLICY IF EXISTS "Clients send own chat" ON chat_messages;
-CREATE POLICY "Clients send own chat" ON chat_messages FOR INSERT WITH CHECK (client_id = get_user_client_id());
+CREATE POLICY "Clients send own chat" ON chat_messages FOR INSERT WITH CHECK (client_id = private.get_user_client_id());
 
 -- 13) A plan can have BOTH a recurring monthly price and a one-time setup fee.
 --   price      = recurring monthly amount (already exists)
@@ -319,7 +319,7 @@ CREATE INDEX IF NOT EXISTS email_campaigns_due_idx
 ALTER TABLE email_campaigns ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins manage email campaigns" ON email_campaigns;
 CREATE POLICY "Admins manage email campaigns" ON email_campaigns
-  FOR ALL USING (get_user_role() = 'admin');
+  FOR ALL USING (private.get_user_role() = 'admin');
 
 -- 17) Per-admin personal email sending connection.
 -- Automated NOTIFICATIONS (new ticket/lead/message/subscription/invoice) are sent
@@ -367,16 +367,16 @@ CREATE TABLE IF NOT EXISTS email_templates (
 ALTER TABLE email_templates ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins view templates" ON email_templates;
 CREATE POLICY "Admins view templates" ON email_templates FOR SELECT
-  USING (get_user_role() = 'admin' AND (owner_id = auth.uid() OR scope = 'shared'));
+  USING (private.get_user_role() = 'admin' AND (owner_id = auth.uid() OR scope = 'shared'));
 DROP POLICY IF EXISTS "Admins insert own templates" ON email_templates;
 CREATE POLICY "Admins insert own templates" ON email_templates FOR INSERT
-  WITH CHECK (get_user_role() = 'admin' AND owner_id = auth.uid());
+  WITH CHECK (private.get_user_role() = 'admin' AND owner_id = auth.uid());
 DROP POLICY IF EXISTS "Admins update own templates" ON email_templates;
 CREATE POLICY "Admins update own templates" ON email_templates FOR UPDATE
-  USING (get_user_role() = 'admin' AND owner_id = auth.uid());
+  USING (private.get_user_role() = 'admin' AND owner_id = auth.uid());
 DROP POLICY IF EXISTS "Admins delete own templates" ON email_templates;
 CREATE POLICY "Admins delete own templates" ON email_templates FOR DELETE
-  USING (get_user_role() = 'admin' AND owner_id = auth.uid());
+  USING (private.get_user_role() = 'admin' AND owner_id = auth.uid());
 
 -- Private bucket for email attachments. Admins upload directly from the browser;
 -- the server reads files back (service role) at send time to attach them.
@@ -385,8 +385,8 @@ VALUES ('email-attachments', 'email-attachments', false)
 ON CONFLICT (id) DO NOTHING;
 DROP POLICY IF EXISTS "Admins manage email attachments" ON storage.objects;
 CREATE POLICY "Admins manage email attachments" ON storage.objects FOR ALL
-  USING (bucket_id = 'email-attachments' AND get_user_role() = 'admin')
-  WITH CHECK (bucket_id = 'email-attachments' AND get_user_role() = 'admin');
+  USING (bucket_id = 'email-attachments' AND private.get_user_role() = 'admin')
+  WITH CHECK (bucket_id = 'email-attachments' AND private.get_user_role() = 'admin');
 
 -- ─── CLIENT MARKET / REGION (MK vs US) ───────────────────────────────────────
 -- Lets an admin assign each client to the Macedonian or US market. Drives the

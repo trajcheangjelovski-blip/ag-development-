@@ -62,6 +62,19 @@ create index if not exists outreach_contacts_optout_idx    on public.outreach_co
 alter table public.outreach_contacts  enable row level security;
 alter table public.outreach_campaigns enable row level security;
 alter table public.outreach_messages  enable row level security;
+
+-- These tables are admin-only (the app reaches them via the service role, which
+-- bypasses RLS). Explicit admin policies document that and clear the
+-- rls_enabled_no_policy advisor suggestion.
+drop policy if exists "Admins manage outreach contacts" on outreach_contacts;
+create policy "Admins manage outreach contacts" on outreach_contacts
+  for all using (private.get_user_role() = 'admin');
+drop policy if exists "Admins manage outreach campaigns" on outreach_campaigns;
+create policy "Admins manage outreach campaigns" on outreach_campaigns
+  for all using (private.get_user_role() = 'admin');
+drop policy if exists "Admins manage outreach messages" on outreach_messages;
+create policy "Admins manage outreach messages" on outreach_messages
+  for all using (private.get_user_role() = 'admin');
 -- ============================================================================
 -- DATA API GRANTS (required for tables created on/after 2026-10-30)
 -- Supabase stopped auto-granting Data API access to new public tables. Without
