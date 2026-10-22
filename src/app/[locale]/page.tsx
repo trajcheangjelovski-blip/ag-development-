@@ -110,7 +110,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const initialPlans = await getPublicPlans(regionFromLocale(locale))
   return (
     <PlansProvider initial={initialPlans}>
-      {locale === 'mk' && <PromoPopup />}
+      {(locale === 'mk' || locale === 'en') && <PromoPopup locale={locale} />}
       <PublicHeader />
 
       {/* HERO */}
