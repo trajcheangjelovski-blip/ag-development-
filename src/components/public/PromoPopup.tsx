@@ -3,45 +3,20 @@
 import { useEffect, useState } from 'react'
 import { Link } from '@/i18n/navigation'
 import { LogoMark } from './Logo'
+import type { PromoConfig } from '@/lib/promoPopup'
 
-// Per-locale promotional popup. Mirrors the current sales offer:
-//  • mk — "Специјална понуда" (discounted website build + monthly maintenance)
-//  • en — limited-time 50% off every website build and care plan
-// Content is hardcoded per locale (not in the i18n catalogs) because the copy
-// is marketing-specific and each locale reflects a different regional offer.
+// Presentational promotional popup. All content/enabled state comes from
+// `config`, which the home page fetches server-side via getPromoPopup(region)
+// and which the admin panel edits (see /admin/promo).
 //
 // Shows once per visitor: after it's dismissed (X, backdrop, Esc, decline, or
-// clicking the CTA) we drop a localStorage flag so it doesn't reappear on later
-// visits. Bump a content `storageKey` to re-show that locale's popup when the
-// offer changes.
+// clicking the CTA) we store config.storageKey in localStorage so it doesn't
+// reappear. The key changes whenever an admin saves, so edits re-show it.
 
 const SHOW_DELAY_MS = 1500
 
-type Offer = {
-  label: string
-  oldPrice: string
-  newPrice: string
-  unit?: string
-  discount: string
-}
-
-type PromoContent = {
-  storageKey: string
-  badge: string
-  titleLead: string
-  titleHighlight: string
-  titleTrail?: string
-  subtitle: string
-  offers: Offer[]
-  features: string[]
-  ctaLabel: string
-  ctaHref: string
-  declineLabel: string
-  closeLabel: string
-}
-
-// Four shared feature icons (monitor, phone, chart, shield). Labels come from
-// the locale content.
+// Four shared feature icons (monitor, phone, chart, shield), matched by index
+// to the configured feature labels.
 const featureIcons = [
   (
     <svg key="design" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -70,50 +45,14 @@ const featureIcons = [
   ),
 ]
 
-const CONTENT: Record<'mk' | 'en', PromoContent> = {
-  mk: {
-    storageKey: 'ag_promo_mk_2026_10',
-    badge: 'Ограничена понуда',
-    titleLead: 'Специјална понуда за ',
-    titleHighlight: 'изработка на веб страна',
-    subtitle: 'Професионална, модерна и мобилно прилагодена веб страна за вашиот бизнис.',
-    offers: [
-      { label: 'Изработка на веб страна', oldPrice: '10.000 ден', newPrice: '6.000 ден', discount: '-40%' },
-      { label: 'Месечно одржување', oldPrice: '1.500 ден / месечно', newPrice: '800 ден', unit: '/ месечно', discount: '-47%' },
-    ],
-    features: ['Модерен дизајн', 'Мобилно прилагодена', 'Подобра видливост', 'Сигурна поддршка'],
-    ctaLabel: 'Контактирајте нè денес →',
-    ctaHref: '/contact',
-    declineLabel: 'Не, благодарам',
-    closeLabel: 'Затвори',
-  },
-  en: {
-    storageKey: 'ag_promo_en_2026_10',
-    badge: 'Limited offer',
-    titleLead: 'Get ',
-    titleHighlight: '50% off',
-    titleTrail: ' your new website',
-    subtitle: 'Modern, mobile-friendly websites for your business — every build and care plan is on sale right now.',
-    offers: [
-      { label: 'Website build (Business Site)', oldPrice: '$250', newPrice: '$125', unit: 'one-time', discount: '-50%' },
-      { label: 'Monthly care (Basic Care)', oldPrice: '$29', newPrice: '$14', unit: '/mo', discount: '-52%' },
-    ],
-    features: ['Modern design', 'Mobile-friendly', 'Better visibility', 'Reliable support'],
-    ctaLabel: 'Claim 50% off →',
-    ctaHref: '/pricing',
-    declineLabel: 'No, thanks',
-    closeLabel: 'Close',
-  },
-}
-
-export function PromoPopup({ locale }: { locale: 'mk' | 'en' }) {
-  const content = CONTENT[locale]
+export function PromoPopup({ config }: { config: PromoConfig }) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
+    if (!config.enabled) return
     let dismissed = false
     try {
-      dismissed = localStorage.getItem(content.storageKey) === '1'
+      dismissed = localStorage.getItem(config.storageKey) === '1'
     } catch {
       // localStorage can throw (private mode / blocked) — just show the popup.
     }
@@ -121,7 +60,7 @@ export function PromoPopup({ locale }: { locale: 'mk' | 'en' }) {
 
     const timer = setTimeout(() => setOpen(true), SHOW_DELAY_MS)
     return () => clearTimeout(timer)
-  }, [content.storageKey])
+  }, [config.enabled, config.storageKey])
 
   // Lock body scroll while open and close on Escape.
   useEffect(() => {
@@ -142,13 +81,13 @@ export function PromoPopup({ locale }: { locale: 'mk' | 'en' }) {
   function close() {
     setOpen(false)
     try {
-      localStorage.setItem(content.storageKey, '1')
+      localStorage.setItem(config.storageKey, '1')
     } catch {
       // Ignore — worst case the popup shows again next visit.
     }
   }
 
-  if (!open) return null
+  if (!config.enabled || !open) return null
 
   return (
     <div
@@ -187,7 +126,7 @@ export function PromoPopup({ locale }: { locale: 'mk' | 'en' }) {
         <button
           type="button"
           onClick={close}
-          aria-label={content.closeLabel}
+          aria-label="Close"
           className="absolute top-3.5 right-3.5 z-10 w-9 h-9 flex items-center justify-center rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -209,61 +148,71 @@ export function PromoPopup({ locale }: { locale: 'mk' | 'en' }) {
           </div>
 
           {/* Limited-offer badge */}
-          <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-cyan-300 mb-4"
-            style={{ background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.3)' }}
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 12 20 22 4 22 4 12" />
-              <rect x="2" y="7" width="20" height="5" />
-              <line x1="12" y1="22" x2="12" y2="7" />
-              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
-              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
-            </svg>
-            {content.badge}
-          </div>
+          {config.badge && (
+            <div className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-cyan-300 mb-4"
+              style={{ background: 'rgba(34,211,238,0.12)', border: '1px solid rgba(34,211,238,0.3)' }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 12 20 22 4 22 4 12" />
+                <rect x="2" y="7" width="20" height="5" />
+                <line x1="12" y1="22" x2="12" y2="7" />
+                <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z" />
+                <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z" />
+              </svg>
+              {config.badge}
+            </div>
+          )}
 
           {/* Title */}
           <h2 id="promo-title" className="font-display text-2xl sm:text-[28px] font-extrabold leading-tight text-white mb-2">
-            {content.titleLead}
-            <span className="gradient-text">{content.titleHighlight}</span>
-            {content.titleTrail}
+            {config.titleLead}
+            <span className="gradient-text">{config.titleHighlight}</span>
+            {config.titleTrail}
           </h2>
-          <p className="text-sm text-white/55 leading-relaxed mb-6">
-            {content.subtitle}
-          </p>
+          {config.subtitle && (
+            <p className="text-sm text-white/55 leading-relaxed mb-6">
+              {config.subtitle}
+            </p>
+          )}
 
           {/* Offers */}
-          <div className="space-y-3 mb-6">
-            {content.offers.map((o) => (
-              <div key={o.label} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                <div className="text-xs font-semibold text-white/60 mb-1">{o.label}</div>
-                <div className="flex items-end gap-2.5 flex-wrap">
-                  <span className="text-white/40 line-through text-sm">{o.oldPrice}</span>
-                  <span className="font-display text-2xl sm:text-3xl font-extrabold text-cyan-300">
-                    {o.newPrice}
-                    {o.unit && <span className="text-sm font-semibold text-white/70"> {o.unit}</span>}
-                  </span>
-                  <span className="ml-auto text-[11px] font-bold px-2 py-1 rounded-lg text-cyan-200" style={{ background: 'rgba(34,211,238,0.14)' }}>
-                    {o.discount}
-                  </span>
+          {config.offers.length > 0 && (
+            <div className="space-y-3 mb-6">
+              {config.offers.map((o, i) => (
+                <div key={i} className="rounded-2xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                  {o.label && <div className="text-xs font-semibold text-white/60 mb-1">{o.label}</div>}
+                  <div className="flex items-end gap-2.5 flex-wrap">
+                    {o.oldPrice && <span className="text-white/40 line-through text-sm">{o.oldPrice}</span>}
+                    <span className="font-display text-2xl sm:text-3xl font-extrabold text-cyan-300">
+                      {o.newPrice}
+                      {o.unit && <span className="text-sm font-semibold text-white/70"> {o.unit}</span>}
+                    </span>
+                    {o.discount && (
+                      <span className="ml-auto text-[11px] font-bold px-2 py-1 rounded-lg text-cyan-200" style={{ background: 'rgba(34,211,238,0.14)' }}>
+                        {o.discount}
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Feature pills */}
-          <div className="grid grid-cols-2 gap-2.5 mb-7">
-            {content.features.map((label, i) => (
-              <div key={label} className="flex items-center gap-2 text-xs font-medium text-white/70">
-                <span className="text-blue-300 flex-shrink-0">{featureIcons[i]}</span>
-                {label}
-              </div>
-            ))}
-          </div>
+          {config.features.length > 0 && (
+            <div className="grid grid-cols-2 gap-2.5 mb-7">
+              {config.features.map((label, i) => (
+                <div key={label + i} className="flex items-center gap-2 text-xs font-medium text-white/70">
+                  <span className="text-blue-300 flex-shrink-0">{featureIcons[i % featureIcons.length]}</span>
+                  {label}
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* CTA */}
           <Link
-            href={content.ctaHref}
+            href={config.ctaHref || '/contact'}
             onClick={close}
             className="btn-shimmer btn-glow flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-xl font-bold text-base text-white"
           >
@@ -271,16 +220,8 @@ export function PromoPopup({ locale }: { locale: 'mk' | 'en' }) {
               <line x1="22" y1="2" x2="11" y2="13" />
               <polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>
-            {content.ctaLabel}
+            {config.ctaLabel}
           </Link>
-
-          <button
-            type="button"
-            onClick={close}
-            className="block w-full text-center text-xs text-white/40 hover:text-white/60 mt-3.5 transition-colors"
-          >
-            {content.declineLabel}
-          </button>
         </div>
       </div>
     </div>

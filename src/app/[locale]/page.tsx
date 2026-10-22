@@ -6,6 +6,7 @@ import { PricingTabs } from '@/components/public/PricingTabs'
 import { ServiceCards } from '@/components/public/ServiceCards'
 import { ServicesSection } from '@/components/public/ServicesSection'
 import { PromoPopup } from '@/components/public/PromoPopup'
+import { getPromoPopup } from '@/lib/promoPopup'
 import { PlansProvider } from '@/lib/usePlans'
 import { getPublicPlans } from '@/lib/plans'
 import { regionFromLocale } from '@/i18n/routing'
@@ -107,10 +108,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const whyText = t.raw('why') as { title: string; desc: string }[]
   const stepsText = t.raw('steps') as { title: string; desc: string }[]
   const testimonialsText = t.raw('testimonials') as { quote: string; name: string; biz: string; initials: string }[]
-  const initialPlans = await getPublicPlans(regionFromLocale(locale))
+  const region = regionFromLocale(locale)
+  const initialPlans = await getPublicPlans(region)
+  const promo = await getPromoPopup(region)
   return (
     <PlansProvider initial={initialPlans}>
-      {(locale === 'mk' || locale === 'en') && <PromoPopup locale={locale} />}
+      {promo.enabled && <PromoPopup config={promo} />}
       <PublicHeader />
 
       {/* HERO */}

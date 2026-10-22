@@ -19,6 +19,7 @@ const adminLinks: { href: string; labelKey: string; icon: string; perm?: string 
   { href: '/admin/stats', labelKey: 'statistics', icon: '📈', perm: 'reports.view' },
   { href: '/admin/invoices', labelKey: 'adminInvoices', icon: '💳', perm: 'invoices.view' },
   { href: '/admin/plans', labelKey: 'plans', icon: '🏷️', perm: 'plans.view' },
+  { href: '/admin/promo', labelKey: 'promoPopup', icon: '📢', perm: 'plans.view' },
   { href: '/admin/activity', labelKey: 'adminActivity', icon: '📜', perm: 'activity.view' },
   { href: '/admin/team', labelKey: 'adminTeam', icon: '👤', perm: 'admins.manage' },
   { href: '/admin/settings', labelKey: 'adminSettings', icon: '⚙️', perm: 'settings.manage' },
