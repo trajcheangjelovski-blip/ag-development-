@@ -96,7 +96,7 @@ const CONTENT: Record<'mk' | 'en', PromoContent> = {
     subtitle: 'Modern, mobile-friendly websites for your business — every build and care plan is on sale right now.',
     offers: [
       { label: 'Website build (Business Site)', oldPrice: '$250', newPrice: '$125', unit: 'one-time', discount: '-50%' },
-      { label: 'Monthly care (Content Care)', oldPrice: '$48', newPrice: '$24', unit: '/mo', discount: '-50%' },
+      { label: 'Monthly care (Basic Care)', oldPrice: '$29', newPrice: '$14', unit: '/mo', discount: '-52%' },
     ],
     features: ['Modern design', 'Mobile-friendly', 'Better visibility', 'Reliable support'],
     ctaLabel: 'Claim 50% off →',
