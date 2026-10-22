@@ -64,8 +64,10 @@ function BuildTab({ onSwitchToCare }: { onSwitchToCare: () => void }) {
           const hov = hoveredBuildCard === p.id
           const features = t.raw(`build.${p.id}.features`) as string[]
           const plan = planFor(p.id)
-          const salePrice = isMk ? (plan?.effective_price ?? p.salePrice) : p.salePrice
-          const origPrice = isMk ? (plan?.price ?? p.originalPrice) : p.originalPrice
+          // Prefer live admin/DB prices for every locale; fall back to the
+          // built-in metadata only when the plan has no DB row.
+          const salePrice = plan?.effective_price ?? p.salePrice
+          const origPrice = plan?.price ?? p.originalPrice
           const showSale = origPrice > salePrice
           return (
             <div
@@ -165,7 +167,7 @@ function CareTab() {
           const hov = hoveredCareCard === p.id
           const features = t.raw(`care.${p.id}.features`) as string[]
           const details = t.raw(`care.${p.id}.details`) as { label: string; value: string }[]
-          const amount = isMk ? (planFor(p.id)?.effective_price ?? p.price) : p.price
+          const amount = planFor(p.id)?.effective_price ?? p.price
           return (
             <div
               key={p.id}
@@ -253,7 +255,7 @@ function ITSupportTab() {
         {itMeta.map(p => {
           const hov = hoveredITCard === p.id
           const features = t.raw(`it.${p.id}.features`) as string[]
-          const amount = isMk ? (planFor(`it-${p.id}`)?.effective_price ?? p.price) : p.price
+          const amount = planFor(`it-${p.id}`)?.effective_price ?? p.price
           const btnBg = p.buttonColor ? (hov ? (p.buttonColor === '#2563eb' ? '#1d4ed8' : p.buttonColor) : p.buttonColor) : (hov || p.popular) ? '#2563eb' : '#f8fafc'
           const btnColor = (p.buttonColor || hov || p.popular) ? 'white' : '#475569'
           const btnBorder = (p.buttonColor || hov || p.popular) ? `2px solid ${p.buttonColor || '#2563eb'}` : '2px solid #e2e8f0'
@@ -349,7 +351,7 @@ function DesignSocialTab() {
         {designMeta.map(p => {
           const hov = hoveredDesignCard === p.id
           const features = t.raw(`design.${p.id}.features`) as string[]
-          const amount = isMk ? (planFor(`social-${p.id}`)?.effective_price ?? p.price) : p.price
+          const amount = planFor(`social-${p.id}`)?.effective_price ?? p.price
           const btnBg = p.buttonColor ? (hov ? (p.buttonColor === '#7c3aed' ? '#6d28d9' : p.buttonColor) : p.buttonColor) : (hov || p.popular) ? '#2563eb' : '#f8fafc'
           const btnColor = (p.buttonColor || hov || p.popular) ? 'white' : '#475569'
           const btnBorder = (p.buttonColor || hov || p.popular) ? `2px solid ${p.buttonColor || '#2563eb'}` : '2px solid #e2e8f0'
