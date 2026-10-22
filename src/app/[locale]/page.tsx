@@ -5,6 +5,7 @@ import { PublicFooter } from '@/components/public/Footer'
 import { PricingTabs } from '@/components/public/PricingTabs'
 import { ServiceCards } from '@/components/public/ServiceCards'
 import { ServicesSection } from '@/components/public/ServicesSection'
+import { PromoPopup } from '@/components/public/PromoPopup'
 import { PlansProvider } from '@/lib/usePlans'
 import { getPublicPlans } from '@/lib/plans'
 import { regionFromLocale } from '@/i18n/routing'
@@ -109,6 +110,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const initialPlans = await getPublicPlans(regionFromLocale(locale))
   return (
     <PlansProvider initial={initialPlans}>
+      {locale === 'mk' && <PromoPopup />}
       <PublicHeader />
 
       {/* HERO */}
