@@ -991,13 +991,6 @@
         "desc": "Traditional Macedonian restaurant with a fully custom-built website — multilingual (MK/EN), full food & drinks menu, photo gallery, table reservations, and Wolt delivery integration.",
         "tags": ["Custom Build", "Multilingual", "Reservations", "Wolt Integration"],
         "role": "Website build + ongoing monthly care"
-      },
-      "trueDefender": {
-        "type": "News Publication",
-        "location": "Online · US News",
-        "desc": "Independent American news publication on a fully custom-built newsroom platform — category sections (Politics, US News, World, Opinion, Story of Hope), fast article publishing updated throughout the day, and an SEO-optimized reading experience.",
-        "tags": ["Custom Build", "News / Publishing", "CMS", "SEO"],
-        "role": "Full custom build + hosting & maintenance"
       }
     },
     "demosSection": {

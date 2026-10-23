@@ -31,7 +31,6 @@ const demoMeta = [
 // Real client websites built & maintained by AG Development — structural metadata only.
 const websiteMeta = [
   { key: 'murovska',     name: 'Муровска Меана',    url: 'https://murovskameana.mk',    grad: 'linear-gradient(135deg, #7c1d0e 0%, #c0392b 40%, #8b4513 100%)', accent: '#c0392b', icon: '🍽️', year: '2023' },
-  { key: 'trueDefender', name: 'The True Defender', url: 'https://thetruedefender.news', grad: 'linear-gradient(135deg, #0b1e3a 0%, #7f1d1d 60%, #b91c1c 100%)', accent: '#b91c1c', icon: '🗞️', year: '2025' },
 ]
 
 export default async function PortfolioPage({ params }: { params: Promise<{ locale: string }> }) {
