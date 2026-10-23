@@ -1,0 +1,13 @@
+<svg width="280" height="64" viewBox="0 0 280 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="mk" x1="8" y1="13" x2="52" y2="51" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0f1f3d"/>
+  <path d="M52 26 A13 13 0 1 0 52 38 L52 33 L43 33" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M24 13 L40 51 L32 51 L24 33 L16 51 L8 51 Z" fill="url(#mk)"/>
+  <path d="M24 13 L16 51 L8 51 Z" fill="#67e8f9" opacity="0.45"/>
+  <text x="80" y="40" font-family="Outfit, Inter, system-ui, sans-serif" font-size="24" font-weight="700" fill="#ffffff">AG Development</text>
+</svg>

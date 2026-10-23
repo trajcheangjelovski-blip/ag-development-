@@ -5,6 +5,7 @@ import { Link, usePathname, useRouter } from '@/i18n/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { can, clientCan, type ClientCapability } from '@/lib/permissions'
+import { LogoMark } from '@/components/public/Logo'
 import type { Profile } from '@/types'
 
 const adminLinks: { href: string; labelKey: string; icon: string; perm?: string }[] = [
@@ -134,9 +135,7 @@ export function Sidebar({ profile, open = false, onClose }: { profile: Profile; 
       {/* Logo */}
       <div className="p-5 border-b border-white/10">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-display font-bold text-white text-sm flex-shrink-0">
-            AG
-          </div>
+          <LogoMark size={32} className="flex-shrink-0" />
           <div>
             <div className="font-display font-bold text-sm text-white leading-tight">AG Development</div>
             <div className="text-xs text-white/40">{isAdmin ? ts('adminPortal') : ts('clientPortal')}</div>
