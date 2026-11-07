@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+<loc>https://www.prozorplus.mk</loc>
+<lastmod>2026-11-07T16:26:15.679Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>1</priority>
+</url>
+<url>
+<loc>https://www.prozorplus.mk/proizvodi</loc>
+<lastmod>2026-11-07T16:26:15.679Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://www.prozorplus.mk/galerija</loc>
+<lastmod>2026-11-07T16:26:15.679Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://www.prozorplus.mk/za-nas</loc>
+<lastmod>2026-11-07T16:26:15.679Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://www.prozorplus.mk/kontakt</loc>
+<lastmod>2026-11-07T16:26:15.679Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+</urlset>
