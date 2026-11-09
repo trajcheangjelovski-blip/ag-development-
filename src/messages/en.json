@@ -998,9 +998,22 @@
       "title": "Websites I built",
       "desc": "These are front-end only builds — the design, layout, and UI are fully built out, but they don't include a live backend, real data, or actual business integrations. They show the kind of website I can build for your business.",
       "warning": "⚠️ Front-end demo only — not a live business website",
-      "hover": "View front-end demo →"
+      "hover": "View front-end demo →",
+      "featuredTitle": "Latest builds",
+      "featuredBadge": "Interactive demo",
+      "open": "Open live demo →"
     },
     "demos": {
+      "crumbclub": {
+        "type": "Delivery Cafe · Online Ordering",
+        "desc": "Order and pay online with delivery or collection, card, Apple Pay, Google Pay and UPI checkout, live order tracking, a loyalty program with tiers and rewards, and member accounts with order history. Plus an interactive 3D hero and a live brand-colour switcher.",
+        "tags": ["E-commerce", "Payments", "Loyalty program", "User accounts", "3D / Three.js"]
+      },
+      "veloce": {
+        "type": "Luxury Car Dealership",
+        "desc": "Showroom website for a performance-car dealer: filterable inventory, detailed vehicle pages with photo galleries, an interactive 3D car, a finance calculator and private-viewing requests.",
+        "tags": ["Automotive", "Inventory", "3D model", "Finance calculator"]
+      },
       "restaurant": {
         "type": "Restaurant Website",
         "desc": "Full menu, photo gallery and table reservations for an Italian restaurant.",

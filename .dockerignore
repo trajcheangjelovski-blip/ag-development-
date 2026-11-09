@@ -1,3 +1,4 @@
 # Client pitch demos are served by Caddy from .demos-live, not baked into the image
 demos
 .demos-live
+.data

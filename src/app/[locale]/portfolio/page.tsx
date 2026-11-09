@@ -28,6 +28,12 @@ const demoMeta = [
   { key: 'store',      name: 'Urban Threads',      slug: 'store',      grad: 'linear-gradient(135deg, #57534e 0%, #1c1917 120%)' },
 ]
 
+// Interactive pitch demos served as static sites at /demos/<slug>/ (see demos/ in git).
+const featuredMeta = [
+  { key: 'crumbclub', name: 'Crumb Club', slug: 'crumbclub', image: '/portfolio/crumbclub.jpg', accent: '#E0532F' },
+  { key: 'veloce',    name: 'VELOCE Motor Cars', slug: 'veloce', image: '/portfolio/veloce.jpg', accent: '#111111' },
+]
+
 // Real client websites built & maintained by AG Development — structural metadata only.
 const websiteMeta = [
   { key: 'murovska',     name: 'Муровска Меана',    url: 'https://murovskameana.mk',    grad: 'linear-gradient(135deg, #7c1d0e 0%, #c0392b 40%, #8b4513 100%)', accent: '#c0392b', icon: '🍽️', year: '2023' },
@@ -133,6 +139,40 @@ export default async function PortfolioPage({ params }: { params: Promise<{ loca
             <div className="inline-flex items-center gap-2 text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: '#fef9c3', color: '#854d0e' }}>
               {t('demosSection.warning')}
             </div>
+          </div>
+
+          <h3 className="font-display text-lg font-extrabold text-slate-800 mb-4">{t('demosSection.featuredTitle')}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            {featuredMeta.map(w => {
+              const tags = t.raw(`demos.${w.key}.tags`) as string[]
+              return (
+                <a
+                  key={w.slug}
+                  href={`/demos/${w.slug}/`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="card overflow-hidden hover:-translate-y-1 hover:shadow-xl transition-all group flex flex-col"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={w.image} alt={`${w.name} — ${t(`demos.${w.key}.type`)}`} loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-[1.04]" />
+                    <span className="absolute top-3 left-3 text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full text-white" style={{ background: w.accent }}>
+                      {t('demosSection.featuredBadge')}
+                    </span>
+                  </div>
+                  <div className="p-5 flex flex-col flex-1">
+                    <div className="text-xs uppercase tracking-widest text-slate-400 font-semibold mb-1">{t(`demos.${w.key}.type`)}</div>
+                    <h3 className="font-display font-bold text-slate-800 text-xl mb-2">{w.name}</h3>
+                    <p className="text-sm text-slate-500 leading-relaxed mb-3">{t(`demos.${w.key}.desc`)}</p>
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {tags.map(tag => <span key={tag} className="text-xs bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full font-medium">{tag}</span>)}
+                    </div>
+                    <span className="mt-auto inline-flex items-center gap-1 text-sm font-bold text-blue-600 group-hover:gap-2 transition-all">{t('demosSection.open')}</span>
+                  </div>
+                </a>
+              )
+            })}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

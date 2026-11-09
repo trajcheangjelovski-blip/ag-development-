@@ -12,8 +12,11 @@ services:
     environment:
       - NODE_ENV=production
       - DEMOS_DIR=/app/demos-data
+      - DATA_DIR=/app/data
     volumes:
       - ./.demos-live:/app/demos-data
+      # demo link clicks / opens (named volume: survives rebuilds, owned by the app user)
+      - app_data:/app/data
 
   caddy:
     image: caddy:2-alpine
@@ -31,5 +34,6 @@ services:
       - caddy_config:/config
 
 volumes:
+  app_data:
   caddy_data:
   caddy_config:

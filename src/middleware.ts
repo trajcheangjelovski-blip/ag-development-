@@ -60,6 +60,9 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // Tracked demo short links (/go/<code>) are locale-less redirects.
+  if (pathname.startsWith('/go/')) return NextResponse.next({ request })
+
   const current = localeInPath(pathname)
 
   // 2) Geo soft-redirect: a locale-less path with no explicit choice gets

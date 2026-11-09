@@ -20,6 +20,7 @@ export type DemoInfo = {
   files: number
   bytes: number
   updatedAt: string
+  tracked: boolean // index.html loads /demo-beacon.js (open tracking)
 }
 
 export function isValidSlug(slug: string): boolean {
@@ -64,10 +65,12 @@ export async function listDemos(): Promise<DemoInfo[]> {
     const dir = path.join(/*turbopackIgnore: true*/ DEMOS_DIR, e.name)
     const files = await walk(dir)
     let title = e.name
+    let tracked = false
     try {
       const html = await fs.readFile(path.join(/*turbopackIgnore: true*/ dir, 'index.html'), 'utf8')
       const m = html.match(/<title>([\s\S]*?)<\/title>/i)
       if (m) title = decodeEntities(m[1].trim())
+      tracked = html.includes('/demo-beacon.js')
     } catch { /* no index.html */ }
     demos.push({
       slug: e.name,
@@ -76,6 +79,7 @@ export async function listDemos(): Promise<DemoInfo[]> {
       files: files.length,
       bytes: files.reduce((n, f) => n + f.size, 0),
       updatedAt: new Date(Math.max(0, ...files.map(f => f.mtime))).toISOString(),
+      tracked,
     })
   }
   return demos.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
