@@ -1,36 +1,34 @@
-# VELOCE — слики (image manifest)
+# VELOCE — image manifest
 
-Додадете ги фотографиите во оваа папка (`img/`) со **точно овие имиња**. Сè додека некоја слика недостасува, на нејзино место се прикажува елегантен брендиран градиент со монограм „V" — значи демото изгледа добро дури и без фотографии.
+The demo currently ships with real, representative luxury-car photos (sourced from Unsplash, free to use). Swap any of them for the client's own vehicle photography using the **same filenames** — or manage everything from the admin panel in the final build.
 
-Формат: **JPG**, оптимизирани за веб (под ~300 KB по слика по можност). Хоризонтална ориентација за возилата.
+If a file is ever missing, the site shows an elegant branded gold-gradient with a "V" monogram instead of a broken image, so the page always looks finished.
 
-## Бренд / општи
-| Име на фајл | Опис | Препорачана димензија |
+Format: **JPG**, web-optimised. Landscape works best for vehicle cards (3:2).
+
+## Brand / general
+| File | Used for | Recommended size |
 |---|---|---|
-| `logo.png` | Лого на салонот (прозрачна позадина) | 160 × 160 |
-| `favicon.png` | Икона за таб | 64 × 64 |
-| `hero.jpg` | Главна слика (hero) — возило во салон/студио | 2400 × 1400 |
-| `about.jpg` | Изложбен простор / тим (вертикална) | 1200 × 1500 |
-| `og.jpg` | Слика за споделување на социјални мрежи | 1200 × 630 |
+| `logo.png` | Showroom logo (transparent) | 160 × 160 |
+| `favicon.png` | Browser tab icon | 64 × 64 |
+| `hero.jpg` | Main hero image (wide) | 2400 × 1400 |
+| `about.jpg` | About section (portrait) | 1200 × 1500 |
+| `og.jpg` | Social-share preview image | 1200 × 630 |
 
-## Возила (колекција)
-Секое возило има повеќе фотографии во галеријата. Имиња `<возило>-1.jpg`, `-2.jpg` …
-
-| Возило | Фајлови |
+## Vehicles (one cover photo per car)
+| Vehicle | File |
 |---|---|
-| Porsche 911 Turbo S | `porsche-911-1.jpg` … `porsche-911-4.jpg` |
-| Lamborghini Huracán EVO | `lambo-huracan-1.jpg` … `lambo-huracan-3.jpg` |
-| Mercedes-AMG G 63 | `g63-1.jpg` … `g63-4.jpg` |
-| Ferrari Roma | `ferrari-roma-1.jpg` … `ferrari-roma-3.jpg` |
-| Bentley Continental GT | `bentley-gt-1.jpg` … `bentley-gt-3.jpg` |
-| Range Rover Autobiography | `rangerover-1.jpg` … `rangerover-3.jpg` |
-| McLaren 720S Spider | `mclaren-720-1.jpg` … `mclaren-720-3.jpg` |
-| Audi RS e-tron GT | `audi-etron-1.jpg` … `audi-etron-3.jpg` |
+| Ferrari F8 Tributo | `ferrari-f8.jpg` |
+| BMW M4 Competition | `bmw-m4.jpg` |
+| Mercedes-AMG GT Coupé | `amg-gt.jpg` |
+| Bentley Continental GT | `bentley-conti.jpg` |
+| Mercedes-Benz S 580 L | `mercedes-s.jpg` |
+| McLaren 765LT Spider | `mclaren-765.jpg` |
 
-> Препорачана димензија за фотографии на возила: **1600 × 1067** (сооднос 3:2).
+> Recommended vehicle photo size: **1600 × 1067** (3:2). To show multiple angles per car in the detail view, the final build lets you upload a gallery per vehicle from the admin panel.
 
 ---
 
-**Напомена:** Марките, моделите, цените и спецификациите во демото се примероци за изглед. Во финалната верзија сето ова се менува преку админ панел (без код) — текст, цени, слики и статус (Достапно / Резервирано / Продадено).
+**Note:** The vehicles, prices and specifications in this demo are representative samples to show the layout. In the final build, everything — text, prices, photos and status (Available / Reserved / Sold) — is editable from an admin panel, without touching code.
 
-Изработено од **AG Development** · ag-development.dev
+Built by **AG Development** · ag-development.dev

@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="mk">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>VELOCE — Бутик салон за луксузни и перформанс автомобили | Скопје</title>
-<meta name="description" content="VELOCE — бутик салон за луксузни и високоперформансни возила. Проверена историја, детални спецификации, дискретна услуга и финансирање по мерка. Закажете приватен разглед.">
+<title>VELOCE — Boutique Luxury &amp; Performance Car Showroom</title>
+<meta name="description" content="VELOCE — a boutique showroom for luxury and high-performance vehicles. Verified history, detailed specifications, discreet service and tailored finance. Book a private viewing.">
 <meta name="theme-color" content="#0b0b0d">
 <meta name="author" content="AG Development">
 
 <!-- Open Graph -->
 <meta property="og:type" content="website">
-<meta property="og:locale" content="mk_MK">
-<meta property="og:title" content="VELOCE — Бутик салон за луксузни автомобили">
-<meta property="og:description" content="Куриран избор на луксузни и перформанс возила — со проверена провениенца, целосна сервисна историја и дискретна услуга.">
+<meta property="og:locale" content="en_US">
+<meta property="og:title" content="VELOCE — Boutique Luxury &amp; Performance Car Showroom">
+<meta property="og:description" content="A curated selection of luxury and performance vehicles — verified provenance, full service history and discreet service.">
 <meta property="og:image" content="img/og.jpg">
 <meta name="twitter:card" content="summary_large_image">
 
@@ -25,14 +25,14 @@
 <style>
   :root{
     /* ---- Dark luxe palette ---- */
-    --bg:#0b0b0d;             /* near-black page background           */
-    --bg-2:#111115;           /* alternate band                      */
-    --panel:#17171d;          /* raised surfaces / cards             */
+    --bg:#0b0b0d;
+    --bg-2:#111115;
+    --panel:#17171d;
     --panel-2:#1e1e25;
-    --ink:#f3f0e9;            /* warm white — primary text           */
-    --ink-soft:#c9c4ba;       /* secondary text                      */
-    --muted:#8d887e;          /* tertiary text                       */
-    --gold:#c6a35e;           /* champagne — primary luxe accent     */
+    --ink:#f3f0e9;
+    --ink-soft:#c9c4ba;
+    --muted:#8d887e;
+    --gold:#c6a35e;
     --gold-soft:#e7d3a4;
     --gold-deep:#9c7d3d;
     --line:rgba(255,255,255,.09);
@@ -143,18 +143,19 @@
   .ph.off>img{opacity:0}      /* JS adds .off when a photo file is missing → gradient shows */
 
   /* ---- Hero ---- */
-  .hero{position:relative;min-height:calc(100svh - 136px);display:flex;align-items:flex-end;overflow:hidden}
-  .hero .ph{position:absolute;inset:0;z-index:0}
+  .hero{position:relative;min-height:calc(100svh - 136px);display:flex;align-items:flex-end;overflow:hidden;perspective:1200px}
+  .hero .ph{position:absolute;inset:-4%;z-index:0;will-change:transform;transition:transform .5s var(--ease)}
   .hero .ph::after{content:"VELOCE";font-size:clamp(3rem,12vw,9rem);letter-spacing:.18em}
   .hero .ph>img{animation:zoom 22s var(--ease) forwards}
   @keyframes zoom{from{transform:scale(1.12)}to{transform:scale(1)}}
   .hero .veil{position:absolute;inset:0;z-index:1;background:
     linear-gradient(95deg,rgba(6,6,9,.85) 0%,rgba(6,6,9,.5) 42%,rgba(6,6,9,.12) 74%),
     linear-gradient(180deg,rgba(6,6,9,.3) 0%,rgba(6,6,9,.05) 26%,rgba(6,6,9,.55) 72%,rgba(6,6,9,.92) 100%)}
-  .hero-in{position:relative;z-index:2;width:100%;padding-bottom:76px;padding-top:60px;color:var(--ink)}
+  .hero-in{position:relative;z-index:2;width:100%;padding-bottom:76px;padding-top:60px;color:var(--ink);
+    will-change:transform;transition:transform .5s var(--ease)}
   .hero h1{font-size:clamp(2.8rem,7.6vw,6.2rem);line-height:1.02;margin:22px 0 0;font-weight:600}
   .hero h1 em{font-style:italic;color:var(--gold-soft)}
-  .hero .lede{max-width:50ch;margin-top:24px;font-size:clamp(1.02rem,1.6vw,1.22rem);
+  .hero .lede{max-width:52ch;margin-top:24px;font-size:clamp(1.02rem,1.6vw,1.22rem);
     color:rgba(243,240,233,.84);font-weight:300}
   .hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px}
   .hero-actions .ghost{background:rgba(255,255,255,.06);color:#fff;border-color:rgba(255,255,255,.26)}
@@ -195,34 +196,40 @@
     color:var(--ink-soft);transition:.3s var(--ease)}
   .chip:hover{border-color:var(--gold);color:var(--ink)}
   .chip.on{background:var(--gold);border-color:var(--gold);color:#120f09}
-  .inv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:40px}
+  .inv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:40px;perspective:1600px}
   .car{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r-lg);overflow:hidden;
     cursor:pointer;text-align:left;font:inherit;color:inherit;display:flex;flex-direction:column;
-    transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .5s var(--ease)}
-  .car:hover{transform:translateY(-6px);box-shadow:var(--shadow);border-color:rgba(198,163,94,.4)}
+    transform-style:preserve-3d;will-change:transform;
+    transition:transform .3s var(--ease),box-shadow .5s var(--ease),border-color .5s var(--ease)}
+  .car:hover{box-shadow:var(--shadow);border-color:rgba(198,163,94,.4)}
   .car .fig{position:relative;aspect-ratio:3/2}
   .car .fig .ph{position:absolute;inset:0}
   .car .fig .ph>img{transition:transform .9s var(--ease),opacity .6s var(--ease)}
-  .car:hover .fig .ph>img{transform:scale(1.06)}
-  .car .badge{position:absolute;top:14px;left:14px;z-index:3;background:rgba(10,10,12,.72);
+  .car:hover .fig .ph>img{transform:scale(1.07)}
+  .car .glare{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;mix-blend-mode:overlay;
+    background:radial-gradient(circle at var(--gx,50%) var(--gy,50%),rgba(255,255,255,.5),transparent 42%);
+    transition:opacity .4s var(--ease)}
+  .car.tilt .glare{opacity:1}
+  .car .badge{position:absolute;top:14px;left:14px;z-index:5;background:rgba(10,10,12,.72);
     backdrop-filter:blur(6px);border:1px solid var(--line);color:var(--gold-soft);
-    font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:100px}
-  .car .status{position:absolute;top:14px;right:14px;z-index:3;font-size:10px;font-weight:700;
+    font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;padding:6px 12px;border-radius:100px;
+    transform:translateZ(45px)}
+  .car .status{position:absolute;top:14px;right:14px;z-index:5;font-size:10px;font-weight:700;
     letter-spacing:.12em;text-transform:uppercase;padding:6px 11px;border-radius:100px;
-    background:rgba(10,10,12,.72);backdrop-filter:blur(6px);border:1px solid var(--line)}
+    background:rgba(10,10,12,.72);backdrop-filter:blur(6px);border:1px solid var(--line);transform:translateZ(45px)}
   .car .status.sold{color:#e59a9a}
   .car .status.avail{color:#9fd0a6}
   .car .status.res{color:var(--gold-soft)}
-  .car .body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:14px;flex:1}
-  .car .k{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold)}
-  .car h3{font-size:1.32rem;line-height:1.14;margin-top:3px}
+  .car .body{padding:22px 22px 24px;display:flex;flex-direction:column;gap:14px;flex:1;transform-style:preserve-3d}
+  .car .k{font-size:10.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);transform:translateZ(30px)}
+  .car h3{font-size:1.32rem;line-height:1.14;margin-top:3px;transform:translateZ(38px)}
   .car .yr{color:var(--muted);font-size:13.5px;margin-top:2px}
-  .car .spec-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px}
+  .car .spec-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:2px;transform:translateZ(22px)}
   .car .sp{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-soft);
     background:var(--panel-2);border:1px solid var(--line-soft);border-radius:8px;padding:6px 10px}
   .car .sp svg{width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:1.7}
   .car .foot{margin-top:auto;display:flex;align-items:center;justify-content:space-between;
-    padding-top:16px;border-top:1px solid var(--line-soft)}
+    padding-top:16px;border-top:1px solid var(--line-soft);transform:translateZ(30px)}
   .car .price{font-family:var(--serif);font-size:1.32rem;color:var(--ink)}
   .car .price small{display:block;font-family:var(--sans);font-size:10px;letter-spacing:.1em;
     text-transform:uppercase;color:var(--muted);margin-bottom:2px;font-weight:600}
@@ -233,14 +240,16 @@
   .inv-note strong{color:var(--ink-soft);font-weight:600}
 
   /* ---- Feature trio ---- */
-  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px}
+  .trio{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:46px;perspective:1600px}
   .feat{background:var(--panel);border:1px solid var(--line-soft);border-radius:var(--r-lg);padding:34px 30px;
-    transition:transform .5s var(--ease),border-color .5s var(--ease)}
-  .feat:hover{transform:translateY(-5px);border-color:rgba(198,163,94,.35)}
+    transform-style:preserve-3d;will-change:transform;
+    transition:transform .3s var(--ease),border-color .5s var(--ease),box-shadow .5s var(--ease)}
+  .feat:hover{border-color:rgba(198,163,94,.35);box-shadow:var(--shadow-sm)}
   .feat .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:22px;
-    background:linear-gradient(150deg,rgba(198,163,94,.2),rgba(198,163,94,.04));border:1px solid rgba(198,163,94,.3)}
+    background:linear-gradient(150deg,rgba(198,163,94,.2),rgba(198,163,94,.04));border:1px solid rgba(198,163,94,.3);
+    transform:translateZ(40px)}
   .feat .ic svg{width:24px;height:24px;stroke:var(--gold-soft);fill:none;stroke-width:1.6}
-  .feat h3{font-size:1.28rem;margin-bottom:10px}
+  .feat h3{font-size:1.28rem;margin-bottom:10px;transform:translateZ(26px)}
   .feat p{color:var(--muted);font-size:.98rem}
 
   /* ---- About ---- */
@@ -368,9 +377,6 @@
   .prov .pr b{display:block;color:var(--ink);font-size:14px}
   .prov .pr span{color:var(--muted);font-size:13px}
   .vm-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
-  .vm-enquiry{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:var(--r);padding:26px}
-  .vm-enquiry h4{margin-bottom:16px}
-  .vm-enquiry .field.row{grid-template-columns:1fr 1fr}
 
   /* ---- Toast ---- */
   .toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(26px);z-index:120;
@@ -408,6 +414,9 @@
     *{animation-duration:.001ms!important;transition-duration:.001ms!important}
     [data-rise]{opacity:1;transform:none}
   }
+  @media(hover:none){
+    .car,.feat{transform:none!important}
+  }
 </style>
 </head>
 <body id="top">
@@ -415,10 +424,10 @@
 <!-- ============ Demo banner ============ -->
 <div class="demobar">
   <div class="demobar-in">
-    <span class="lbl"><span class="tag">Демо</span>Примерок изработен од <strong>AG&nbsp;Development</strong></span>
+    <span class="lbl"><span class="tag">Demo</span>Sample built by <strong>AG&nbsp;Development</strong></span>
     <span>
-      <a href="/review">Сакате ваша ваква страна? →</a>
-      <span class="sep hide-sm">·</span>
+      <a href="/review">Want a site like this? &rarr;</a>
+      <span class="sep hide-sm">&middot;</span>
       <a class="hide-sm" href="https://ag-development.dev" style="color:rgba(255,255,255,.55)">ag-development.dev</a>
     </span>
   </div>
@@ -427,53 +436,53 @@
 <!-- ============ Nav ============ -->
 <header class="nav" id="nav">
   <div class="nav-in">
-    <a class="brand" href="#top" aria-label="VELOCE — почетна">
+    <a class="brand" href="#top" aria-label="VELOCE — home">
       <span class="mark"><img src="img/logo.png" alt="" onerror="this.parentNode.innerHTML='<span class=&quot;mono&quot;>V</span>'"></span>
       <span class="name">VELOCE<small>Luxury &middot; Performance</small></span>
     </a>
-    <nav class="nav-links" aria-label="Главна навигација">
-      <a href="#inventory">Колекција</a>
-      <a href="#why">Услуга</a>
-      <a href="#about">За нас</a>
-      <a href="#finance">Финансирање</a>
-      <a href="#contact">Контакт</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="#inventory">Collection</a>
+      <a href="#why">Service</a>
+      <a href="#about">About</a>
+      <a href="#finance">Finance</a>
+      <a href="#contact">Contact</a>
     </nav>
-    <a href="#contact" class="btn nav-cta">Закажи разглед</a>
-    <button class="burger" id="burger" aria-label="Отвори мени" aria-expanded="false">
+    <a href="#contact" class="btn nav-cta">Book a viewing</a>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false">
       <span></span><span></span><span></span>
     </button>
   </div>
 </header>
 
 <div class="mnav" id="mnav" aria-hidden="true">
-  <button class="x" id="mx" aria-label="Затвори мени">&times;</button>
-  <a href="#inventory">Колекција</a>
-  <a href="#why">Услуга</a>
-  <a href="#about">За нас</a>
-  <a href="#finance">Финансирање</a>
-  <a href="#contact">Контакт</a>
-  <a href="#contact" class="btn mcta">Закажи разглед</a>
+  <button class="x" id="mx" aria-label="Close menu">&times;</button>
+  <a href="#inventory">Collection</a>
+  <a href="#why">Service</a>
+  <a href="#about">About</a>
+  <a href="#finance">Finance</a>
+  <a href="#contact">Contact</a>
+  <a href="#contact" class="btn mcta">Book a viewing</a>
 </div>
 
 <!-- ============ Hero ============ -->
-<section class="hero">
-  <div class="ph"><img src="img/hero.jpg" alt="Луксузен автомобил во изложбениот салон на VELOCE" fetchpriority="high"></div>
+<section class="hero" id="hero">
+  <div class="ph"><img src="img/hero.jpg" alt="A luxury car in the VELOCE showroom" fetchpriority="high"></div>
   <div class="veil"></div>
   <div class="wrap hero-in">
     <div data-rise>
-      <span class="eyebrow">Бутик салон &middot; Скопје</span>
+      <span class="eyebrow">Boutique Showroom &middot; Est. 2012</span>
     </div>
-    <h1 data-rise class="d1">Автомобили што<br>поседуваат <em>присуство</em></h1>
-    <p class="lede" data-rise>Куриран избор на луксузни и високоперформансни возила — секое со проверена историја, целосна документација и дискретна услуга создадена за најзахтевните сопственици.</p>
+    <h1 data-rise class="d1">Cars that command<br><em>presence</em></h1>
+    <p class="lede" data-rise>A curated selection of luxury and high-performance vehicles — each with verified history, complete documentation and a discreet service crafted for the most discerning owners.</p>
     <div class="hero-actions d2" data-rise>
-      <a href="#inventory" class="btn lg">Разгледај ја колекцијата</a>
-      <a href="#contact" class="btn ghost lg">Закажи приватен разглед</a>
+      <a href="#inventory" class="btn lg">Explore the collection</a>
+      <a href="#contact" class="btn ghost lg">Book a private viewing</a>
     </div>
     <div class="hero-meta" data-rise>
-      <div class="hm"><b>40+</b><span>Возила на залиха</span></div>
-      <div class="hm"><b>14</b><span>Престижни марки</span></div>
-      <div class="hm"><b>100%</b><span>Проверена провениенца</span></div>
-      <div class="hm"><b>12</b><span>Години искуство</span></div>
+      <div class="hm"><b>40+</b><span>Vehicles in stock</span></div>
+      <div class="hm"><b>14</b><span>Prestige marques</span></div>
+      <div class="hm"><b>100%</b><span>Verified provenance</span></div>
+      <div class="hm"><b>12</b><span>Years of expertise</span></div>
     </div>
   </div>
 </section>
@@ -491,23 +500,22 @@
   <div class="wrap">
     <div class="inv-head">
       <div class="sec-head">
-        <span class="eyebrow" data-rise>Колекцијата</span>
-        <h2 data-rise class="d1">Возила достојни<br>за вашиот гаражен простор</h2>
+        <span class="eyebrow" data-rise>The Collection</span>
+        <h2 data-rise class="d1">Vehicles worthy<br>of your garage</h2>
       </div>
-      <p data-rise class="d1" style="color:var(--muted);max-width:34ch">Секое возило е лично одбрано, технички проверено и подготвено да ги надмине очекувањата. Залихата се ажурира во живо.</p>
+      <p data-rise class="d1" style="color:var(--muted);max-width:34ch">Every car is personally selected, technically inspected and ready to exceed expectations. Inventory updates live.</p>
     </div>
 
     <div class="filters" id="filters" data-rise>
-      <button class="chip on" data-f="all">Сите</button>
-      <button class="chip" data-f="Купе">Купе</button>
-      <button class="chip" data-f="SUV">SUV</button>
-      <button class="chip" data-f="Седан">Седан</button>
-      <button class="chip" data-f="Кабриолет">Кабриолет</button>
+      <button class="chip on" data-f="all">All</button>
+      <button class="chip" data-f="Coupé">Coupé</button>
+      <button class="chip" data-f="Sedan">Sedan</button>
+      <button class="chip" data-f="Convertible">Convertible</button>
     </div>
 
     <div class="inv-grid" id="invGrid"></div>
 
-    <p class="inv-note" data-rise>Прикажани се <strong id="shownCount">8</strong> од над 40 возила. <a href="#contact" style="color:var(--gold)">Побарајте специфичен модел →</a></p>
+    <p class="inv-note" data-rise>Showing <strong id="shownCount">6</strong> of 40+ vehicles. <a href="#contact" style="color:var(--gold)">Request a specific model &rarr;</a></p>
   </div>
 </section>
 
@@ -515,24 +523,24 @@
 <section class="band tint" id="why">
   <div class="wrap">
     <div class="sec-head center">
-      <span class="eyebrow center" data-rise>Зошто VELOCE</span>
-      <h2 data-rise class="d1">Купувањето треба да биде<br>подеднакво исклучително како возилото</h2>
+      <span class="eyebrow center" data-rise>Why VELOCE</span>
+      <h2 data-rise class="d1">Buying should feel as<br>exceptional as the car</h2>
     </div>
     <div class="trio">
       <div class="feat" data-rise>
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg></div>
-        <h3>Проверена провениенца</h3>
-        <p>Секое возило доаѓа со целосна историја на сопственост, оригинална документација и сервисна книшка проверена до последен детаљ.</p>
+        <h3>Verified provenance</h3>
+        <p>Every vehicle comes with a full ownership history, original documentation and a service book checked down to the last detail.</p>
       </div>
       <div class="feat d1" data-rise>
         <div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div>
-        <h3>Дискретна услуга</h3>
-        <p>Приватни разгледи, достава до вашиот дом и целосна доверливост. Вашето време и приватност се третираат како приоритет.</p>
+        <h3>Discreet service</h3>
+        <p>Private viewings, delivery to your door and complete confidentiality. Your time and privacy are treated as the priority.</p>
       </div>
       <div class="feat d2" data-rise>
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 7h13l5 5v5h-3"/><path d="M3 7v10h3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></div>
-        <h3>Гаранција и трансфер</h3>
-        <p>Техничка гаранција, помош при регистрација, трансфер на сопственост и осигурување — целосно подготвено пред да ги земете клучевите.</p>
+        <h3>Warranty &amp; transfer</h3>
+        <p>Technical warranty, registration assistance, ownership transfer and insurance — fully arranged before you take the keys.</p>
       </div>
     </div>
   </div>
@@ -542,19 +550,19 @@
 <section class="band" id="about">
   <div class="wrap about">
     <div>
-      <span class="eyebrow" data-rise>За VELOCE</span>
-      <h2 data-rise class="d1" style="font-size:clamp(2.1rem,4.4vw,3.2rem);line-height:1.1;margin-top:16px">Повеќе од салон —<br>кураторство на желби</h2>
-      <p data-rise>VELOCE е бутик салон специјализиран за луксузни и перформанс возила. Наместо широк каталог, нудиме внимателно одбрана колекција каде секое возило мора да ги исполни нашите строги стандарди за состојба, историја и автентичност.</p>
-      <p data-rise>Нашиот тим ги познава овие автомобили до најситен детаљ — од ретки конфигурации до сервисни особености. Ве советуваме искрено, без притисок, за да донесете одлука со која ќе бидете задоволни со години.</p>
-      <div class="sig" data-rise>„Не продаваме автомобили. Ги пронаоѓаме вистинските сопственици за нив."</div>
+      <span class="eyebrow" data-rise>About VELOCE</span>
+      <h2 data-rise class="d1" style="font-size:clamp(2.1rem,4.4vw,3.2rem);line-height:1.1;margin-top:16px">More than a showroom —<br>a curator of desire</h2>
+      <p data-rise>VELOCE is a boutique showroom specialising in luxury and performance vehicles. Instead of a broad catalogue, we offer a carefully selected collection where every car must meet our strict standards for condition, history and authenticity.</p>
+      <p data-rise>Our team knows these cars down to the finest detail — from rare configurations to service quirks. We advise you honestly, without pressure, so you make a decision you'll be happy with for years.</p>
+      <div class="sig" data-rise>&ldquo;We don't sell cars. We find the right owners for them.&rdquo;</div>
       <div class="stats" data-rise>
-        <div class="st"><b>400+</b><span>Задоволни сопственици</span></div>
-        <div class="st"><b>14</b><span>Престижни марки</span></div>
-        <div class="st"><b>12</b><span>Години на пазарот</span></div>
+        <div class="st"><b>400+</b><span>Happy owners</span></div>
+        <div class="st"><b>14</b><span>Prestige marques</span></div>
+        <div class="st"><b>12</b><span>Years in the market</span></div>
       </div>
     </div>
     <div class="about-fig" data-rise>
-      <div class="ph"><img src="img/about.jpg" alt="Изложбениот простор на VELOCE" loading="lazy"></div>
+      <div class="ph"><img src="img/about.jpg" alt="The VELOCE showroom floor" loading="lazy"></div>
     </div>
   </div>
 </section>
@@ -563,37 +571,37 @@
 <section class="band tint" id="finance">
   <div class="wrap">
     <div class="sec-head">
-      <span class="eyebrow" data-rise>Финансирање и услуги</span>
-      <h2 data-rise class="d1">Решенија скроени<br>според вашиот профил</h2>
-      <p data-rise>Леасинг, кредит, замена на старо за ново или целосна куповина — ве водиме низ најповолната опција со дискреција и јасни услови.</p>
+      <span class="eyebrow" data-rise>Finance &amp; services</span>
+      <h2 data-rise class="d1">Solutions tailored<br>to your profile</h2>
+      <p data-rise>Leasing, credit, trade-in or an outright purchase — we guide you to the best option with discretion and clear terms.</p>
     </div>
     <div class="fin">
       <div class="fin-card feature" data-rise>
-        <h3>Леасинг и кредит</h3>
-        <p class="lead">Партнерство со водечки банки и леасинг куќи за брзо, поволно одобрување.</p>
+        <h3>Leasing &amp; credit</h3>
+        <p class="lead">Partnerships with leading banks and leasing houses for fast, favourable approval.</p>
         <ul class="fin-list">
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Учество од само 15% и рок до 84 месеци</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Одобрување во начело во рок од 24 часа</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Фиксни и променливи каматни стапки</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Пресметка на рата пред да дојдете</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Down payment from just 15%, terms up to 84 months</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>In-principle approval within 24 hours</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Fixed and variable interest rates</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Monthly payment calculated before you arrive</li>
         </ul>
       </div>
       <div class="fin-card" data-rise>
-        <h3>Замена и откуп</h3>
-        <p class="lead">Вашето тековно возило како учество — фер проценка на лице место.</p>
+        <h3>Trade-in &amp; buy-back</h3>
+        <p class="lead">Your current vehicle as a down payment — a fair valuation on the spot.</p>
         <ul class="fin-list">
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Бесплатна и необврзувачка проценка</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Откуп и консигнациска продажба</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Помош при регистрација и осигурување</li>
-          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Транспорт и достава низ регионот</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Free, no-obligation valuation</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Buy-back and consignment sales</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Registration and insurance assistance</li>
+          <li><svg viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></svg>Transport and delivery across the region</li>
         </ul>
       </div>
     </div>
     <div class="fin-steps">
-      <div class="step" data-rise><b>01</b><h4>Изберете</h4><p>Разгледајте ја колекцијата или побарајте специфичен модел.</p></div>
-      <div class="step d1" data-rise><b>02</b><h4>Разгледајте</h4><p>Приватен термин, тест возење и целосен увид во документите.</p></div>
-      <div class="step d2" data-rise><b>03</b><h4>Договорете</h4><p>Финансирање, замена или куповина со јасни и фер услови.</p></div>
-      <div class="step d3" data-rise><b>04</b><h4>Возете</h4><p>Подготвено возило, трансфер и клучеви во ваши раце.</p></div>
+      <div class="step" data-rise><b>01</b><h4>Choose</h4><p>Browse the collection or request a specific model.</p></div>
+      <div class="step d1" data-rise><b>02</b><h4>View</h4><p>Private appointment, test drive and full access to the documents.</p></div>
+      <div class="step d2" data-rise><b>03</b><h4>Arrange</h4><p>Finance, trade-in or purchase with clear and fair terms.</p></div>
+      <div class="step d3" data-rise><b>04</b><h4>Drive</h4><p>Prepared vehicle, transfer and keys in your hands.</p></div>
     </div>
   </div>
 </section>
@@ -602,24 +610,24 @@
 <section class="band" id="reviews">
   <div class="wrap">
     <div class="sec-head center">
-      <span class="eyebrow center" data-rise>Впечатоци</span>
-      <h2 data-rise class="d1">Доверба изградена<br>еден клуч по еден</h2>
+      <span class="eyebrow center" data-rise>Testimonials</span>
+      <h2 data-rise class="d1">Trust built<br>one key at a time</h2>
     </div>
     <div class="tsts">
       <figure class="tst" data-rise>
         <div class="stars"><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg></div>
-        <p>„Процесот беше беспрекорен. Возилото пристигна точно како што беше опишано, со целосна документација. Вакво ниво на услуга ретко се среќава."</p>
-        <figcaption class="who"><span class="av">М.С.</span><span><b>Марко Стефановски</b><span>Сопственик, Porsche 911</span></span></figcaption>
+        <p>&ldquo;The process was flawless. The car arrived exactly as described, with full documentation. This level of service is rare.&rdquo;</p>
+        <figcaption class="who"><span class="av">MS</span><span><b>Marko Stefanovski</b><span>Owner, Porsche 911</span></span></figcaption>
       </figure>
       <figure class="tst d1" data-rise>
         <div class="stars"><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg></div>
-        <p>„Ги ценам искреноста и трпението. Ме советуваа дури и кога тоа значеше помала продажба за нив. Токму затоа се вратив по второ возило."</p>
-        <figcaption class="who"><span class="av">А.П.</span><span><b>Ана Петровска</b><span>Сопственик, Range Rover</span></span></figcaption>
+        <p>&ldquo;I appreciate the honesty and patience. They advised me even when it meant a smaller sale for them. That's why I came back for a second car.&rdquo;</p>
+        <figcaption class="who"><span class="av">AP</span><span><b>Ana Petrovska</b><span>Owner, Range Rover</span></span></figcaption>
       </figure>
       <figure class="tst d2" data-rise>
         <div class="stars"><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg><svg viewBox="0 0 24 24"><path d="m12 2 3 6.5 7 .6-5.3 4.6 1.6 6.9L12 17.8 5.7 20.6l1.6-6.9L2 9.1l7-.6L12 2Z"/></svg></div>
-        <p>„Пронајдоа точно специфична конфигурација што ја барав со месеци. Професионалност од првиот контакт до испораката на клучевите."</p>
-        <figcaption class="who"><span class="av">Д.Н.</span><span><b>Дарко Николовски</b><span>Сопственик, Mercedes-AMG</span></span></figcaption>
+        <p>&ldquo;They found the exact specification I'd been looking for months. Professional from first contact to handover of the keys.&rdquo;</p>
+        <figcaption class="who"><span class="av">DN</span><span><b>Darko Nikolovski</b><span>Owner, Mercedes-AMG</span></span></figcaption>
       </figure>
     </div>
   </div>
@@ -629,32 +637,32 @@
 <section class="band tint" id="contact">
   <div class="wrap ct">
     <div class="ct-info">
-      <span class="eyebrow" data-rise>Контакт</span>
-      <h2 data-rise class="d1" style="font-size:clamp(2.1rem,4.4vw,3.2rem);line-height:1.1;margin-top:16px">Закажете<br>приватен разглед</h2>
-      <p data-rise style="color:var(--muted);margin-top:16px;max-width:40ch">Оставете ги вашите податоци и возилото што ве интересира. Ве контактираме дискретно во најкус можен рок.</p>
+      <span class="eyebrow" data-rise>Contact</span>
+      <h2 data-rise class="d1" style="font-size:clamp(2.1rem,4.4vw,3.2rem);line-height:1.1;margin-top:16px">Book a<br>private viewing</h2>
+      <p data-rise style="color:var(--muted);margin-top:16px;max-width:40ch">Leave your details and the vehicle you're interested in. We'll contact you discreetly as soon as possible.</p>
       <div style="margin-top:30px" data-rise>
-        <div class="line"><svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg><div><b>Салон</b><p>бул. Пример бр. 00, 1000 Скопје</p></div></div>
-        <div class="line"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg><div><b>Телефон</b><a href="tel:+38970000000">+389 7X XXX XXX</a></div></div>
-        <div class="line"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><div><b>Е-пошта</b><a href="mailto:info@veloce.mk">info@veloce.mk</a></div></div>
-        <div class="line"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><b>Работно време</b><p>Пон–Саб: 09–19 &middot; Недела по договор</p></div></div>
+        <div class="line"><svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg><div><b>Showroom</b><p>Example Blvd 00, 1000 Skopje</p></div></div>
+        <div class="line"><svg viewBox="0 0 24 24"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.2-1.2a2 2 0 0 1 2.1-.5c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.7 2Z"/></svg><div><b>Phone</b><a href="tel:+38970000000">+389 7X XXX XXX</a></div></div>
+        <div class="line"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg><div><b>Email</b><a href="mailto:info@veloce.mk">info@veloce.mk</a></div></div>
+        <div class="line"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><b>Opening hours</b><p>Mon&ndash;Sat: 09&ndash;19 &middot; Sunday by appointment</p></div></div>
       </div>
     </div>
     <form class="ct-form" id="ctform" data-rise novalidate>
-      <h3>Испратете барање</h3>
-      <p class="fsub">Пополнете ја формата — одговараме истиот работен ден.</p>
+      <h3>Send an enquiry</h3>
+      <p class="fsub">Fill in the form — we reply the same business day.</p>
       <div class="field row">
-        <div><label for="n">Име и презиме</label><input id="n" name="name" type="text" placeholder="Вашето име" autocomplete="name"></div>
-        <div><label for="p">Телефон</label><input id="p" name="phone" type="tel" placeholder="+389 7X XXX XXX" autocomplete="tel"></div>
+        <div><label for="n">Full name</label><input id="n" name="name" type="text" placeholder="Your name" autocomplete="name"></div>
+        <div><label for="p">Phone</label><input id="p" name="phone" type="tel" placeholder="+389 7X XXX XXX" autocomplete="tel"></div>
       </div>
-      <div class="field"><label for="e">Е-пошта</label><input id="e" name="email" type="email" placeholder="vie@email.com" autocomplete="email"></div>
-      <div class="field"><label for="v">Возило од интерес</label>
+      <div class="field"><label for="e">Email</label><input id="e" name="email" type="email" placeholder="you@email.com" autocomplete="email"></div>
+      <div class="field"><label for="v">Vehicle of interest</label>
         <select id="v" name="vehicle">
-          <option value="">Изберете возило (опционално)</option>
+          <option value="">Select a vehicle (optional)</option>
         </select>
       </div>
-      <div class="field"><label for="m">Порака</label><textarea id="m" name="message" placeholder="Кажете ни што барате — буџет, конфигурација, термин за разглед…"></textarea></div>
-      <button type="submit" class="btn lg">Испрати барање</button>
-      <p class="fine">Со испраќањето се согласувате да ве контактираме. Вашите податоци остануваат доверливи.</p>
+      <div class="field"><label for="m">Message</label><textarea id="m" name="message" placeholder="Tell us what you're looking for — budget, configuration, a viewing appointment…"></textarea></div>
+      <button type="submit" class="btn lg">Send enquiry</button>
+      <p class="fine">By submitting you agree to be contacted. Your details remain confidential.</p>
     </form>
   </div>
 </section>
@@ -668,67 +676,67 @@
           <span class="mark"><span class="mono">V</span></span>
           <span class="name">VELOCE<small>Luxury &middot; Performance</small></span>
         </a>
-        <p>Бутик салон за луксузни и високоперформансни возила. Куриран избор, проверена историја, дискретна услуга.</p>
+        <p>Boutique showroom for luxury and high-performance vehicles. Curated selection, verified history, discreet service.</p>
       </div>
       <div class="ft-col">
-        <h4>Навигација</h4>
-        <a href="#inventory">Колекција</a>
-        <a href="#why">Услуга</a>
-        <a href="#about">За нас</a>
-        <a href="#finance">Финансирање</a>
+        <h4>Navigation</h4>
+        <a href="#inventory">Collection</a>
+        <a href="#why">Service</a>
+        <a href="#about">About</a>
+        <a href="#finance">Finance</a>
       </div>
       <div class="ft-col">
-        <h4>Марки</h4>
+        <h4>Marques</h4>
         <a href="#inventory">Porsche &middot; Ferrari</a>
         <a href="#inventory">Lamborghini &middot; McLaren</a>
         <a href="#inventory">Bentley &middot; Aston Martin</a>
         <a href="#inventory">Mercedes-AMG</a>
       </div>
       <div class="ft-col">
-        <h4>Контакт</h4>
+        <h4>Contact</h4>
         <a href="tel:+38970000000">+389 7X XXX XXX</a>
         <a href="mailto:info@veloce.mk">info@veloce.mk</a>
-        <p>бул. Пример бр. 00, Скопје</p>
-        <a href="#contact">Закажи разглед →</a>
+        <p>Example Blvd 00, Skopje</p>
+        <a href="#contact">Book a viewing &rarr;</a>
       </div>
     </div>
     <div class="ft-bot">
-      <span>&copy; <span id="yr"></span> VELOCE. Сите права задржани.</span>
-      <a class="ag" href="https://ag-development.dev"><span class="dot"></span>Демо &middot; предлог веб страна од <strong>AG&nbsp;Development</strong></a>
+      <span>&copy; <span id="yr"></span> VELOCE. All rights reserved.</span>
+      <a class="ag" href="https://ag-development.dev"><span class="dot"></span>Demo &middot; proposed website by <strong>AG&nbsp;Development</strong></a>
     </div>
   </div>
 </footer>
 
 <!-- ============ Vehicle detail modal ============ -->
-<div class="vm" id="vm" role="dialog" aria-modal="true" aria-label="Детали за возило">
+<div class="vm" id="vm" role="dialog" aria-modal="true" aria-label="Vehicle details">
   <div class="vm-panel" id="vmPanel">
-    <button class="vm-x" id="vmX" aria-label="Затвори">&times;</button>
+    <button class="vm-x" id="vmX" aria-label="Close">&times;</button>
     <div class="vm-top">
       <div class="vm-gallery">
         <div class="vm-stage"><div class="ph" id="vmFig"><img id="vmImg" src="" alt=""></div>
-          <button class="vm-gnav vm-prev" id="vmPrev" aria-label="Претходна">&lsaquo;</button>
-          <button class="vm-gnav vm-next" id="vmNext" aria-label="Следна">&rsaquo;</button>
+          <button class="vm-gnav vm-prev" id="vmPrev" aria-label="Previous">&lsaquo;</button>
+          <button class="vm-gnav vm-next" id="vmNext" aria-label="Next">&rsaquo;</button>
         </div>
         <div class="vm-thumbs" id="vmThumbs"></div>
       </div>
       <div class="vm-info">
-        <span class="k" id="vmCat">Купе</span>
+        <span class="k" id="vmCat">Coupé</span>
         <h3 id="vmTitle">—</h3>
         <div class="yr" id="vmYr">—</div>
         <div class="vm-price" id="vmPrice">—</div>
         <div class="vm-tags" id="vmTags"></div>
         <div class="vm-cta">
-          <a href="#contact" class="btn" id="vmEnquire">Распрашај се за ова возило</a>
+          <a href="#contact" class="btn" id="vmEnquire">Enquire about this vehicle</a>
         </div>
       </div>
     </div>
     <div class="vm-body">
       <div class="vm-sec">
-        <h4>Технички спецификации</h4>
+        <h4>Technical specifications</h4>
         <div class="spec-table" id="vmSpecs"></div>
       </div>
       <div class="vm-sec">
-        <h4>Провениенца и состојба</h4>
+        <h4>Provenance &amp; condition</h4>
         <div class="prov" id="vmProv"></div>
       </div>
     </div>
@@ -741,6 +749,8 @@
 <script>
 (function(){
   "use strict";
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var noHover = window.matchMedia && window.matchMedia('(hover:none)').matches;
 
   /* ---- Graceful image fallback: if a photo file is missing, show the branded gradient ---- */
   function markPh(img){
@@ -781,134 +791,154 @@
   } else { rises.forEach(function(el){el.classList.add('in');}); }
 
   /* ========================================================================
+     3D animations
+     1) Pointer-driven tilt (perspective + rotateX/rotateY) on cards.
+     2) Hero parallax: background image and content shift in 3D with the cursor.
+     Both respect prefers-reduced-motion and are disabled on touch devices.
+     ======================================================================== */
+  function add3DTilt(el, max, lift){
+    if(reduced || noHover) return;
+    var raf=null, tx=0, ty=0;
+    function apply(){
+      el.style.transform='perspective(1400px) rotateX('+ty+'deg) rotateY('+tx+'deg) translateY('+(lift||0)+'px)';
+      raf=null;
+    }
+    el.addEventListener('pointermove', function(e){
+      var r=el.getBoundingClientRect();
+      var px=(e.clientX-r.left)/r.width, py=(e.clientY-r.top)/r.height;
+      tx=(px-0.5)*2*max; ty=(py-0.5)*-2*max;
+      el.style.setProperty('--gx',(px*100).toFixed(1)+'%');
+      el.style.setProperty('--gy',(py*100).toFixed(1)+'%');
+      el.classList.add('tilt');
+      if(!raf) raf=requestAnimationFrame(apply);
+    });
+    el.addEventListener('pointerleave', function(){
+      el.style.transform=''; el.classList.remove('tilt');
+    });
+  }
+
+  /* hero parallax */
+  (function(){
+    if(reduced || noHover) return;
+    var hero=document.getElementById('hero'); if(!hero) return;
+    var ph=hero.querySelector('.ph'), inr=hero.querySelector('.hero-in'), raf=null, px=0, py=0;
+    function apply(){
+      if(ph) ph.style.transform='translate3d('+(px*-20)+'px,'+(py*-20)+'px,0)';
+      if(inr) inr.style.transform='translate3d('+(px*12)+'px,'+(py*9)+'px,0)';
+      raf=null;
+    }
+    hero.addEventListener('pointermove', function(e){
+      var r=hero.getBoundingClientRect();
+      px=(e.clientX-r.left)/r.width-0.5; py=(e.clientY-r.top)/r.height-0.5;
+      if(!raf) raf=requestAnimationFrame(apply);
+    });
+    hero.addEventListener('pointerleave', function(){
+      if(ph) ph.style.transform=''; if(inr) inr.style.transform='';
+    });
+  })();
+
+  /* feature cards tilt */
+  document.querySelectorAll('.feat').forEach(function(f){ add3DTilt(f, 6, -4); });
+
+  /* ========================================================================
      INVENTORY DATA — this is exactly what the client would edit in the admin
      panel (no code). Each object = one vehicle. Photos live in /img.
      ======================================================================== */
   var CARS=[
     {
-      id:'porsche-911-turbo-s', brand:'Porsche', model:'911 Turbo S', year:2023, cat:'Купе',
-      price:239000, status:'avail', statusLbl:'Достапно',
-      imgs:['porsche-911-1','porsche-911-2','porsche-911-3','porsche-911-4'],
-      power:'650 КС', accel:'2.7 с', top:'330 км/ч', engine:'3.8 L Biturbo Flat-6',
-      specs:{'Мотор':'3.8 L Biturbo Flat-6','Моќност':'650 КС / 478 kW','Вртежен момент':'800 Nm',
-        'Забрзување 0–100':'2.7 секунди','Максимална брзина':'330 км/ч','Менувач':'8-брзински PDK',
-        'Погон':'4 × 4 (AWD)','Километража':'18.400 км','Гориво':'Бензин','Боја':'GT Silver Metallic',
-        'Ентериер':'Црна кожа / Alcantara'},
+      id:'ferrari-f8', brand:'Ferrari', model:'F8 Tributo', year:2021, cat:'Coupé',
+      price:298000, status:'avail', statusLbl:'Available',
+      imgs:['ferrari-f8'],
+      power:'720 hp', accel:'2.9 s', top:'340 km/h', engine:'3.9 L V8 Twin-Turbo',
+      specs:{'Engine':'3.9 L V8 Twin-Turbo','Power':'720 hp / 530 kW','Torque':'770 Nm',
+        '0–100 km/h':'2.9 seconds','Top speed':'340 km/h','Transmission':'7-speed DCT',
+        'Drivetrain':'Rear-wheel drive','Mileage':'8,600 km','Fuel':'Petrol','Colour':'Rosso Corsa',
+        'Interior':'Nero leather, carbon package'},
       prov:[
-        {t:'check',b:'Еден сопственик',s:'Купено ново кај овластен дилер, редовно одржувано.'},
-        {t:'book',b:'Целосна сервисна историја',s:'Сите сервиси во овластена мрежа, документирано.'},
-        {t:'shield',b:'Гаранција до 2026',s:'Фабричка гаранција активна, пренослива на нов сопственик.'}
+        {t:'check',b:'One owner',s:'Collector-maintained, garaged and cherished.'},
+        {t:'book',b:'Ferrari Genuine Maintenance',s:'Full official service programme active.'},
+        {t:'shield',b:'Original paint',s:'No respray, documented and certified condition.'}
       ]
     },
     {
-      id:'lamborghini-huracan', brand:'Lamborghini', model:'Huracán EVO', year:2022, cat:'Купе',
-      price:268000, status:'res', statusLbl:'Резервирано',
-      imgs:['lambo-huracan-1','lambo-huracan-2','lambo-huracan-3'],
-      power:'640 КС', accel:'2.9 с', top:'325 км/ч', engine:'5.2 L V10',
-      specs:{'Мотор':'5.2 L V10 атмосферски','Моќност':'640 КС / 470 kW','Вртежен момент':'600 Nm',
-        'Забрзување 0–100':'2.9 секунди','Максимална брзина':'325 км/ч','Менувач':'7-брзински DCT',
-        'Погон':'4 × 4 (AWD)','Километража':'9.800 км','Гориво':'Бензин','Боја':'Arancio Borealis',
-        'Ентериер':'Nero Ade кожа'},
+      id:'bmw-m4', brand:'BMW', model:'M4 Competition', year:2023, cat:'Coupé',
+      price:118000, status:'avail', statusLbl:'Available',
+      imgs:['bmw-m4'],
+      power:'510 hp', accel:'3.5 s', top:'290 km/h', engine:'3.0 L Twin-Turbo Inline-6',
+      specs:{'Engine':'3.0 L Twin-Turbo Inline-6','Power':'510 hp / 375 kW','Torque':'650 Nm',
+        '0–100 km/h':'3.5 seconds','Top speed':'290 km/h (M Driver’s)','Transmission':'8-speed M Steptronic',
+        'Drivetrain':'Rear-wheel drive','Mileage':'14,300 km','Fuel':'Petrol','Colour':'Frozen Black Metallic',
+        'Interior':'Black Merino leather / carbon'},
       prov:[
-        {t:'check',b:'Втор сопственик',s:'Гаражирано, негарено, без траги од трак употреба.'},
-        {t:'book',b:'Lamborghini сервис',s:'Целосна историја во овластен сервис.'},
-        {t:'shield',b:'Керамички кочници',s:'Carbon-ceramic систем во одлична состојба.'}
+        {t:'check',b:'One owner',s:'Full M Carbon package, matte wrap over original paint.'},
+        {t:'book',b:'BMW service history',s:'All services within the authorised network.'},
+        {t:'shield',b:'Warranty until 2026',s:'Factory warranty active and transferable.'}
       ]
     },
     {
-      id:'mercedes-g63', brand:'Mercedes-AMG', model:'G 63', year:2024, cat:'SUV',
-      price:215000, status:'avail', statusLbl:'Достапно',
-      imgs:['g63-1','g63-2','g63-3','g63-4'],
-      power:'585 КС', accel:'4.5 с', top:'220 км/ч', engine:'4.0 L V8 Biturbo',
-      specs:{'Мотор':'4.0 L V8 Biturbo','Моќност':'585 КС / 430 kW','Вртежен момент':'850 Nm',
-        'Забрзување 0–100':'4.5 секунди','Максимална брзина':'220 км/ч','Менувач':'9G-TRONIC',
-        'Погон':'4 × 4 (AWD)','Километража':'6.200 км','Гориво':'Бензин','Боја':'Obsidian Black',
-        'Ентериер':'Nappa кожа, двобоен'},
+      id:'amg-gt', brand:'Mercedes-AMG', model:'GT Coupé', year:2022, cat:'Coupé',
+      price:165000, status:'res', statusLbl:'Reserved',
+      imgs:['amg-gt'],
+      power:'585 hp', accel:'3.6 s', top:'318 km/h', engine:'4.0 L V8 Biturbo',
+      specs:{'Engine':'4.0 L V8 Biturbo','Power':'585 hp / 430 kW','Torque':'700 Nm',
+        '0–100 km/h':'3.6 seconds','Top speed':'318 km/h','Transmission':'7-speed DCT',
+        'Drivetrain':'Rear-wheel drive','Mileage':'11,900 km','Fuel':'Petrol','Colour':'Obsidian Black',
+        'Interior':'Black Nappa leather, AMG performance seats'},
       prov:[
-        {t:'check',b:'Ново возило',s:'Регистрирано 2024, минимална километража.'},
-        {t:'book',b:'Полн пакет опрема',s:'Night Package, Burmester, панорама, целосна опрема.'},
-        {t:'shield',b:'Фабричка гаранција',s:'Активна до 2027 преку овластена мрежа.'}
+        {t:'check',b:'Second owner',s:'Impeccable condition, no track use.'},
+        {t:'book',b:'AMG service history',s:'Full history at the authorised service centre.'},
+        {t:'shield',b:'Ceramic brakes',s:'Carbon-ceramic system in excellent condition.'}
       ]
     },
     {
-      id:'ferrari-roma', brand:'Ferrari', model:'Roma', year:2022, cat:'Купе',
-      price:228000, status:'avail', statusLbl:'Достапно',
-      imgs:['ferrari-roma-1','ferrari-roma-2','ferrari-roma-3'],
-      power:'620 КС', accel:'3.4 с', top:'320 км/ч', engine:'3.9 L V8 Turbo',
-      specs:{'Мотор':'3.9 L V8 Turbo','Моќност':'620 КС / 456 kW','Вртежен момент':'760 Nm',
-        'Забрзување 0–100':'3.4 секунди','Максимална брзина':'320 км/ч','Менувач':'8-брзински DCT',
-        'Погон':'Заден (RWD)','Километража':'12.100 км','Гориво':'Бензин','Боја':'Grigio Titanio',
-        'Ентериер':'Cuoio кожа'},
+      id:'bentley-continental', brand:'Bentley', model:'Continental GT', year:2023, cat:'Coupé',
+      price:245000, status:'avail', statusLbl:'Available',
+      imgs:['bentley-conti'],
+      power:'550 hp', accel:'4.0 s', top:'318 km/h', engine:'4.0 L V8 Twin-Turbo',
+      specs:{'Engine':'4.0 L V8 Twin-Turbo','Power':'550 hp / 404 kW','Torque':'770 Nm',
+        '0–100 km/h':'4.0 seconds','Top speed':'318 km/h','Transmission':'8-speed DCT',
+        'Drivetrain':'All-wheel drive','Mileage':'15,600 km','Fuel':'Petrol','Colour':'Anthracite Satin',
+        'Interior':'Mulliner, Linen / Beluga'},
       prov:[
-        {t:'check',b:'Еден сопственик',s:'Колекционерски одржувано возило.'},
-        {t:'book',b:'Ferrari Genuine Maintenance',s:'Целосна програма за одржување активна.'},
-        {t:'shield',b:'Оригинален лак',s:'Без прелакирање, документирана состојба.'}
+        {t:'check',b:'Second owner',s:'Impeccable condition, cherished vehicle.'},
+        {t:'book',b:'Mulliner specification',s:'Hand-finished bespoke interior.'},
+        {t:'shield',b:'Service book',s:'Full history at the authorised Bentley service.'}
       ]
     },
     {
-      id:'bentley-continental', brand:'Bentley', model:'Continental GT', year:2023, cat:'Купе',
-      price:245000, status:'avail', statusLbl:'Достапно',
-      imgs:['bentley-gt-1','bentley-gt-2','bentley-gt-3'],
-      power:'550 КС', accel:'4.0 с', top:'318 км/ч', engine:'4.0 L V8',
-      specs:{'Мотор':'4.0 L V8 Twin-Turbo','Моќност':'550 КС / 404 kW','Вртежен момент':'770 Nm',
-        'Забрзување 0–100':'4.0 секунди','Максимална брзина':'318 км/ч','Менувач':'8-брзински DCT',
-        'Погон':'4 × 4 (AWD)','Километража':'15.600 км','Гориво':'Бензин','Боја':'Glacier White',
-        'Ентериер':'Mulliner, Linen / Beluga'},
+      id:'mercedes-s580', brand:'Mercedes-Benz', model:'S 580 L', year:2023, cat:'Sedan',
+      price:139000, status:'avail', statusLbl:'Available',
+      imgs:['mercedes-s'],
+      power:'503 hp', accel:'4.4 s', top:'250 km/h', engine:'4.0 L V8 + EQ Boost',
+      specs:{'Engine':'4.0 L V8 + EQ Boost','Power':'503 hp / 370 kW','Torque':'700 Nm',
+        '0–100 km/h':'4.4 seconds','Top speed':'250 km/h','Transmission':'9G-TRONIC',
+        'Drivetrain':'4MATIC all-wheel drive','Mileage':'19,800 km','Fuel':'Petrol (mild hybrid)','Colour':'Obsidian Black',
+        'Interior':'Nappa leather, Executive rear package'},
       prov:[
-        {t:'check',b:'Втор сопственик',s:'Беспрекорна состојба, негувано возило.'},
-        {t:'book',b:'Mulliner спецификација',s:'Рачно изработен ентериер по нарачка.'},
-        {t:'shield',b:'Сервисна книшка',s:'Целосна историја кај овластен Bentley сервис.'}
+        {t:'check',b:'One owner',s:'Chauffeur-maintained, full executive specification.'},
+        {t:'book',b:'Full service history',s:'All services within the authorised network.'},
+        {t:'shield',b:'Warranty until 2026',s:'Factory warranty and maintenance package.'}
       ]
     },
     {
-      id:'range-rover-auto', brand:'Land Rover', model:'Range Rover Autobiography', year:2024, cat:'SUV',
-      price:178000, status:'avail', statusLbl:'Достапно',
-      imgs:['rangerover-1','rangerover-2','rangerover-3'],
-      power:'530 КС', accel:'4.6 с', top:'250 км/ч', engine:'4.4 L V8 Twin-Turbo',
-      specs:{'Мотор':'4.4 L V8 Twin-Turbo','Моќност':'530 КС / 390 kW','Вртежен момент':'750 Nm',
-        'Забрзување 0–100':'4.6 секунди','Максимална брзина':'250 км/ч','Менувач':'8-брзински авт.',
-        'Погон':'4 × 4 (AWD)','Километража':'8.900 км','Гориво':'Бензин','Боја':'Santorini Black',
-        'Ентериер':'Semi-aniline кожа, 24-патно седиште'},
+      id:'mclaren-765lt', brand:'McLaren', model:'765LT Spider', year:2022, cat:'Convertible',
+      price:395000, status:'sold', statusLbl:'Sold',
+      imgs:['mclaren-765'],
+      power:'765 hp', accel:'2.8 s', top:'330 km/h', engine:'4.0 L V8 Twin-Turbo',
+      specs:{'Engine':'4.0 L V8 Twin-Turbo','Power':'765 hp / 563 kW','Torque':'800 Nm',
+        '0–100 km/h':'2.8 seconds','Top speed':'330 km/h','Transmission':'7-speed SSG',
+        'Drivetrain':'Rear-wheel drive','Mileage':'4,200 km','Fuel':'Petrol','Colour':'Ludus Orange',
+        'Interior':'Carbon Black Alcantara, MSO details'},
       prov:[
-        {t:'check',b:'Ново возило',s:'Најнова генерација, целосна Autobiography опрема.'},
-        {t:'book',b:'Executive седишта',s:'Задни релакс седишта, ладилник, Meridian звук.'},
-        {t:'shield',b:'Гаранција до 2027',s:'Фабричка гаранција и пакет за одржување.'}
-      ]
-    },
-    {
-      id:'mclaren-720s', brand:'McLaren', model:'720S Spider', year:2021, cat:'Кабриолет',
-      price:298000, status:'avail', statusLbl:'Достапно',
-      imgs:['mclaren-720-1','mclaren-720-2','mclaren-720-3'],
-      power:'720 КС', accel:'2.9 с', top:'341 км/ч', engine:'4.0 L V8 Twin-Turbo',
-      specs:{'Мотор':'4.0 L V8 Twin-Turbo','Моќност':'720 КС / 530 kW','Вртежен момент':'770 Nm',
-        'Забрзување 0–100':'2.9 секунди','Максимална брзина':'341 км/ч','Менувач':'7-брзински SSG',
-        'Погон':'Заден (RWD)','Километража':'7.400 км','Гориво':'Бензин','Боја':'Supernova Silver',
-        'Ентериер':'Carbon Black Alcantara'},
-      prov:[
-        {t:'check',b:'Втор сопственик',s:'Retractable hard-top, беспрекорна механика.'},
-        {t:'book',b:'McLaren Qualified',s:'Проверено и сертифицирано возило.'},
-        {t:'shield',b:'Карбонски пакет',s:'MSO карбонски елементи, подигната вредност.'}
-      ]
-    },
-    {
-      id:'audi-rs-etron', brand:'Audi', model:'RS e-tron GT', year:2023, cat:'Седан',
-      price:142000, status:'sold', statusLbl:'Продадено',
-      imgs:['audi-etron-1','audi-etron-2','audi-etron-3'],
-      power:'598 КС', accel:'3.3 с', top:'250 км/ч', engine:'Двоен електромотор',
-      specs:{'Мотор':'Двоен електромотор (BEV)','Моќност':'598 КС / 440 kW','Вртежен момент':'830 Nm',
-        'Забрзување 0–100':'3.3 секунди','Максимална брзина':'250 км/ч','Батерија':'93 kWh',
-        'Домет':'472 км (WLTP)','Погон':'4 × 4 (quattro)','Километража':'11.200 км','Боја':'Daytona Grey',
-        'Ентериер':'Кожа / микрофибер, карбон'},
-      prov:[
-        {t:'check',b:'Еден сопственик',s:'Целосно електрично, минимален трошок.'},
-        {t:'book',b:'Полна опрема',s:'Матрикс LED, Bang & Olufsen, laser фарови.'},
-        {t:'shield',b:'Гаранција на батерија',s:'Фабричка гаранција на батерија до 2031.'}
+        {t:'check',b:'First owner',s:'Limited edition, delivery mileage, flawless.'},
+        {t:'book',b:'McLaren Qualified',s:'Inspected and certified by McLaren.'},
+        {t:'shield',b:'Full MSO carbon',s:'Extensive carbon package, significant upgrade value.'}
       ]
     }
   ];
 
   var IMG=function(n){return 'img/'+n+'.jpg';};
-  var fmt=function(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'.');};
+  var fmt=function(n){return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');};
 
   var ICONS={
     power:'<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-2 8 9-12h-7l2-8Z"/></svg>',
@@ -921,20 +951,20 @@
 
   /* ---- Build inventory grid ---- */
   var grid=document.getElementById('invGrid'), shownCount=document.getElementById('shownCount');
-  function statusClass(s){ return s; }
   function cardHTML(c){
     return '<div class="fig"><div class="ph"><img src="'+IMG(c.imgs[0])+'" alt="'+c.brand+' '+c.model+'" loading="lazy"></div>'+
+        '<span class="glare"></span>'+
         '<span class="badge">'+c.cat+'</span>'+
-        '<span class="status '+statusClass(c.status)+'">'+c.statusLbl+'</span></div>'+
+        '<span class="status '+c.status+'">'+c.statusLbl+'</span></div>'+
       '<div class="body">'+
-        '<div><span class="k">'+c.brand+'</span><h3>'+c.model+'</h3><div class="yr">Година '+c.year+' &middot; '+c.specs['Километража']+'</div></div>'+
+        '<div><span class="k">'+c.brand+'</span><h3>'+c.model+'</h3><div class="yr">Year '+c.year+' &middot; '+c.specs['Mileage']+'</div></div>'+
         '<div class="spec-row">'+
           '<span class="sp">'+ICONS.power+c.power+'</span>'+
           '<span class="sp">'+ICONS.accel+'0–100 '+c.accel+'</span>'+
           '<span class="sp">'+ICONS.gear+c.top+'</span>'+
         '</div>'+
-        '<div class="foot"><span class="price"><small>Цена</small>&euro; '+fmt(c.price)+'</span>'+
-          '<span class="more">Детали <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>'+
+        '<div class="foot"><span class="price"><small>Price</small>&euro; '+fmt(c.price)+'</span>'+
+          '<span class="more">Details <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div>'+
       '</div>';
   }
   function renderGrid(filter){
@@ -943,9 +973,10 @@
       if(filter&&filter!=='all'&&c.cat!==filter) return;
       var b=document.createElement('button');
       b.className='car'; b.type='button'; b.setAttribute('data-i',i);
-      b.setAttribute('aria-label',c.brand+' '+c.model+' — детали');
+      b.setAttribute('aria-label',c.brand+' '+c.model+' — details');
       b.innerHTML=cardHTML(c);
       b.addEventListener('click', function(){ openVM(i); });
+      add3DTilt(b, 7, 0);
       grid.appendChild(b); n++;
     });
     shownCount.textContent=n;
@@ -986,13 +1017,18 @@
     var c=CARS[curC];
     vmFig.classList.remove('off');
     vmImg.onerror=function(){ vmFig.classList.add('off'); };
-    vmImg.src=IMG(c.imgs[curG]); vmImg.alt=c.brand+' '+c.model+' — фотографија '+(curG+1);
+    vmImg.src=IMG(c.imgs[curG]); vmImg.alt=c.brand+' '+c.model+' — photo '+(curG+1);
     Array.prototype.forEach.call(vmThumbs.children, function(th,j){ th.classList.toggle('on', j===curG); });
     var on=vmThumbs.children[curG]; if(on&&on.scrollIntoView) on.scrollIntoView({inline:'center',block:'nearest'});
     preload(IMG(c.imgs[(curG+1)%c.imgs.length]));
   }
   function buildThumbs(){
     var c=CARS[curC]; vmThumbs.innerHTML='';
+    var single=c.imgs.length<=1;
+    vmThumbs.style.display=single?'none':'flex';
+    document.getElementById('vmPrev').style.display=single?'none':'grid';
+    document.getElementById('vmNext').style.display=single?'none':'grid';
+    if(single) return;
     c.imgs.forEach(function(n,j){
       var t=document.createElement('div'); t.className='t';
       t.innerHTML='<div class="ph"><img src="'+IMG(n)+'" alt="" loading="lazy"></div>';
@@ -1005,7 +1041,7 @@
     curC=i; curG=0; var c=CARS[i];
     vmCat.textContent=c.cat;
     vmTitle.textContent=c.brand+' '+c.model;
-    vmYr.textContent='Година '+c.year+' · '+c.specs['Километража']+' · '+(c.specs['Гориво']||'Електрично');
+    vmYr.textContent='Year '+c.year+' · '+c.specs['Mileage']+' · '+(c.specs['Fuel']||'Electric');
     vmPrice.textContent='€ '+fmt(c.price);
     vmTags.innerHTML='<span class="t">'+c.power+'</span><span class="t">0–100: '+c.accel+'</span><span class="t">'+c.top+'</span><span class="t">'+c.cat+'</span>';
     var st='';
@@ -1017,7 +1053,7 @@
     buildThumbs(); renderGal();
     vm.classList.add('open'); document.body.style.overflow='hidden';
     document.getElementById('vmX').focus();
-    // preselect this car in the contact form
+    /* preselect this car in the contact form */
     vSel.value=c.brand+' '+c.model;
   }
   function closeVM(){ vm.classList.remove('open'); document.body.style.overflow=''; }
@@ -1047,8 +1083,8 @@
   document.getElementById('ctform').addEventListener('submit', function(e){
     e.preventDefault();
     var f=e.target;
-    if(!f.name.value.trim() || !f.phone.value.trim()){ showToast('Внесете име и телефон за да продолжиме.'); return; }
-    showToast('Ви благодариме! Вашето барање е примено (демо).');
+    if(!f.name.value.trim() || !f.phone.value.trim()){ showToast('Enter your name and phone to continue.'); return; }
+    showToast('Thank you! Your enquiry has been received (demo).');
     f.reset();
   });
 })();
