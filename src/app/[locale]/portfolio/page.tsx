@@ -30,6 +30,7 @@ const demoMeta = [
 
 // Interactive pitch demos served as static sites at /demos/<slug>/ (see demos/ in git).
 const featuredMeta = [
+  { key: 'aurelle',   name: 'Aurelle Lighting', slug: 'aurelle', image: '/portfolio/aurelle.jpg', accent: '#8b6a44' },
   { key: 'crumbclub', name: 'Crumb Club', slug: 'crumbclub', image: '/portfolio/crumbclub.jpg', accent: '#E0532F' },
   { key: 'veloce',    name: 'VELOCE Motor Cars', slug: 'veloce', image: '/portfolio/veloce.jpg', accent: '#111111' },
 ]
@@ -142,7 +143,7 @@ export default async function PortfolioPage({ params }: { params: Promise<{ loca
           </div>
 
           <h3 className="font-display text-lg font-extrabold text-slate-800 mb-4">{t('demosSection.featuredTitle')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             {featuredMeta.map(w => {
               const tags = t.raw(`demos.${w.key}.tags`) as string[]
               return (

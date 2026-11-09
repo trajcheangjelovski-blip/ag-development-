@@ -1004,6 +1004,11 @@
       "open": "Open live demo →"
     },
     "demos": {
+      "aurelle": {
+        "type": "Premium Lighting Store · Shopify design",
+        "desc": "High-end e-commerce store for a US lighting brand: mega menu and predictive search, collection pages with live filters and sorting, product pages with finish and size variants, a slide-out cart with free-delivery progress and upsells, shop-the-look hotspots, plus About, Contact and FAQ. Designed mobile-first.",
+        "tags": ["E-commerce", "Shopify-ready", "Filters & variants", "Cart drawer", "Mobile-first"]
+      },
       "crumbclub": {
         "type": "Delivery Cafe · Online Ordering",
         "desc": "Order and pay online with delivery or collection, card, Apple Pay, Google Pay and UPI checkout, live order tracking, a loyalty program with tiers and rewards, and member accounts with order history. Plus an interactive 3D hero and a live brand-colour switcher.",
