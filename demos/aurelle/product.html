@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aurelle Lighting</title>
+<meta name="description" content="Handcrafted lighting from Aurelle.">
+<meta name="author" content="AG Development">
+<meta name="theme-color" content="#f7f4ef">
+<meta property="og:image" content="img/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="product">
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap pdp-wrap"><div class="pdp" id="pdp"></div></div>
+
+  <!-- Pairs well with -->
+  <section class="sec" style="padding-bottom:clamp(40px,5vw,72px)">
+    <div class="wrap">
+      <div class="sec-hd rv"><div><span class="eyebrow">Complete the room</span><h2 class="h2">Pairs <em>beautifully</em> with</h2></div></div>
+      <div class="rail" id="pairs"></div><div class="rail-bar" id="pairBar"><i></i></div>
+    </div>
+  </section>
+
+  <!-- Craft story -->
+  <section class="sec muted">
+    <div class="wrap pdp-story">
+      <div class="ph rv"><img id="storyImg" src="img/ed-alabaster.jpg" alt="" loading="lazy"></div>
+      <div class="rv d1">
+        <span class="eyebrow">How it’s made</span>
+        <h2 class="h2" style="margin-top:14px">Slow, careful, <em>by hand</em></h2>
+        <ol>
+          <li><div><b>Sourced at the quarry</b><span>Stone and metals are chosen block by block by our design team.</span></div></li>
+          <li><div><b>Shaped by artisans</b><span>Carved, turned or spun in small family workshops, never mass-produced.</span></div></li>
+          <li><div><b>Wired for the US</b><span>Assembled, tested and UL listed, ready for American junction boxes and dimmers.</span></div></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <section class="sec" id="reviews">
+    <div class="wrap reviews">
+      <div class="rev-sum" id="revSum"></div>
+      <div id="revList"></div>
+    </div>
+  </section>
+
+  <!-- Related -->
+  <section class="sec" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-hd rv"><div><span class="eyebrow">You may also like</span><h2 class="h2">From the same <em>family</em></h2></div><a class="link hide-m" href="collection.html?c=all">Shop all</a></div>
+      <div class="rail" id="related"></div><div class="rail-bar" id="relBar"><i></i></div>
+    </div>
+  </section>
+</main>
+
+<div class="lightbox" id="lightbox" aria-label="Image viewer"></div>
+<div id="site-footer"></div>
+<script src="app.js"></script>
+<script src="/demo-beacon.js" defer></script></body>
+</html>

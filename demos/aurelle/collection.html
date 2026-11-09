@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Shop Lighting | Aurelle Lighting</title>
+<meta name="description" content="Shop handcrafted pendants, chandeliers, sconces, table and floor lamps.">
+<meta name="author" content="AG Development">
+<meta name="theme-color" content="#f7f4ef">
+<meta property="og:image" content="img/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="collection">
+<div id="site-header"></div>
+
+<main>
+  <section class="coll-hero">
+    <img id="cImg" src="img/hero-pendant.jpg" alt="">
+    <div class="wrap">
+      <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span id="cCrumb">All Lighting</span></nav>
+      <h1 class="h1" id="cTitle">All Lighting</h1>
+      <p id="cDesc"></p>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <nav class="subnav" id="subnav" aria-label="Related collections"></nav>
+
+    <div class="toolbar">
+      <button class="tb-btn" id="toggleSide"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span class="lbl hide-m">Hide filters</span><span class="only-m">Filter</span><span class="n">0</span></button>
+      <span class="tb-mid" id="count"></span>
+      <div class="tb-right">
+        <label class="sort"><span class="hide-m">Sort</span><select id="sort" aria-label="Sort products">
+          <option value="featured">Featured</option><option value="best">Best selling</option><option value="new">Newest</option><option value="low">Price, low to high</option><option value="high">Price, high to low</option><option value="az">Alphabetical</option>
+        </select></label>
+        <div class="cols-toggle" aria-label="Grid layout">
+          <button class="only-m" data-cols="1" aria-label="One column"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="14" height="14"/></svg></button>
+          <button class="only-m on" data-cols="2" aria-label="Two columns"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg></button>
+          <button class="hide-m on" data-cols="3" aria-label="Three columns"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="4" height="6"/><rect x="6" y="1" width="4" height="6"/><rect x="11" y="1" width="4" height="6"/><rect x="1" y="9" width="4" height="6"/><rect x="6" y="9" width="4" height="6"/><rect x="11" y="9" width="4" height="6"/></svg></button>
+          <button class="hide-m" data-cols="4" aria-label="Four columns"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="3" height="6"/><rect x="5" y="1" width="3" height="6"/><rect x="9" y="1" width="3" height="6"/><rect x="13" y="1" width="2.4" height="6"/><rect x="1" y="9" width="3" height="6"/><rect x="5" y="9" width="3" height="6"/><rect x="9" y="9" width="3" height="6"/><rect x="13" y="9" width="2.4" height="6"/></svg></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="active-filters" id="activeF"></div>
+
+    <div class="coll-body">
+      <aside class="filters-side" id="filtersSide" aria-label="Filters"></aside>
+      <div>
+        <div class="grid" id="grid"></div>
+        <div class="load-more" id="more"><span id="moreTxt"></span><div class="bar"><i style="width:100%"></i></div></div>
+      </div>
+    </div>
+
+    <section class="coll-seo">
+      <h2 class="h3">Lighting, made to be lived with</h2>
+      <div>
+        <p>Every Aurelle piece is designed in Los Angeles and made by hand in small batches, from alabaster carved in Volterra to brass spun in family-run workshops. Each fixture is UL listed for US homes and arrives with everything needed for installation.</p>
+        <p>Unsure about size, finish or how many to hang over your island? Our stylists will create a free lighting plan for your room. <a class="ulink" href="contact.html#consult">Book a consultation</a>.</p>
+      </div>
+    </section>
+  </div>
+
+  <!-- Mobile filter drawer -->
+  <aside class="drawer right fdrawer" id="filterDrawer" aria-label="Filters" aria-hidden="true">
+    <div class="drawer-hd"><h2>Filter</h2><button class="x" data-close aria-label="Close filters"><svg viewBox="0 0 24 24"><path d="M5 5l14 14M19 5L5 19"/></svg></button></div>
+    <div class="drawer-bd" id="filterBody"></div>
+    <div class="drawer-ft"><button class="btn ghost" id="clearF">Clear</button><button class="btn" id="applyF"><span id="applyN">Show results</span></button></div>
+  </aside>
+  <div style="height:clamp(56px,7vw,96px)"></div>
+</main>
+
+<div id="site-footer"></div>
+<script src="app.js"></script>
+<script src="/demo-beacon.js" defer></script></body>
+</html>

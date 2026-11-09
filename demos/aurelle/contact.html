@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contact | Aurelle Lighting</title>
+<meta name="description" content="Contact Aurelle: client care, design consultations, trade program and showroom appointments.">
+<meta name="author" content="AG Development">
+<meta name="theme-color" content="#f7f4ef">
+<meta property="og:image" content="img/og.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="contact">
+<div id="site-header"></div>
+
+<main>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span aria-hidden="true">/</span><span>Contact</span></nav>
+    <header class="page-hd">
+      <span class="eyebrow">Client care</span>
+      <h1 class="h1">We’d love to <em>hear from you</em></h1>
+      <p class="lead">Questions about an order, a product or a project? Our team replies within one business day, and our stylists can plan the lighting for any room, free of charge.</p>
+    </header>
+  </div>
+
+  <section class="wrap contact" style="padding-bottom:clamp(64px,9vw,128px)">
+    <div>
+      <div class="c-block"><h3>Client care</h3><p><a href="mailto:hello@aurelle.example">hello@aurelle.example</a><br><a href="tel:+13105550148">+1 (310) 555-0148</a><br><span class="muted">Mon–Fri, 9am–6pm PT · Sat, 10am–4pm PT</span></p></div>
+      <div class="c-block"><h3>Showroom · by appointment</h3><p>Aurelle Studio<br>La Cienega Design Quarter<br>Los Angeles, CA</p>
+        <div class="c-photo"><img src="img/contact.jpg" alt="Bedroom styled with an Aurelle table lamp" loading="lazy"></div></div>
+      <div class="c-block"><h3>Trade &amp; projects</h3><p>Designers, architects and hospitality projects: <a href="mailto:trade@aurelle.example">trade@aurelle.example</a></p></div>
+      <div class="c-block"><h3>Press</h3><p><a href="mailto:press@aurelle.example">press@aurelle.example</a></p></div>
+    </div>
+
+    <div id="consult" style="scroll-margin-top:calc(var(--hdr) + 24px)">
+      <form class="form" id="cform" novalidate>
+        <div class="full"><h2 class="h3">Send us a message</h2><p class="muted small" style="margin:6px 0 0">Fields marked * are required.</p></div>
+        <fieldset class="field full" style="border:0;padding:0;margin:0"><legend style="font-size:11px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-2);margin-bottom:10px">How can we help?</legend>
+          <div class="topics">
+            <label><input type="radio" name="topic" value="Product question" checked><span>Product question</span></label>
+            <label><input type="radio" name="topic" value="Order support"><span>Order support</span></label>
+            <label><input type="radio" name="topic" value="Design consultation"><span>Design consultation</span></label>
+            <label><input type="radio" name="topic" value="Trade program"><span>Trade program</span></label>
+          </div>
+        </fieldset>
+        <div class="field"><label for="fname">Full name *</label><input id="fname" autocomplete="name" required><span class="err">Please enter your name.</span></div>
+        <div class="field"><label for="femail">Email *</label><input id="femail" type="email" autocomplete="email" required><span class="err">Please enter a valid email.</span></div>
+        <div class="field"><label for="fphone">Phone</label><input id="fphone" type="tel" autocomplete="tel"></div>
+        <div class="field"><label for="forder">Order number</label><input id="forder" placeholder="e.g. #AU-10482"></div>
+        <div class="field full"><label for="fmsg">Message *</label><textarea id="fmsg" required placeholder="Tell us about your room, your question or your project."></textarea><span class="err">Please add a short message.</span></div>
+        <div class="full" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+          <span class="muted small">We reply within 1 business day.</span>
+          <button class="btn" type="submit">Send message</button>
+        </div>
+      </form>
+      <div class="form form-ok" id="formOk" role="status" aria-live="polite">
+        <svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M15 24.5l6 6 12-13"/></svg>
+        <h2 class="h3">Thank you, <span id="okName"></span>.</h2>
+        <p>Your message is with our client care team. We’ll reply within one business day. (Demo store: nothing was actually sent.)</p>
+        <button class="btn ghost" type="button" id="again">Send another message</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec muted">
+    <div class="wrap">
+      <div class="sec-hd center rv"><span class="eyebrow">Other ways we can help</span><h2 class="h2">Quick answers</h2></div>
+      <div class="help-cards">
+        <div class="help rv"><svg viewBox="0 0 24 24"><path d="M2.5 6.5h11v9h-11zM13.5 9.5h4l3 3v3h-7"/><circle cx="7" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></svg><h3>Shipping &amp; delivery</h3><p>Lead times, white-glove delivery and tracking.</p><a class="link" href="faq.html#shipping">Read more</a></div>
+        <div class="help rv d1"><svg viewBox="0 0 24 24"><path d="M4 9h11a5 5 0 010 10H8"/><path d="M8 5L4 9l4 4"/></svg><h3>Returns</h3><p>Our 30-night home trial and how to start a return.</p><a class="link" href="faq.html#returns">Read more</a></div>
+        <div class="help rv d2"><svg viewBox="0 0 24 24"><path d="M9 17.5h6M10 21h4M12 3a6 6 0 00-3.6 10.8c.6.5 1 1.3 1 2.1v1.6h5.2v-1.6c0-.8.4-1.6 1-2.1A6 6 0 0012 3z"/></svg><h3>Installation</h3><p>Wiring, bulbs, dimmers and sizing guidance.</p><a class="link" href="faq.html#products">Read more</a></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script src="app.js"></script>
+<script src="/demo-beacon.js" defer></script></body>
+</html>
