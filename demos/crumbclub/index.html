@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crumb Club — Coffee &amp; bakes, delivered warm</title>
+<meta name="description" content="Crumb Club — a delivery-first cafe. Order coffee, bakes and brunch for delivery or collection, pay by card or wallet, and earn crumbs on every order.">
+<meta name="theme-color" content="#F4EDE1">
+<meta property="og:title" content="Crumb Club — Coffee & bakes, delivered warm">
+<meta property="og:description" content="Delivery-first cafe concept: ordering, card & wallet payments, loyalty points and member accounts.">
+<meta property="og:image" content="img/kitchen.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4a28 28 0 1 0 27.6 32.6 7 7 0 0 1-8.1-8.4 7 7 0 0 1-8.3-8.3A7 7 0 0 1 35 11.7 7 7 0 0 1 36.4 4.3 28 28 0 0 0 32 4z' fill='%23E0532F'/%3E%3Ccircle cx='24' cy='30' r='3.5' fill='%2323160F'/%3E%3Ccircle cx='34' cy='42' r='3' fill='%2323160F'/%3E%3Ccircle cx='21' cy='44' r='2.5' fill='%2323160F'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Schibsted+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="grainf"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 .55 0"/></filter>
+    <symbol id="i-bag" viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4.5 20c1.4-3.6 4.2-5.3 7.5-5.3s6.1 1.7 7.5 5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="i-scooter" viewBox="0 0 32 24"><circle cx="7" cy="18" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="25" cy="18" r="3.4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 18h8.5l3-8h-4M22 10l3 8M4 12h9v6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><rect x="4" y="5" width="8" height="7" rx="1.5" fill="currentColor"/></symbol>
+    <symbol id="i-hatch" viewBox="0 0 24 24"><path d="M3 10h18M5 10V20h14V10M4 10l2-6h12l2 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 20v-5h6v5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6.5-6.1-6.5-11a6.5 6.5 0 0 1 13 0c0 4.9-6.5 11-6.5 11z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="10" r="2.4" fill="currentColor"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 10h18" stroke="currentColor" stroke-width="2.2"/></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18v3" fill="none" stroke="currentColor" stroke-width="1.8"/><rect x="4" y="8" width="16.5" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="13.5" r="1.4" fill="currentColor"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="9" width="16" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M3 9h18M12 9v11M12 9c-1-3-5.5-4.5-5.5-1.5S12 9 12 9zm0 0c1-3 5.5-4.5 5.5-1.5S12 9 12 9z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-2-1.4-2 1.4-2-1.4-2 1.4-2-1.4L6 21V3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M4 11V9a3 3 0 0 1 3-3h12m-3-3 3 3-3 3M20 13v2a3 3 0 0 1-3 3H5m3 3-3-3 3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M5 19C5 10 10 5 20 4c0 10-5 15-13 15m-2 0 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21a6 6 0 0 0 6-6c0-4-3-6-4-10-2 2-3 4-3 6-1-1-1.5-2-1.5-3C7 10 6 12.5 6 15a6 6 0 0 0 6 6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.2 0 1.8-.8 1.8-1.7 0-1.4-1.3-1.6-1.3-2.9 0-1 .8-1.6 1.8-1.6H17a3.5 3.5 0 0 0 3.5-3.6C20.5 6.9 16.7 3.5 12 3.5z" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="7.8" cy="11" r="1.3" fill="currentColor"/><circle cx="10.5" cy="7.3" r="1.3" fill="currentColor"/><circle cx="15" cy="7.6" r="1.3" fill="currentColor"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 1.5h-15L6 16.5zM10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4H6v16h8M10 12h10m-3-3 3 3-3 3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="currentColor" stroke-width="1.8"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9-.7 0-1.8-.8-3-.8-1.6 0-3 .9-3.8 2.3-1.6 2.8-.4 6.9 1.2 9.2.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2.1-1.1 2.8-2.3.9-1.3 1.3-2.6 1.3-2.6s-2.5-1-2.5-3.7zM14.1 5.8c.6-.8 1.1-1.8 1-2.8-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.3z"/></symbol>
+    <symbol id="i-google" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.6 12.2c0-.7-.1-1.4-.2-2H12v3.8h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z"/><path fill="#34A853" d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z"/><path fill="#FBBC05" d="M6.4 14c-.2-.6-.3-1.3-.3-2s.1-1.4.3-2V7.4H3.1a10 10 0 0 0 0 9.2L6.4 14z"/><path fill="#EA4335" d="M12 5.9c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.4L6.4 10c.8-2.4 3-4.1 5.6-4.1z"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M5 9h11v6a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5V9z" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 11h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5c-.6 1 .6 1.6 0 3M11.5 3.5c-.6 1 .6 1.6 0 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.5l-5.4 3 1.2-6-4.5-4.2 6.1-.7L12 3z" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<div class="grain" aria-hidden="true"><svg width="100%" height="100%"><rect width="100%" height="100%" filter="url(#grainf)"/></svg></div>
+
+<div class="ticker" aria-label="Announcements">
+  <div class="ticker-track">
+    <span>Free delivery over ₹499</span><i>✺</i><span>Double crumbs every Tuesday</span><i>✺</i><span>Kitchen open 7am – 11pm</span><i>✺</i><span>Collect from the hatch in 12 min</span><i>✺</i><span>New: brown-butter cookie</span><i>✺</i>
+    <span>Free delivery over ₹499</span><i>✺</i><span>Double crumbs every Tuesday</span><i>✺</i><span>Kitchen open 7am – 11pm</span><i>✺</i><span>Collect from the hatch in 12 min</span><i>✺</i><span>New: brown-butter cookie</span><i>✺</i>
+  </div>
+</div>
+
+<header class="nav" id="nav">
+  <a href="#/" class="logo" aria-label="Crumb Club home">
+    <svg viewBox="0 0 64 64" class="logo-mark" aria-hidden="true"><path d="M32 4a28 28 0 1 0 27.6 32.6 7 7 0 0 1-8.1-8.4 7 7 0 0 1-8.3-8.3A7 7 0 0 1 35 11.7 7 7 0 0 1 36.4 4.3 28 28 0 0 0 32 4z" fill="var(--accent)"/><circle cx="24" cy="30" r="3.5" fill="var(--ink)"/><circle cx="34" cy="42" r="3" fill="var(--ink)"/><circle cx="21" cy="44" r="2.5" fill="var(--ink)"/><circle cx="40" cy="30" r="2" fill="var(--ink)"/></svg>
+    <span class="logo-word">Crumb<em>Club</em></span>
+  </a>
+  <nav class="nav-links" aria-label="Main">
+    <a href="#/menu" data-nav="menu">Menu</a>
+    <a href="#/rewards" data-nav="rewards">Rewards</a>
+    <a href="#/track" data-nav="track">Track order</a>
+    <a href="#/account" data-nav="account">Account</a>
+  </nav>
+  <div class="nav-actions">
+    <a href="#/account" class="pill-btn ghost acct-btn" id="acctBtn"><svg><use href="#i-user"/></svg><span id="acctLabel">Sign in</span></a>
+    <button class="pill-btn cart-btn" id="cartBtn" aria-label="Open bag"><svg><use href="#i-bag"/></svg><span class="hide-xs">Bag</span><b class="cart-count" id="cartCount">0</b></button>
+  </div>
+</header>
+
+<main id="app">
+
+<!-- ================= HOME ================= -->
+<section class="view" data-view="home">
+  <div class="hero wrap">
+    <div class="hero-copy">
+      <p class="eyebrow hero-eyebrow"><span class="dot-live"></span><span>Kitchen No. 4 is brewing · <b id="heroEta">24</b> min to you</span></p>
+      <h1 class="hero-title">
+        <span class="line"><span>Coffee that</span></span>
+        <span class="line"><span>shows up <em class="scribble">warm<svg viewBox="0 0 300 30" preserveAspectRatio="none" aria-hidden="true"><path d="M4 20c40-12 90-16 140-10s90 8 150-6" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round"/></svg></em>.</span></span>
+      </h1>
+      <p class="hero-sub">A delivery-first cafe. Small-batch espresso, bakes out of the oven at 6am and proper brunch plates — at your door, or ready at our hatch.</p>
+
+      <div class="order-box" id="heroOrder">
+        <div class="seg" role="tablist" data-seg="fulfilment">
+          <button role="tab" data-val="delivery" class="on"><svg><use href="#i-scooter"/></svg>Delivery</button>
+          <button role="tab" data-val="collection"><svg><use href="#i-hatch"/></svg>Collection</button>
+          <span class="seg-thumb"></span>
+        </div>
+        <form class="addr-row" id="heroForm">
+          <label class="addr-input">
+            <svg><use href="#i-pin"/></svg>
+            <input id="heroAddr" placeholder="Enter your street or postcode" autocomplete="street-address" value="">
+            <span class="addr-collect">Pick up at <b>Kitchen No. 4, Market Lane</b></span>
+          </label>
+          <button class="btn primary magnetic" type="submit">Start order <svg><use href="#i-arrow"/></svg></button>
+        </form>
+      </div>
+
+      <ul class="hero-proof">
+        <li><b data-count="4.9">4.9</b><span>avg. rating<br>2,300+ reviews</span></li>
+        <li><b data-count="18">18</b><span>min avg.<br>collection</span></li>
+        <li><b data-count="12" data-suffix="k">12k</b><span>club members<br>earning crumbs</span></li>
+      </ul>
+    </div>
+
+    <div class="hero-stage" id="heroStage">
+      <canvas id="scene" aria-label="3D coffee cup and pastries"></canvas>
+      <div class="stage-fallback" aria-hidden="true"><img src="img/flat-white.jpg" alt=""></div>
+      <div class="sticker spin" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><defs><path id="circ" d="M60 60m-44 0a44 44 0 1 1 88 0a44 44 0 1 1-88 0"/></defs><text><textPath href="#circ">FRESH · HOT · ON TIME · FRESH · HOT · ON TIME ·</textPath></text></svg>
+        <span>24<small>min</small></span>
+      </div>
+      <div class="float-chip c1"><svg><use href="#i-flame"/></svg>Out of the oven 06:12</div>
+      <div class="float-chip c2"><span class="mono">+36</span> crumbs on this order</div>
+      <p class="stage-hint mono">drag to spin ↻</p>
+    </div>
+  </div>
+
+  <div class="tickets wrap reveal">
+    <div class="ticket"><span class="mono">01</span><h3>Pick</h3><p>Customise size, milk, shots &amp; sweetness.</p></div>
+    <div class="ticket"><span class="mono">02</span><h3>Pay</h3><p>Card, Apple Pay, Google Pay or UPI in one tap.</p></div>
+    <div class="ticket"><span class="mono">03</span><h3>Track</h3><p>Watch it brew, pack and ride to you live.</p></div>
+    <div class="ticket"><span class="mono">04</span><h3>Earn</h3><p>1 crumb per ₹10. Swap crumbs for free stuff.</p></div>
+  </div>
+
+  <section class="counter wrap" id="counter">
+    <div class="sec-head reveal">
+      <div>
+        <p class="eyebrow mono">Today's counter</p>
+        <h2 class="h2">Hot off the <em>bar</em>,<br>out of the <em>oven</em>.</h2>
+      </div>
+      <a href="#/menu" class="link-arrow">Full menu <svg><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="cat-tabs" data-tabs="home"></div>
+    <div class="grid products" id="homeGrid"></div>
+  </section>
+
+  <section class="modes wrap">
+    <button class="mode-card reveal" data-mode="delivery">
+      <span class="mono tag">Mode A</span>
+      <h3>Delivery</h3>
+      <p>Insulated, sealed and on a bike within 4 minutes of leaving the bar. Within 5 km of Kitchen No. 4.</p>
+      <ul class="mono"><li>₹39 fee · free over ₹499</li><li>Live rider tracking</li><li>Leave-at-door notes</li></ul>
+      <div class="mode-art scooter-art" aria-hidden="true">
+        <svg viewBox="0 0 220 130"><g class="road"><path d="M0 118h220" stroke="currentColor" stroke-width="2" stroke-dasharray="10 10"/></g><g class="bike"><circle cx="58" cy="100" r="15" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="160" cy="100" r="15" fill="none" stroke="currentColor" stroke-width="5"/><path d="M73 100h50l16-38h-20M139 62l21 38M40 72h50v28" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><rect x="38" y="30" width="48" height="40" rx="6" fill="var(--accent)" stroke="currentColor" stroke-width="4"/><path d="M50 50h24" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path class="speed" d="M8 60h20M0 78h24M12 96h16" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></g></svg>
+      </div>
+      <span class="mode-cta">Deliver to me <svg><use href="#i-arrow"/></svg></span>
+    </button>
+    <button class="mode-card alt reveal" data-mode="collection">
+      <span class="mono tag">Mode B</span>
+      <h3>Collection</h3>
+      <p>Skip the queue. Pick a slot, walk up to the hatch, flash your code. Your name on the cup, always.</p>
+      <ul class="mono"><li>No fees, ever</li><li>Ready in ~12 min</li><li>+10% extra crumbs</li></ul>
+      <div class="mode-art hatch-art" aria-hidden="true">
+        <svg viewBox="0 0 220 130"><path d="M20 50h180l-14-34H34z" fill="var(--accent-2)" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/><path d="M34 16l-8 34M62 16l-6 34M90 16l-3 34M118 16v34M146 16l3 34M174 16l6 34" stroke="currentColor" stroke-width="3"/><rect x="30" y="50" width="160" height="72" fill="none" stroke="currentColor" stroke-width="4"/><rect x="62" y="64" width="96" height="40" rx="4" fill="var(--paper)" stroke="currentColor" stroke-width="4"/><g class="cups"><path d="M84 104l3-22h16l3 22z" fill="var(--card)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><rect x="85" y="88" width="20" height="7" fill="var(--accent)"/><path d="M114 104l3-22h16l3 22z" fill="var(--card)" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><rect x="115" y="88" width="20" height="7" fill="var(--leaf)"/></g></svg>
+      </div>
+      <span class="mode-cta">I'll collect <svg><use href="#i-arrow"/></svg></span>
+    </button>
+  </section>
+
+  <section class="club wrap" id="club">
+    <div class="club-copy reveal">
+      <p class="eyebrow mono">The club</p>
+      <h2 class="h2">Every order<br>drops <em>crumbs</em>.</h2>
+      <p class="lead">Earn 1 crumb for every ₹10. Level up from <b>Crumb</b> to <b>Slice</b> to <b>Loaf</b> for bigger multipliers, birthday bakes and members-only drops. Your card lives in your account — no app needed.</p>
+      <div class="stamp-card" id="homeStamps" aria-label="Coffee stamp card"></div>
+      <div class="row gap">
+        <a class="btn primary" href="#/rewards">See rewards <svg><use href="#i-arrow"/></svg></a>
+        <a class="btn ghost" href="#/account">Join free</a>
+      </div>
+    </div>
+    <div class="club-card-wrap reveal">
+      <div class="member-card tilt" id="homeCard"></div>
+      <p class="mono hint-small">hover / tap the card ↻</p>
+    </div>
+  </section>
+
+  <section class="live wrap">
+    <div class="live-map reveal" id="homeMap"></div>
+    <div class="live-copy reveal">
+      <p class="eyebrow mono">Live tracking</p>
+      <h2 class="h2">Know exactly<br>where your <em>latte</em> is.</h2>
+      <p class="lead">From the moment the shot is pulled to the knock on your door — four honest stages, a live rider and an ETA that actually updates.</p>
+      <ol class="stage-list mono">
+        <li class="done">Order received</li><li class="done">Brewing &amp; baking</li><li class="now">On the way</li><li>At your door</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="reviews wrap">
+    <div class="sec-head reveal"><div><p class="eyebrow mono">Receipts</p><h2 class="h2">People keep<br><em>coming back</em>.</h2></div></div>
+    <div class="receipts">
+      <article class="receipt reveal" style="--r:-2deg"><header class="mono">ORDER #0381 · 08:14</header><p>“The flat white arrives hotter than the place downstairs serves it. I don't know how. I've stopped asking.”</p><footer class="mono">— Riya, Slice member <span class="stars">★★★★★</span></footer></article>
+      <article class="receipt reveal" style="--r:1.5deg"><header class="mono">ORDER #1129 · 13:02</header><p>“Collection is genuinely 12 minutes. Code on my phone, cup with my name, gone. Cinnamon knot is dangerous.”</p><footer class="mono">— Arjun, Loaf member <span class="stars">★★★★★</span></footer></article>
+      <article class="receipt reveal" style="--r:-1deg"><header class="mono">ORDER #2210 · 10:47</header><p>“Cashed in 300 crumbs for a free matcha on a rough Monday. The little things.”</p><footer class="mono">— Meera, Crumb member <span class="stars">★★★★★</span></footer></article>
+    </div>
+  </section>
+
+  <section class="cta wrap reveal">
+    <div class="cta-inner">
+      <h2 class="cta-title">Hungry?<br>We're <span id="ctaEta">24</span> min away.</h2>
+      <a href="#/menu" class="btn light magnetic">Order now <svg><use href="#i-arrow"/></svg></a>
+      <img src="img/croissant.jpg" alt="" class="cta-img a">
+      <img src="img/iced-latte.jpg" alt="" class="cta-img b">
+    </div>
+  </section>
+</section>
+
+<!-- ================= MENU ================= -->
+<section class="view" data-view="menu">
+  <div class="wrap page-head">
+    <p class="eyebrow mono">Menu · served 7am – 11pm</p>
+    <h1 class="h1">The <em>whole</em> counter.</h1>
+    <div class="menu-tools">
+      <label class="search"><svg><use href="#i-search"/></svg><input id="menuSearch" placeholder="Search oat flat white, croissant…"></label>
+      <div class="chips" id="menuFilters">
+        <button class="chip" data-filter="veg"><svg><use href="#i-leaf"/></svg>Vegetarian</button>
+        <button class="chip" data-filter="vegan">Vegan-friendly</button>
+        <button class="chip" data-filter="new">New</button>
+        <button class="chip" data-filter="popular"><svg><use href="#i-flame"/></svg>Popular</button>
+      </div>
+    </div>
+    <div class="cat-tabs sticky-tabs" data-tabs="menu"></div>
+  </div>
+  <div class="wrap" id="menuSections"></div>
+</section>
+
+<!-- ================= REWARDS ================= -->
+<section class="view" data-view="rewards">
+  <div class="wrap rewards-hero">
+    <div>
+      <p class="eyebrow mono">Crumb Club rewards</p>
+      <h1 class="h1">Spend crumbs,<br>not <em>rupees</em>.</h1>
+      <p class="lead">Every ₹10 you spend = 1 crumb. Members level up automatically and keep their tier for 12 months.</p>
+      <div class="rw-balance" id="rwBalance"></div>
+    </div>
+    <div class="club-card-wrap"><div class="member-card tilt big" id="rwCard"></div></div>
+  </div>
+  <div class="wrap">
+    <div class="sec-head"><div><p class="eyebrow mono">Redeem</p><h2 class="h2 sm">Swap your crumbs</h2></div></div>
+    <div class="grid rewards-grid" id="rewardsGrid"></div>
+
+    <div class="sec-head"><div><p class="eyebrow mono">Tiers</p><h2 class="h2 sm">The more you sip, the more you get</h2></div></div>
+    <div class="tiers" id="tiers"></div>
+
+    <div class="sec-head"><div><p class="eyebrow mono">Coffee stamps</p><h2 class="h2 sm">Every 8th coffee is on us</h2></div></div>
+    <div class="stamp-card big" id="rwStamps"></div>
+  </div>
+</section>
+
+<!-- ================= CHECKOUT ================= -->
+<section class="view" data-view="checkout">
+  <div class="wrap page-head slim">
+    <a href="#/menu" class="back-link"><svg><use href="#i-arrow"/></svg> Keep browsing</a>
+    <h1 class="h1 sm">Checkout</h1>
+  </div>
+  <div class="wrap checkout" id="checkout"></div>
+</section>
+
+<!-- ================= TRACK ================= -->
+<section class="view" data-view="track">
+  <div class="wrap" id="track"></div>
+</section>
+
+<!-- ================= ACCOUNT ================= -->
+<section class="view" data-view="account">
+  <div class="wrap" id="account"></div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap foot-grid">
+    <div>
+      <p class="foot-word">Crumb<em>Club</em></p>
+      <p class="muted">Kitchen No. 4, Market Lane · Delivering within 5 km<br>7am – 11pm, every day</p>
+    </div>
+    <div><p class="mono foot-h">Order</p><a href="#/menu">Menu</a><a href="#/track">Track an order</a><a href="#/checkout">Checkout</a></div>
+    <div><p class="mono foot-h">Club</p><a href="#/rewards">Rewards</a><a href="#/account">My account</a><a href="#/account/membership">Membership</a></div>
+    <div><p class="mono foot-h">We accept</p><div class="pay-logos"><span>VISA</span><span>Mastercard</span><span>RuPay</span><span>UPI</span><span><svg><use href="#i-apple"/></svg>Pay</span><span>G Pay</span><span>PayPal</span></div></div>
+  </div>
+  <div class="wrap foot-base mono"><span>© 2026 Crumb Club</span><span>Payments secured by Stripe / Razorpay (demo mode)</span></div>
+</footer>
+
+<!-- Cart drawer -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Your bag" aria-hidden="true">
+  <div class="drawer-head"><h2>Your bag</h2><button class="icon-btn" data-close-drawer aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-foot" id="drawerFoot"></div>
+</aside>
+
+<!-- Product modal -->
+<div class="modal" id="pModal" role="dialog" aria-modal="true" aria-hidden="true"><div class="modal-card" id="pModalCard"></div></div>
+<!-- Generic sheet (wallets / receipts) -->
+<div class="modal sheet" id="sheet" role="dialog" aria-modal="true" aria-hidden="true"><div class="modal-card" id="sheetCard"></div></div>
+
+<!-- Brand kit -->
+<button class="kit-fab" id="kitFab" aria-label="Brand kit: change colours and fonts"><svg><use href="#i-palette"/></svg><span>Your brand</span></button>
+<aside class="kit" id="kit" aria-hidden="true">
+  <div class="kit-head"><div><p class="mono">Brand kit</p><h3>Try your colours &amp; fonts</h3></div><button class="icon-btn" id="kitClose" aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+  <p class="kit-note">The site is built on design tokens — your palette and fonts drop in and every page, button and the 3D scene update instantly.</p>
+  <p class="mono kit-label">Presets</p>
+  <div class="kit-presets" id="kitPresets"></div>
+  <p class="mono kit-label">Colours</p>
+  <div class="kit-colors" id="kitColors"></div>
+  <p class="mono kit-label">Fonts</p>
+  <div class="kit-fonts">
+    <label>Headings<select id="fontDisplay"></select></label>
+    <label>Body<select id="fontBody"></select></label>
+  </div>
+</aside>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<div class="overlay-pay" id="payOverlay" aria-hidden="true"></div>
+
+<a class="ag-badge" href="https://ag-development.dev" target="_blank" rel="noopener"><span class="dot"></span>Demo concept by <strong>AG&nbsp;Development</strong></a>
+
+<script src="app.js" defer></script>
+<script type="module" src="scene.js"></script>
+</body>
+</html>
