@@ -12,43 +12,50 @@
 <meta property="og:image" content="img/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300;1,6..72,400&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="img/hero-pendant.jpg">
+<link rel="preload" as="image" href="img/hero-video-desktop.jpg" media="(min-width: 900px)">
+<link rel="preload" as="image" href="img/hero-video-mobile.jpg" media="(max-width: 899px)">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="home">
 <div id="site-header"></div>
 
 <main>
-  <!-- ============ Hero slideshow ============ -->
-  <section class="hero" aria-roledescription="carousel" aria-label="Featured collections">
-    <div class="slide on">
-      <img src="img/hero-pendant.jpg" alt="Living room with a sculptural wire pendant over a cream sofa" style="object-position:50% 45%">
-      <div class="slide-txt"><div class="wrap reveal">
+  <!-- ============ Hero: background film + 3D studio ============ -->
+  <section class="hero2" aria-label="Introduction">
+    <div class="hv">
+      <video id="heroVideo" muted loop playsinline autoplay preload="metadata" poster="img/hero-video-desktop.jpg" aria-hidden="true"></video>
+      <div class="hv-txt"><div class="intro">
         <span class="eyebrow">The Winter Edit · 2026</span>
         <h1 class="h-display">Light, shaped <em>by hand.</em></h1>
         <p>Sculptural lighting in alabaster, brass and stone. Made in small batches for homes that feel quietly considered.</p>
         <div class="ctas"><a class="btn light" href="collection.html?c=all">Shop lighting</a><a class="btn ghost-light" href="collection.html?c=new">New arrivals</a></div>
       </div></div>
+      <button class="vid-btn" id="vidBtn" aria-label="Pause background video"><svg viewBox="0 0 24 24"><path class="i-pause" d="M9 6v12M15 6v12"/><path class="i-play" d="M8 5.5l11 6.5-11 6.5z"/></svg></button>
     </div>
-    <div class="slide">
-      <img src="img/ed-light.jpg" alt="Linen floor lamp in late afternoon sun" style="object-position:50% 35%" loading="lazy">
-      <div class="slide-txt"><div class="wrap reveal">
-        <span class="eyebrow">Floor lamps</span>
-        <h2 class="h-display">The <em>golden</em> hour, all evening.</h2>
-        <p>Pleated linen, brushed brass and warm 2700K light that makes every room feel like late afternoon.</p>
-        <div class="ctas"><a class="btn light" href="collection.html?c=floor">Shop floor lamps</a><a class="btn ghost-light" href="collection.html?c=living">Living room</a></div>
-      </div></div>
+
+    <div class="studio" id="studio">
+      <canvas id="studioCanvas" role="img" aria-label="Interactive 3D model of the Halo alabaster pendant. Drag to rotate."></canvas>
+      <div class="studio-top">
+        <span class="eyebrow">Signature piece · 3D</span>
+        <p class="studio-name">The Halo Pendant</p>
+        <span class="studio-sub">Spanish alabaster · hand-spun metal</span>
+      </div>
+      <div class="studio-hint" id="studioHint"><svg viewBox="0 0 24 24"><path d="M4 12h16M4 12l3-3M4 12l3 3M20 12l-3-3M20 12l-3 3"/></svg>Drag to rotate</div>
+      <div class="studio-bar">
+        <button class="switch" id="studioSwitch" aria-pressed="true" aria-label="Lamp light"><i></i><span>Light</span></button>
+        <div class="finishes" role="group" aria-label="Metal finish">
+          <span id="studioFinish">Aged Brass</span>
+          <div>
+            <button data-finish="Aged Brass" aria-pressed="true" aria-label="Aged Brass" style="--c:#b08a52"></button>
+            <button data-finish="Patina Bronze" aria-pressed="false" aria-label="Patina Bronze" style="--c:#5e4a36"></button>
+            <button data-finish="Polished Nickel" aria-pressed="false" aria-label="Polished Nickel" style="--c:#d2cfc9"></button>
+            <button data-finish="Matte Black" aria-pressed="false" aria-label="Matte Black" style="--c:#1e1d1b"></button>
+          </div>
+        </div>
+        <a class="studio-cta" href="collection.html?c=alabaster" aria-label="Explore the alabaster collection">Explore <span aria-hidden="true">&rarr;</span></a>
+      </div>
     </div>
-    <div class="slide">
-      <img src="img/hero-nook.jpg" alt="Reading nook with a velvet armchair beneath an arched window" style="object-position:50% 50%" loading="lazy">
-      <div class="slide-txt"><div class="wrap reveal">
-        <span class="eyebrow">Design service</span>
-        <h2 class="h-display">A lighting plan, <em>on us.</em></h2>
-        <p>Send us a photo of your room. Our stylists will plan layers, sizes and finishes within 48 hours.</p>
-        <div class="ctas"><a class="btn light" href="contact.html#consult">Book a consultation</a><a class="btn ghost-light" href="about.html">Our story</a></div>
-      </div></div>
-    </div>
-    <div class="hero-dots"><span class="num">01 / 03</span><button aria-label="Slide 1"><i></i></button><button aria-label="Slide 2"><i></i></button><button aria-label="Slide 3"><i></i></button></div>
   </section>
 
   <!-- ============ Values ============ -->
@@ -170,5 +177,6 @@
 
 <div id="site-footer"></div>
 <script src="app.js"></script>
+<script type="module" src="hero3d.js"></script>
 <script src="/demo-beacon.js" defer></script></body>
 </html>

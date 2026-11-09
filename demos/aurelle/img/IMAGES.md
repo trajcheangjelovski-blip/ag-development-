@@ -30,3 +30,9 @@ No text, photos, logo or other assets from the style reference (residencesupply.
 
 ## Lifestyle / editorial (1800 px wide)
 hero-pendant, ed-light, hero-nook (hero slides) · hero-living (shop the look) · ed-alabaster (alabaster feature) · about-hero, about-still (trade/about) · room-living, room-dining, room-bedroom, room-study (shop by room) · j-1..3 (journal) · contact · og (social preview, 1200×630).
+
+## Hero film (`video/`)
+Free-licence Pexels clips, muted and looped behind the hero text. The page loads only one cut: the landscape `hero-desktop.mp4` (1280×720, pendant lamps glowing in a dark room) above 899 px wide, or the portrait `hero-mobile.mp4` (720×1280, table lamp in a warm corner) below that. Posters: `img/hero-video-desktop.jpg`, `img/hero-video-mobile.jpg`. Swap both for the client's own brand film using the same filenames. With reduced motion turned on, only the poster shows.
+
+## 3D Halo pendant (`hero3d.js`)
+Built in code with Three.js (no model file): brass cap, carved-alabaster globe with procedural veining, a halo ring, an inner light and drifting dust. Drag to rotate, switch the light on and off, and change the metal finish live. Rendering pauses while the hero is off screen.

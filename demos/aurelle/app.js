@@ -365,7 +365,19 @@ function railBar(rail,bar){if(!rail||!bar)return;const i=bar.querySelector('i');
    HOME
    ========================================================= */
 if(page==='home'){
-  // hero slideshow
+  // hero film: pick the right cut for the viewport, respect reduced motion, pause off-screen
+  const v=$('#heroVideo');
+  if(v){
+    const mob=matchMedia('(max-width: 899px)').matches, file=mob?'video/hero-mobile.mp4':'video/hero-desktop.mp4';
+    v.poster=mob?'img/hero-video-mobile.jpg':'img/hero-video-desktop.jpg';
+    const btn=$('#vidBtn');const setBtn=()=>{btn.classList.toggle('paused',v.paused);btn.setAttribute('aria-label',v.paused?'Play background video':'Pause background video')};
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){v.src=file;v.play().catch(()=>{})}
+    v.addEventListener('play',setBtn);v.addEventListener('pause',setBtn);setBtn();
+    btn.addEventListener('click',()=>{if(!v.getAttribute('src'))v.src=file;v.paused?v.play():v.pause();btn.dataset.user='1'});
+    if('IntersectionObserver' in window)new IntersectionObserver(([en])=>{if(btn.dataset.user||!v.getAttribute('src'))return;en.isIntersecting?v.play().catch(()=>{}):v.pause()}).observe(v);
+  }
+  // hero slideshow (legacy, only if present)
+  if($('.slide')){
   const slides=$$('.slide'),dots=$$('.hero-dots button'),num=$('.hero-dots .num');let cur=0,timer;
   const go=(n)=>{slides[cur].classList.remove('on');dots[cur].classList.remove('on');cur=(n+slides.length)%slides.length;
     slides[cur].classList.add('on');dots.forEach((d,i)=>{d.classList.toggle('done',i<cur);d.classList.remove('on')});void dots[cur].offsetWidth;dots[cur].classList.add('on');
@@ -373,6 +385,7 @@ if(page==='home'){
   dots.forEach((d,i)=>d.addEventListener('click',()=>go(i)));
   let sx=null;const hero=$('.hero');hero.addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});hero.addEventListener('touchend',e=>{if(sx===null)return;const dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)go(cur+(dx<0?1:-1));sx=null});
   go(0);
+  }
 
   // tabs rail
   const TABS={best:P.filter(p=>p.tags.includes('best')),new:P.filter(p=>p.tags.includes('new')),alabaster:P.filter(p=>['Alabaster','Marble','Travertine'].includes(p.mat))};
